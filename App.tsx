@@ -5,17 +5,21 @@
  * @format
  */
 
+import React, { useState } from 'react';
 import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import store from '@/store/store';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from '@/screens/ProfileScreen';
 import GameChannelsScreen from '@/screens/GameChannelsScreen';
 import ChatScreen from '@/screens/ChatScreen';
+import LoginScreen from '@/screens/LoginScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
@@ -35,10 +39,22 @@ function getTabBarIcon({ route, focused, color, size }: any) {
 }
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isDarkMode = useColorScheme() === 'dark';
 
+  if (!isLoggedIn) {
+    return (
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <LoginScreen onLogin={() => setIsLoggedIn(true)} />
+        </SafeAreaProvider>
+      </Provider>
+    );
+  }
+
   return (
-    <SafeAreaProvider>
+    <Provider store={store}>
+      <SafeAreaProvider>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor="#ffffff"
@@ -71,6 +87,7 @@ function App() {
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
+    </Provider>
   );
 }
 
