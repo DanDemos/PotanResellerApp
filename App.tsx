@@ -5,95 +5,110 @@
  * @format
  */
 
-import React, { useState } from 'react';
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import React from 'react';
+import {
+  StatusBar,
+  useColorScheme,
+  View,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
-import store from '@/store/store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import ProfileScreen from '@/screens/ProfileScreen';
-import GameChannelsScreen from '@/screens/GameChannelsScreen';
-import ChatScreen from '@/screens/ChatScreen';
-import LoginScreen from '@/screens/LoginScreen';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
+import Toast from 'react-native-toast-message';
+
+import store, { persistor, RootState } from '@/redux/store';
+import { logout } from '@/redux/slices/authSlice';
+import { useLogoutMutation } from '@/api/actions/auth/authApi';
+import { colors } from '@/theme/colors';
+
+import ProfileScreen from '@/screens/profile/ProfileScreen';
+import GameChannelsScreen from '@/screens/game-channels/GameChannelsScreen';
+import CoinHistoryScreen from '@/screens/history/CoinHistoryScreen';
+import MoneyHistoryScreen from '@/screens/history/MoneyHistoryScreen';
+import ChatScreen from '@/screens/chat/ChatScreen';
+import LoginScreen from '@/screens/login/LoginScreen';
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
-function getTabBarIcon({ route, focused, color, size }: any) {
-  let iconName: any;
+function CustomDrawerContent(props: any) {
+  const dispatch = useDispatch();
+  const [logoutApi] = useLogoutMutation();
+  const insets = useSafeAreaInsets();
 
-  if (route.name === 'ChatStack') {
-    iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-  } else if (route.name === 'ProfileStack') {
-    iconName = focused ? 'person' : 'person-outline';
-  }
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch (err) {
+      console.error('Logout API failed', err);
+    } finally {
+      dispatch(logout());
+    }
+  };
 
-  return <Ionicons name={iconName} size={size} color={color} />;
-}
-
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const isDarkMode = useColorScheme() === 'dark';
-
-  if (!isLoggedIn) {
-    return (
-      <Provider store={store}>
-        <SafeAreaProvider>
-          <LoginScreen onLogin={() => setIsLoggedIn(true)} />
-        </SafeAreaProvider>
-      </Provider>
-    );
-  }
+  const activeRoute = props.state.routeNames[props.state.index];
 
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor="#ffffff"
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={{ paddingTop: 0 }}
+    >
+      <View style={{ paddingTop: insets.top }} />
+      <DrawerItem
+        label="Home"
+        focused={activeRoute === 'ChatStack'}
+        icon={({ color, size }) => (
+          <MaterialIcons name="home" size={size} color={color} />
+        )}
+        onPress={() => props.navigation.navigate('ChatStack')}
+        activeTintColor={colors.white}
+        activeBackgroundColor={colors.primary}
+        labelStyle={{ fontWeight: '600' }}
+        inactiveTintColor={colors.text}
       />
-      {/* <AppContent /> */}
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) =>
-              getTabBarIcon({ route, focused, color, size }),
-            tabBarActiveTintColor: '#00a6f4',
-            tabBarInactiveTintColor: '#999',
-            tabBarStyle: {
-              backgroundColor: '#f5f5f5',
-              borderTopColor: '#e0e0e0',
-            },
-            headerShown: false,
-          })}
-        >
-          <Tab.Screen
-            name="ChatStack"
-            component={ChatStackNavigator}
-            options={{ title: 'Messages' }}
-          />
-          <Tab.Screen
-            name="ProfileStack"
-            component={ProfileStackNavigator}
-            options={{ title: 'Profile' }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
-    </Provider>
+      <View style={{ flex: 1 }} />
+      <DrawerItem
+        label="Logout"
+        icon={({ size }) => (
+          <MaterialIcons name="logout" size={size} color="#ffffff" />
+        )}
+        onPress={handleLogout}
+        labelStyle={{ color: '#ffffff', fontWeight: '700' }}
+        style={{
+          backgroundColor: '#ff4444',
+          borderRadius: 8,
+          marginHorizontal: 10,
+          marginTop: 20,
+        }}
+      />
+      <View style={{ padding: 20, alignItems: 'center', opacity: 0.5 }}>
+        <Text style={{ fontSize: 12 }}>Version 0.0.1</Text>
+      </View>
+    </DrawerContentScrollView>
   );
 }
 
 function ChatStackNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerBackButtonDisplayMode: 'minimal',
+      }}
+    >
       <Stack.Screen
         name="GameChannels"
         component={GameChannelsScreen}
@@ -102,33 +117,12 @@ function ChatStackNavigator() {
       <Stack.Screen
         name="Chat"
         component={ChatScreen}
-        options={() => ({
+        options={{
           title: 'Chat',
           headerStyle: {
             backgroundColor: '#ffffff',
           },
-          headerTintColor: '#00a6f4',
-          headerTitleStyle: {
-            fontWeight: '600',
-          },
-        })}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function ProfileStackNavigator() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          title: 'My Profile',
-          headerStyle: {
-            backgroundColor: '#ffffff',
-          },
-          headerTintColor: '#00a6f4',
+          headerTintColor: colors.primary,
           headerTitleStyle: {
             fontWeight: '600',
           },
@@ -138,23 +132,107 @@ function ProfileStackNavigator() {
   );
 }
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
+function MainDrawerNavigator() {
   return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
+    <Drawer.Navigator
+      drawerContent={props => <CustomDrawerContent {...props} />}
+      screenOptions={{
+        headerShown: false,
+        drawerActiveTintColor: colors.primary,
+        drawerStyle: {
+          backgroundColor: '#ffffff',
+          width: 280,
+        },
+        drawerLabelStyle: {
+          fontWeight: '600',
+        },
+      }}
+    >
+      <Drawer.Screen
+        name="ChatStack"
+        component={ChatStackNavigator}
+        options={{ title: 'Home' }}
       />
-    </View>
+    </Drawer.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const RootStack = createNativeStackNavigator();
+
+function RootNavigator() {
+  return (
+    <RootStack.Navigator
+      screenOptions={{
+        headerBackButtonDisplayMode: 'minimal',
+      }}
+    >
+      <RootStack.Screen
+        name="MainDrawer"
+        component={MainDrawerNavigator}
+        options={{ headerShown: false }}
+      />
+      <RootStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: 'My Profile',
+          headerStyle: {
+            backgroundColor: '#ffffff',
+          },
+          headerTintColor: colors.primary,
+          headerTitleStyle: {
+            fontWeight: '600',
+          },
+        }}
+      />
+      <RootStack.Screen
+        name="CoinHistory"
+        component={CoinHistoryScreen}
+        options={{
+          title: 'Coin History',
+        }}
+      />
+      <RootStack.Screen
+        name="MoneyHistory"
+        component={MoneyHistoryScreen}
+        options={{
+          title: 'Transaction History',
+        }}
+      />
+    </RootStack.Navigator>
+  );
+}
+
+function AppContent() {
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.token);
+  const isDarkMode = useColorScheme() === 'dark';
+
+  return (
+    <SafeAreaProvider>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor="#ffffff"
+      />
+      {!isLoggedIn ? (
+        <LoginScreen />
+      ) : (
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      )}
+      <Toast />
+    </SafeAreaProvider>
+  );
+}
+
+function App() {
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppContent />
+      </PersistGate>
+    </Provider>
+  );
+}
 
 export default App;
