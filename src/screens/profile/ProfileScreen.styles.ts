@@ -96,27 +96,27 @@ export const styles = StyleSheet.create({
     color: '#333',
   },
   balanceCard: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderWidth: 2,
-    borderColor: colors.primary,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+    // iOS Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Android Shadow
+    elevation: 3,
   },
-  balanceItem: {
+  walletHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 16,
     gap: 12,
   },
-  coinIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#fff9e6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  currencyIcon: {
+  walletIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -124,31 +124,69 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  currencyText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.primary,
+  coinIcon: {
+    backgroundColor: '#fff9e6',
   },
-  balanceLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 2,
+  walletTitleContainer: {
+    flex: 1,
   },
-  balanceAmount: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  debtText: {
+  walletTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ff4444',
+    color: '#666',
+  },
+  walletAmount: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.primary,
     marginTop: 2,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 12,
+  currencyText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  debtText: {
+    fontSize: 12,
+    color: '#FF5252',
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  walletActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  walletActionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 6,
+  },
+  historyButton: {
+    backgroundColor: '#f5f5f5',
+  },
+  historyButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  topupButton: {
+    backgroundColor: colors.primary,
+  },
+  topupButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  coinAmount: {
+    color: '#FFA500', // Gold/Orange for coins
+  },
+  coinTopupButton: {
+    backgroundColor: '#FFA500',
   },
   actionButton: {
     flexDirection: 'row',

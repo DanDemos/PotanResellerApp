@@ -9,7 +9,9 @@ import {
   GetCoinsDataRequest,
   GetCoinsDataResponse,
   GetCoinHistoryRequest,
-  GetCoinHistoryResponse
+  GetCoinHistoryResponse,
+  RefillMoneyRequest,
+  RefillMoneyResponse
 } from '@/api/actions/wallet/walletAPIDataTypes';
 
 export const walletApi = createApi({
@@ -52,6 +54,16 @@ export const walletApi = createApi({
         params,
       }),
     }),
+    refillMoney: builder.mutation<RefillMoneyResponse, RefillMoneyRequest>({
+      query: (body) => ({
+        url: '/money/refill',
+        method: 'POST',
+        body,
+        headers: {
+          'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
+        },
+      }),
+    }),
   }),
 });
 
@@ -59,5 +71,6 @@ export const {
   useGetMoneyHistoryQuery,
   useGetWalletBalanceQuery,
   useGetCoinsDataQuery,
-  useGetCoinHistoryQuery
+  useGetCoinHistoryQuery,
+  useRefillMoneyMutation
 } = walletApi;

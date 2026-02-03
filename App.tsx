@@ -6,13 +6,7 @@
  */
 
 import React from 'react';
-import {
-  StatusBar,
-  useColorScheme,
-  View,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { StatusBar, useColorScheme, View, Text } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,

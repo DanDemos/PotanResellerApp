@@ -47,3 +47,20 @@ export type GetCoinHistoryRequest = {
   to?: string;
   per_page?: string;
 };
+
+// Refill Money Types
+export type RefillMoneyRequest = {
+  user_id: string;
+  amount: string;
+  note: string;
+};
+
+export type RefillMoneyResponse = {
+  message: string;
+  data: {
+    idempotent: boolean;
+    transaction_id: number;
+    target_user_id: number;
+    amount: number;
+  };
+};

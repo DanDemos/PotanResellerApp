@@ -34,6 +34,7 @@ Follow these rules strictly when working on this project.
 
 - **Separation**: Never use inline `StyleSheet.create` in `.tsx` files. Move all styles to a co-located `*.styles.ts` file.
 - **Color Codes**: Never hardcode hex codes or random colors in components or style files. Always import and use the tokens from `src/theme/colors.ts` to ensure theme consistency.
+- **Idempotency**: All POST and PUT mutations involving financial transactions or critical data (e.g., money refill, payment, important settings) must include an `Idempotency-Key` in the request headers. This key should be a unique per-operation identifier (e.g., a UUID or timestamp-based key) generated on the client side to prevent duplicate processing on retries.
 
 ### API Definition (RTK Query)
 
@@ -43,3 +44,4 @@ Follow these rules strictly when working on this project.
   - Example: `builder.query<GetUserRequest, GetUserResponse>(...)`
   - Always declare types in the separate `<apiGroupName>APIDataTypes.ts` file.
   - **Always use `type` instead of `interface` for all API-related definitions.**
+- **No Implicit Any**: Never use the `any` type. Always define explicit types for variables, function parameters, and return types to ensure type safety.
