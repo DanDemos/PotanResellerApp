@@ -44,7 +44,7 @@ function CustomDrawerContent(props: any) {
   const [logoutApi] = useLogoutMutation();
   const insets = useSafeAreaInsets();
 
-  const handleLogout = async () => {
+  async function handleLogout() {
     try {
       await logoutApi().unwrap();
     } catch (err) {
@@ -52,7 +52,7 @@ function CustomDrawerContent(props: any) {
     } finally {
       dispatch(logout());
     }
-  };
+  }
 
   const activeRoute = props.state.routeNames[props.state.index];
 
@@ -190,7 +190,7 @@ function RootNavigator() {
         name="MoneyHistory"
         component={MoneyHistoryScreen}
         options={{
-          title: 'Transaction History',
+          title: 'MMK History',
         }}
       />
     </RootStack.Navigator>

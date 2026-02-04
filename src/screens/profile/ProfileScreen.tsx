@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,32 +8,207 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  Modal,
+  TextInput,
+  Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { useDispatch } from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { useGetUserDataQuery } from '@/api/actions/user/userApi';
-import { useRefillMoneyMutation } from '@/api/actions/wallet/walletApi';
+import {
+  useRequestRefillMutation,
+  useRequestLoanMutation,
+  useConvertCoinsMutation,
+  useGetCoinsRateQuery,
+  useRepayLoanMutation,
+} from '@/api/actions/wallet/walletApi';
 import { colors } from '@/theme/colors';
 import { styles } from './ProfileScreen.styles';
 
 export default function ProfileScreen() {
   const {
     data: userData,
-    isLoading: isUserLoading,
-    isFetching: isUserFetching,
+    isLoading: userIsLoading,
+    isFetching: userIsFetching,
     error: userError,
-    refetch,
+    refetch: userRefetch,
   } = useGetUserDataQuery(undefined, { refetchOnMountOrArgChange: true });
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();
-  const [refillMoney, { isLoading: isRefilling }] = useRefillMoneyMutation();
+  const [
+    requestRefill,
+    {
+      isLoading: requestRefillIsLoading,
+      isSuccess: requestRefillIsSuccess,
+      isError: requestRefillIsError,
+      data: requestRefillData,
+      error: requestRefillError,
+    },
+  ] = useRequestRefillMutation();
+  const [
+    requestLoan,
+    {
+      isLoading: requestLoanIsLoading,
+      isSuccess: requestLoanIsSuccess,
+      isError: requestLoanIsError,
+      data: requestLoanData,
+      error: requestLoanError,
+    },
+  ] = useRequestLoanMutation();
+  const [
+    convertCoins,
+    {
+      isLoading: convertCoinsIsLoading,
+      isSuccess: convertCoinsIsSuccess,
+      isError: convertCoinsIsError,
+      data: convertCoinsData,
+      error: convertCoinsError,
+    },
+  ] = useConvertCoinsMutation();
+  const { data: coinRateData } = useGetCoinsRateQuery();
+
+  // Coin Modal State
+  const [coinModalVisible, setCoinModalVisible] = React.useState(false);
+  const [coinMode, setCoinMode] = React.useState<'topup' | 'convert'>('topup');
+  const [coinAmount, setCoinAmount] = React.useState('');
+
+  // Repayment Modal State
+  const [repayModalVisible, setRepayModalVisible] = React.useState(false);
+  const [repayAmount, setRepayAmount] = React.useState('');
+  const [repayNote, setRepayNote] = React.useState('');
+  const [repayPhoto, setRepayPhoto] = React.useState<any>(null);
+
+  const [
+    repayLoan,
+    {
+      isLoading: repayLoanIsLoading,
+      isSuccess: repayLoanIsSuccess,
+      isError: repayLoanIsError,
+      data: repayLoanData,
+      error: repayLoanError,
+    },
+  ] = useRepayLoanMutation();
+
+  useFocusEffect(
+    useCallback(() => {
+      userRefetch();
+    }, [userRefetch]),
+  );
+
+  useEffect(() => {
+    if (requestRefillIsSuccess && requestRefillData) {
+      const { wallet_type, money_amount } = requestRefillData.data.request;
+      Toast.show({
+        type: 'success',
+        text1: wallet_type === 'money' ? 'Refill Success' : 'Request Sent',
+        text2:
+          wallet_type === 'money'
+            ? `${money_amount} MMK has been added to your balance.`
+            : `Request to top up ${money_amount} coins has been sent.`,
+      });
+    }
+  }, [requestRefillIsSuccess, requestRefillData]);
+
+  useEffect(() => {
+    if (requestRefillIsError && requestRefillError) {
+      const err = requestRefillError as any;
+      const message =
+        typeof err?.message === 'string'
+          ? err.message
+          : err?.data?.message || 'Operation failed. Please try again.';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
+    }
+  }, [requestRefillIsError, requestRefillError]);
+
+  useEffect(() => {
+    if (requestLoanIsSuccess && requestLoanData) {
+      Toast.show({
+        type: 'success',
+        text1: 'Loan Request Sent',
+        text2: 'Your request is being processed.',
+      });
+    }
+  }, [requestLoanIsSuccess, requestLoanData]);
+
+  useEffect(() => {
+    if (requestLoanIsError && requestLoanError) {
+      const err = requestLoanError as any;
+      const message =
+        typeof err?.message === 'string'
+          ? err.message
+          : err?.data?.message || 'Loan request failed. Please try again.';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
+    }
+  }, [requestLoanIsError, requestLoanError]);
+
+  useEffect(() => {
+    if (convertCoinsIsSuccess && convertCoinsData) {
+      Toast.show({
+        type: 'success',
+        text1: 'Exchange Success',
+        text2: 'Coins have been exchanged for balance.',
+      });
+      userRefetch();
+    }
+  }, [convertCoinsIsSuccess, convertCoinsData, userRefetch]);
+
+  useEffect(() => {
+    if (convertCoinsIsError && convertCoinsError) {
+      const err = convertCoinsError as any;
+      const message =
+        typeof err?.message === 'string'
+          ? err.message
+          : err?.data?.message || 'Exchange failed. Please try again.';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
+    }
+  }, [convertCoinsIsError, convertCoinsError]);
+
+  useEffect(() => {
+    if (repayLoanIsSuccess && repayLoanData) {
+      Toast.show({
+        type: 'success',
+        text1: 'Repayment Request Sent',
+        text2: 'Your repayment request is awaiting approval.',
+      });
+      setRepayModalVisible(false);
+      userRefetch();
+    }
+  }, [repayLoanIsSuccess, repayLoanData, userRefetch]);
+
+  useEffect(() => {
+    if (repayLoanIsError && repayLoanError) {
+      const err = repayLoanError as any;
+      const message =
+        typeof err?.message === 'string'
+          ? err.message
+          : err?.data?.message || 'Repayment failed. Please try again.';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
+    }
+  }, [repayLoanIsError, repayLoanError]);
 
   const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    userRefetch();
+  }, [userRefetch]);
 
   const handleRefillMMK = useCallback(() => {
     if (!userData?.user) {
@@ -55,24 +230,12 @@ export default function ProfileScreen() {
               );
               return;
             }
-            try {
-              if (userData?.user) {
-                await refillMoney({
-                  user_id: userData.user.id.toString(),
-                  amount: amount,
-                  note: 'Refill from Profile Dashboard',
-                }).unwrap();
-                Toast.show({
-                  type: 'success',
-                  text1: 'Refill Success',
-                  text2: `${amount} MMK has been added to your balance.`,
-                });
-              }
-            } catch (err) {
-              Toast.show({
-                type: 'error',
-                text1: 'Refill Failed',
-                text2: 'Could not process the refill. Please try again.',
+            if (userData?.user) {
+              requestRefill({
+                target_user_id: userData.user.id,
+                money_amount: amount,
+                wallet_type: 'money',
+                note: 'Refill from Profile Dashboard',
               });
             }
           },
@@ -80,9 +243,128 @@ export default function ProfileScreen() {
       ],
       'plain-text',
     );
-  }, [userData, refillMoney]);
+  }, [userData, requestRefill]);
 
-  const isLoading = isUserLoading;
+  const handleTopUpCoins = useCallback(() => {
+    setCoinMode('topup');
+    setCoinAmount('');
+    setCoinModalVisible(true);
+  }, []);
+
+  const handleLoanRequest = useCallback(() => {
+    if (!userData?.user) {
+      return;
+    }
+
+    Alert.prompt(
+      'Loan Request',
+      'Enter the amount you wish to borrow (MMK)',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Request',
+          onPress: async (amount: string | undefined) => {
+            if (!amount || isNaN(Number(amount))) {
+              Alert.alert(
+                'Invalid Amount',
+                'Please enter a valid numeric amount.',
+              );
+              return;
+            }
+            requestLoan({
+              borrower_user_id: userData.user.id.toString(),
+              amount: amount,
+              note: 'Loan request from Profile Dashboard',
+            });
+          },
+        },
+      ],
+      'plain-text',
+    );
+  }, [userData, requestLoan]);
+
+  const handleConvertCoins = useCallback(() => {
+    setCoinMode('convert');
+    setCoinAmount('');
+    setCoinModalVisible(true);
+  }, []);
+
+  const handleConfirmCoinTransaction = async () => {
+    if (!coinAmount || isNaN(Number(coinAmount))) {
+      Alert.alert('Invalid Amount', 'Please enter a valid numeric amount.');
+      return;
+    }
+
+    if (coinMode === 'topup') {
+      if (userData?.user) {
+        requestRefill({
+          target_user_id: userData.user.id,
+          coins_amount: coinAmount,
+          wallet_type: 'coins',
+          note: 'Coin Top Up from Profile Dashboard',
+        });
+      }
+    } else {
+      convertCoins({
+        coins: Number(coinAmount),
+        note: 'Coin exchange from Profile Dashboard',
+      });
+    }
+    setCoinModalVisible(false);
+  };
+
+  const handleOpenRepayModal = useCallback(() => {
+    setRepayAmount('');
+    setRepayNote('');
+    setRepayPhoto(null);
+    setRepayModalVisible(true);
+  }, []);
+
+  const pickRepaymentImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+    });
+
+    if (result.assets && result.assets.length > 0) {
+      setRepayPhoto(result.assets[0]);
+    }
+  };
+
+  const handleConfirmRepayment = async () => {
+    if (!repayAmount || isNaN(Number(repayAmount))) {
+      Alert.alert('Invalid Amount', 'Please enter a valid numeric amount.');
+      return;
+    }
+
+    if (!repayPhoto) {
+      Alert.alert(
+        'Photo Required',
+        'Please select a photo of your payment receipt.',
+      );
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('amount', repayAmount);
+    formData.append(
+      'note',
+      repayNote || 'Loan repayment from Profile Dashboard',
+    );
+
+    // Construct file object for FormData
+    const photoFile = {
+      uri: repayPhoto.uri,
+      type: repayPhoto.type || 'image/jpeg',
+      name: repayPhoto.fileName || `repayment_${Date.now()}.jpg`,
+    };
+
+    formData.append('photo', photoFile as any);
+
+    repayLoan(formData);
+  };
+
+  const isLoading = userIsLoading;
   const error = userError;
 
   if (isLoading) {
@@ -94,9 +376,13 @@ export default function ProfileScreen() {
   }
 
   if (error || !userData || !userData.user) {
+    const errorMsg =
+      (error as any)?.data?.message ||
+      (error as any)?.message ||
+      'Failed to load profile';
     return (
       <View style={[styles.container, styles.center]}>
-        <Text style={styles.errorText}>Failed to load profile</Text>
+        <Text style={styles.errorText}>{errorMsg}</Text>
       </View>
     );
   }
@@ -110,7 +396,7 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
-            refreshing={isUserFetching}
+            refreshing={userIsFetching}
             onRefresh={onRefresh}
             colors={[colors.primary]}
             tintColor={colors.primary}
@@ -163,7 +449,7 @@ export default function ProfileScreen() {
 
         {/* Wallet Dashboard Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Wallet Dashboard</Text>
+          <Text style={styles.sectionTitle}>Wallet</Text>
 
           {/* MMK Wallet Card */}
           <View style={styles.balanceCard}>
@@ -197,12 +483,50 @@ export default function ProfileScreen() {
                 <Text style={styles.historyButtonText}>History</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                style={[styles.walletActionButton, styles.loanButton]}
+                onPress={handleLoanRequest}
+                disabled={requestLoanIsLoading}
+              >
+                {requestLoanIsLoading ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <>
+                    <MaterialIcons
+                      name="account-balance-wallet"
+                      size={20}
+                      color="#666"
+                    />
+                    <Text style={styles.loanButtonText}>Loan</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              {user.money_debt > 0 && (
+                <TouchableOpacity
+                  style={[styles.walletActionButton, styles.historyButton]}
+                  onPress={handleOpenRepayModal}
+                >
+                  <MaterialIcons
+                    name="payments"
+                    size={20}
+                    color={colors.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.historyButtonText,
+                      { color: colors.primary },
+                    ]}
+                  >
+                    Repay
+                  </Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
                 style={[styles.walletActionButton, styles.topupButton]}
                 onPress={handleRefillMMK}
-                disabled={isRefilling}
+                disabled={requestRefillIsLoading}
               >
-                {isRefilling ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                {requestRefillIsLoading ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
                   <>
                     <MaterialIcons name="add" size={20} color="#fff" />
@@ -240,10 +564,26 @@ export default function ProfileScreen() {
                 <Text style={styles.historyButtonText}>History</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                style={[styles.walletActionButton, styles.loanButton]}
+                onPress={handleConvertCoins}
+                disabled={convertCoinsIsLoading}
+              >
+                {convertCoinsIsLoading ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <>
+                    <MaterialIcons name="swap-horiz" size={20} color="#666" />
+                    <Text style={styles.loanButtonText}>Convert</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={[styles.walletActionButton, styles.coinTopupButton]}
                 activeOpacity={0.7}
+                onPress={handleTopUpCoins}
+                disabled={requestRefillIsLoading}
               >
-                <MaterialIcons name="shopping-cart" size={20} color="#fff" />
+                <MaterialIcons name="add" size={20} color="#fff" />
                 <Text style={styles.topupButtonText}>Top Up</Text>
               </TouchableOpacity>
             </View>
@@ -267,6 +607,185 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Coin Transaction Modal */}
+      <Modal
+        visible={coinModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setCoinModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {coinMode === 'topup' ? 'Top Up Coins' : 'Convert to Balance'}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setCoinModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <MaterialIcons name="close" size={24} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>
+                {coinMode === 'topup' ? 'Coins to Buy' : 'Coins to Exchange'}
+              </Text>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="Enter amount"
+                keyboardType="numeric"
+                value={coinAmount}
+                onChangeText={setCoinAmount}
+                autoFocus
+              />
+            </View>
+
+            <View style={styles.exchangeInfo}>
+              <Text style={styles.rateText}>
+                Exchange Rate: 1 Coin ={' '}
+                {coinRateData?.coin_to_money_rate || '...'} MMK
+              </Text>
+              <Text style={styles.resultText}>
+                {coinMode === 'topup' ? 'Total Cost: ' : 'You Receive: '}
+                {coinAmount && coinRateData?.coin_to_money_rate
+                  ? (
+                      Number(coinAmount) * coinRateData.coin_to_money_rate
+                    ).toLocaleString()
+                  : '0'}{' '}
+                MMK
+              </Text>
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setCoinModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleConfirmCoinTransaction}
+              >
+                <Text style={styles.confirmButtonText}>
+                  {coinMode === 'topup' ? 'Confirm Order' : 'Exchange Now'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Repayment Modal */}
+      <Modal
+        visible={repayModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setRepayModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Repay Loan</Text>
+              <TouchableOpacity
+                onPress={() => setRepayModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <MaterialIcons name="close" size={24} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Amount to Repay (MMK)</Text>
+                <TextInput
+                  style={styles.amountInput}
+                  placeholder="Enter amount"
+                  keyboardType="numeric"
+                  value={repayAmount}
+                  onChangeText={setRepayAmount}
+                />
+                <Text style={[styles.debtText, { marginTop: 4 }]}>
+                  Current Debt:{' '}
+                  {parseFloat(user.money_debt.toString()).toLocaleString()} MMK
+                </Text>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Note (Optional)</Text>
+                <TextInput
+                  style={[
+                    styles.amountInput,
+                    { height: 80, textAlignVertical: 'top' },
+                  ]}
+                  placeholder="Reference or note"
+                  multiline
+                  value={repayNote}
+                  onChangeText={setRepayNote}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Payment Proof (Photo)</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.photoPicker,
+                    repayPhoto && {
+                      backgroundColor: '#fff',
+                      borderStyle: 'solid',
+                    },
+                  ]}
+                  onPress={pickRepaymentImage}
+                >
+                  {repayPhoto ? (
+                    <Image
+                      source={{ uri: repayPhoto.uri }}
+                      style={styles.previewImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <>
+                      <MaterialIcons
+                        name="add-a-photo"
+                        size={32}
+                        color="#94A3B8"
+                      />
+                      <Text style={{ color: '#94A3B8', marginTop: 8 }}>
+                        Select Receipt Photo
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setRepayModalVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={handleConfirmRepayment}
+                  disabled={repayLoanIsLoading}
+                >
+                  {repayLoanIsLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>
+                      Submit Repayment
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

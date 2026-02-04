@@ -32,9 +32,9 @@ export default function ChatScreen() {
 
   const {
     data: messagesData,
-    isLoading,
-    error,
-    refetch,
+    isLoading: messagesIsLoading,
+    error: messagesError,
+    refetch: messagesRefetch,
   } = useGetChannelMessagesQuery(channelUuid, {
     skip: !channelUuid,
     refetchOnMountOrArgChange: true,
@@ -113,15 +113,19 @@ export default function ChatScreen() {
         style={styles.flex}
       >
         {/* Messages List */}
-        {isLoading ? (
+        {messagesIsLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
-        ) : error ? (
+        ) : messagesError ? (
           <View style={styles.center}>
-            <Text style={styles.errorText}>Failed to load messages</Text>
+            <Text style={styles.errorText}>
+              {(messagesError as any)?.data?.message ||
+                (messagesError as any)?.message ||
+                'Failed to load messages'}
+            </Text>
             <TouchableOpacity
-              onPress={() => refetch()}
+              onPress={() => messagesRefetch()}
               style={styles.retryButton}
             >
               <Text style={styles.retryButtonText}>Retry</Text>
@@ -135,8 +139,8 @@ export default function ChatScreen() {
             renderItem={renderMessage}
             contentContainerStyle={styles.messagesContent}
             scrollEnabled={true}
-            onRefresh={refetch}
-            refreshing={isLoading}
+            onRefresh={messagesRefetch}
+            refreshing={messagesIsLoading}
             ListEmptyComponent={
               <View style={styles.center}>
                 <Text style={styles.emptyText}>No messages yet</Text>

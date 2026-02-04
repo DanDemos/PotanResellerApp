@@ -174,6 +174,14 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#666',
   },
+  loanButton: {
+    backgroundColor: '#f5f5f5',
+  },
+  loanButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
   topupButton: {
     backgroundColor: colors.primary,
   },
@@ -211,5 +219,118 @@ export const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#64748B',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  amountInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  exchangeInfo: {
+    backgroundColor: '#F0F9FF',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  rateText: {
+    fontSize: 13,
+    color: '#0369A1',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  resultText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0284C7',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#F1F5F9',
+  },
+  cancelButtonText: {
+    color: '#64748B',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  confirmButton: {
+    backgroundColor: colors.primary,
+  },
+  confirmButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  photoPicker: {
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderStyle: 'dashed',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 14,
   },
 });

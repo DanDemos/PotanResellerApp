@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/redux/slices/authSlice';
 import { styles } from './LoginScreen.styles';
+import { colors } from '@/theme/colors';
 
 function LoginScreen() {
   const dispatch = useDispatch();
@@ -29,30 +30,51 @@ function LoginScreen() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const [login, { isLoading, data }] = useLoginMutation();
+  const [
+    login,
+    {
+      isLoading: loginIsLoading,
+      isSuccess: loginIsSuccess,
+      isError: loginIsError,
+      data: loginData,
+      error: loginError,
+    },
+  ] = useLoginMutation();
 
-  const onSubmit = async (formData: LoginFormData) => {
-    try {
-      const response = await login({
-        phone: formData.phone,
-        password: formData.password,
-      }).unwrap();
-      dispatch(setCredentials({ user: response.user, token: response.token }));
+  useEffect(() => {
+    if (loginIsSuccess && loginData) {
+      dispatch(
+        setCredentials({ user: loginData.user, token: loginData.token }),
+      );
       Toast.show({
         type: 'success',
         text1: 'Login Successful',
         text2: 'Redirecting to home...',
         visibilityTime: 2000,
       });
-    } catch (err: any) {
-      console.log(err, 'errerr');
-      const message = err?.data?.message || 'Invalid phone or password';
+    }
+  }, [loginIsSuccess, loginData, dispatch]);
+
+  useEffect(() => {
+    if (loginIsError && loginError) {
+      const err = loginError as any;
+      const message =
+        typeof err?.message === 'string'
+          ? err.message
+          : err?.data?.message || 'Invalid phone or password';
       Toast.show({
         type: 'error',
         text1: 'Login Failed',
         text2: message,
       });
     }
+  }, [loginIsError, loginError]);
+
+  const onSubmit = (formData: LoginFormData) => {
+    login({
+      phone: formData.phone,
+      password: formData.password,
+    });
   };
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -121,14 +143,14 @@ function LoginScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.button, isLoading ? { opacity: 0.7 } : {}]}
+          style={[styles.button, loginIsLoading ? { opacity: 0.7 } : {}]}
           onPress={handleSubmit(onSubmit)}
-          disabled={isLoading}
+          disabled={loginIsLoading}
         >
           <Text style={styles.buttonText}>
             <Text style={styles.buttonText}>
-              {isLoading ? (
-                <ActivityIndicator color="#ffffff" size="small" />
+              {loginIsLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
               ) : (
                 'Sign In'
               )}

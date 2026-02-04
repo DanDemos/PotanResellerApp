@@ -2,16 +2,23 @@ import { BACKEND_API_URL } from '@env';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '@/redux/store';
 import {
-  GetMoneyHistoryRequest,
-  GetMoneyHistoryResponse,
   GetWalletBalanceRequest,
   GetWalletBalanceResponse,
   GetCoinsDataRequest,
   GetCoinsDataResponse,
   GetCoinHistoryRequest,
   GetCoinHistoryResponse,
-  RefillMoneyRequest,
-  RefillMoneyResponse
+  RequestRefillRequest,
+  RequestRefillResponse,
+  GetMoneyHistoryGroupedRequest,
+  GetMoneyHistoryGroupedResponse,
+  RequestLoanRequest,
+  RequestLoanResponse,
+  ConvertCoinsRequest,
+  ConvertCoinsResponse,
+  GetCoinsRateResponse,
+  RepayLoanRequest,
+  RepayLoanResponse,
 } from '@/api/actions/wallet/walletAPIDataTypes';
 
 export const walletApi = createApi({
@@ -23,18 +30,10 @@ export const walletApi = createApi({
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
-      headers.set('Content-Type', 'application/json');
       return headers;
     },
   }),
   endpoints: (builder) => ({
-    getMoneyHistory: builder.query<GetMoneyHistoryResponse, GetMoneyHistoryRequest>({
-      query: (params) => ({
-        url: '/money/history',
-        method: 'GET',
-        params,
-      }),
-    }),
     getWalletBalance: builder.query<GetWalletBalanceResponse, GetWalletBalanceRequest>({
       query: () => ({
         url: '/money/me',
@@ -54,9 +53,55 @@ export const walletApi = createApi({
         params,
       }),
     }),
-    refillMoney: builder.mutation<RefillMoneyResponse, RefillMoneyRequest>({
+    requestRefill: builder.mutation<RequestRefillResponse, RequestRefillRequest>({
       query: (body) => ({
-        url: '/money/refill',
+        url: '/refills/request',
+        method: 'POST',
+        body,
+        headers: {
+          'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
+        },
+      }),
+    }),
+    getMoneyHistoryGrouped: builder.query<
+      GetMoneyHistoryGroupedResponse,
+      GetMoneyHistoryGroupedRequest
+    >({
+      query: (params) => ({
+        url: '/money/historyGrouped',
+        method: 'GET',
+        params,
+      }),
+    }),
+    requestLoan: builder.mutation<RequestLoanResponse, RequestLoanRequest>({
+      query: (body) => ({
+        url: '/money/loan',
+        method: 'POST',
+        body,
+        headers: {
+          'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
+        },
+      }),
+    }),
+    convertCoins: builder.mutation<ConvertCoinsResponse, ConvertCoinsRequest>({
+      query: (body) => ({
+        url: '/coins/convert',
+        method: 'POST',
+        body,
+        headers: {
+          'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
+        },
+      }),
+    }),
+    getCoinsRate: builder.query<GetCoinsRateResponse, void>({
+      query: () => ({
+        url: '/coins/rate',
+        method: 'GET',
+      }),
+    }),
+    repayLoan: builder.mutation<RepayLoanResponse, FormData>({
+      query: (body) => ({
+        url: '/money/loan/repay/request',
         method: 'POST',
         body,
         headers: {
@@ -68,9 +113,13 @@ export const walletApi = createApi({
 });
 
 export const {
-  useGetMoneyHistoryQuery,
   useGetWalletBalanceQuery,
   useGetCoinsDataQuery,
   useGetCoinHistoryQuery,
-  useRefillMoneyMutation
+  useRequestRefillMutation,
+  useGetMoneyHistoryGroupedQuery,
+  useRequestLoanMutation,
+  useConvertCoinsMutation,
+  useGetCoinsRateQuery,
+  useRepayLoanMutation,
 } = walletApi;

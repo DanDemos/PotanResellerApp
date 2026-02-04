@@ -2,6 +2,10 @@
 
 Follow these rules strictly when working on this project.
 
+## Package Manager
+
+- **Yarn Only**: Always use `yarn` for installing packages, running scripts, and all other package management tasks. Do not use `npm`.
+
 ## Project Structure
 
 ### Screens
@@ -36,6 +40,10 @@ Follow these rules strictly when working on this project.
 - **Color Codes**: Never hardcode hex codes or random colors in components or style files. Always import and use the tokens from `src/theme/colors.ts` to ensure theme consistency.
 - **Idempotency**: All POST and PUT mutations involving financial transactions or critical data (e.g., money refill, payment, important settings) must include an `Idempotency-Key` in the request headers. This key should be a unique per-operation identifier (e.g., a UUID or timestamp-based key) generated on the client side to prevent duplicate processing on retries.
 
+### Functions
+
+- **Declaration**: Always use `function functionName() {}` instead of `const functionName = () => {}` for pure functions or utility helpers.
+
 ### API Definition (RTK Query)
 
 - **Naming Convention**:
@@ -44,4 +52,9 @@ Follow these rules strictly when working on this project.
   - Example: `builder.query<GetUserRequest, GetUserResponse>(...)`
   - Always declare types in the separate `<apiGroupName>APIDataTypes.ts` file.
   - **Always use `type` instead of `interface` for all API-related definitions.**
+  - **Discriminated Unions**: Use discriminated unions for API requests/responses that have conditional field requirements based on a type field (e.g., different amount keys for different wallet types).
 - **No Implicit Any**: Never use the `any` type. Always define explicit types for variables, function parameters, and return types to ensure type safety.
+- **RTK Query Naming Patterns**: When destructuring mutation or query hooks, always rename the states using the full operation name as a prefix to avoid collisions and improve clarity.
+  - **Pattern**: `const { data: [operation]Data, isLoading: [operation]IsLoading, ... } = use[Operation]Query();`
+  - **Example (Mutation)**: `const [login, { isLoading: loginIsLoading, isSuccess: loginIsSuccess, data: loginData, error: loginError }] = useLoginMutation();`
+  - **Example (Query)**: `const { data: userData, isLoading: userIsLoading, isFetching: userIsFetching, error: userError } = useGetUserDataQuery();`
