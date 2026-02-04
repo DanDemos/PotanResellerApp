@@ -1,5 +1,6 @@
 export const colors = {
   primary: '#00a6f4',
+  coinColor: '#FFB500',
   background: '#ffffff',
   text: '#333333',
   textLight: '#999999',

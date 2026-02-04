@@ -11,12 +11,13 @@ import {
   Modal,
   TextInput,
   Image,
+  StyleSheet,
 } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useDispatch } from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { useGetUserDataQuery } from '@/api/actions/user/userApi';
 import {
@@ -37,7 +38,6 @@ export default function ProfileScreen() {
     error: userError,
     refetch: userRefetch,
   } = useGetUserDataQuery(undefined, { refetchOnMountOrArgChange: true });
-  const dispatch = useDispatch();
   const navigation = useNavigation<any>();
   const [
     requestRefill,
@@ -100,18 +100,22 @@ export default function ProfileScreen() {
   );
 
   useEffect(() => {
-    if (requestRefillIsSuccess && requestRefillData) {
-      const { wallet_type, money_amount } = requestRefillData.data.request;
+    if (requestRefillIsSuccess && requestRefillData?.data?.request) {
+      const { wallet_type, money_amount, coins_amount } =
+        requestRefillData.data.request;
       Toast.show({
         type: 'success',
         text1: wallet_type === 'money' ? 'Refill Success' : 'Request Sent',
         text2:
           wallet_type === 'money'
-            ? `${money_amount} MMK has been added to your balance.`
-            : `Request to top up ${money_amount} coins has been sent.`,
+            ? `${money_amount || 0} MMK has been added to your balance.`
+            : `Request to top up ${
+                coins_amount ?? money_amount ?? 0
+              } coins has been sent.`,
       });
+      userRefetch();
     }
-  }, [requestRefillIsSuccess, requestRefillData]);
+  }, [requestRefillIsSuccess, requestRefillData, userRefetch]);
 
   useEffect(() => {
     if (requestRefillIsError && requestRefillError) {
@@ -135,8 +139,9 @@ export default function ProfileScreen() {
         text1: 'Loan Request Sent',
         text2: 'Your request is being processed.',
       });
+      userRefetch();
     }
-  }, [requestLoanIsSuccess, requestLoanData]);
+  }, [requestLoanIsSuccess, requestLoanData, userRefetch]);
 
   useEffect(() => {
     if (requestLoanIsError && requestLoanError) {
@@ -235,7 +240,7 @@ export default function ProfileScreen() {
                 target_user_id: userData.user.id,
                 money_amount: amount,
                 wallet_type: 'money',
-                note: 'Refill from Profile Dashboard',
+                note: 'Refill from Mobile',
               });
             }
           },
@@ -274,7 +279,7 @@ export default function ProfileScreen() {
             requestLoan({
               borrower_user_id: userData.user.id.toString(),
               amount: amount,
-              note: 'Loan request from Profile Dashboard',
+              note: 'Loan request from Mobile',
             });
           },
         },
@@ -301,13 +306,13 @@ export default function ProfileScreen() {
           target_user_id: userData.user.id,
           coins_amount: coinAmount,
           wallet_type: 'coins',
-          note: 'Coin Top Up from Profile Dashboard',
+          note: 'Coin Top Up from Mobile',
         });
       }
     } else {
       convertCoins({
         coins: Number(coinAmount),
-        note: 'Coin exchange from Profile Dashboard',
+        note: 'Coin exchange from Mobile',
       });
     }
     setCoinModalVisible(false);
@@ -347,10 +352,7 @@ export default function ProfileScreen() {
 
     const formData = new FormData();
     formData.append('amount', repayAmount);
-    formData.append(
-      'note',
-      repayNote || 'Loan repayment from Profile Dashboard',
-    );
+    formData.append('note', repayNote || 'Loan repayment from Mobile');
 
     // Construct file object for FormData
     const photoFile = {
@@ -413,7 +415,7 @@ export default function ProfileScreen() {
           <View style={styles.nameContainer}>
             <Text style={styles.name}>{user.name}</Text>
             <Text style={styles.email}>{user.email ?? 'No email'}</Text>
-            {user.type === 'buyer' && (
+            {(user.type === 'vip' || user.type === 'buyer') && (
               <View style={styles.vipBadge}>
                 <MaterialIcons name="star" size={16} color="#000" />
                 <Text style={styles.vipText}>VIP MEMBER</Text>
@@ -447,145 +449,215 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Wallet Dashboard Section */}
+        {/* Wallet Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Wallet</Text>
 
-          {/* MMK Wallet Card */}
-          <View style={styles.balanceCard}>
-            <View style={styles.walletHeader}>
-              <View style={styles.walletIcon}>
-                <Text style={styles.currencyText}>K</Text>
+          <View style={styles.walletsContainer}>
+            {/* MMK Wallet Card */}
+            <View style={styles.compactBalanceCard}>
+              <View style={StyleSheet.absoluteFill}>
+                <Svg
+                  width="100%"
+                  height="100%"
+                  viewBox="0 0 160 320"
+                  preserveAspectRatio="none"
+                >
+                  <Path
+                    d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,130 C 160,145 148,145 148,160 C 148,175 160,175 160,190 L 160,304 C 160,312.8 152.8,320 144,320 L 16,320 C 7.2,320 0,312.8 0,304 L 0,16 C 0,7.2 7.2,0 16,0 Z"
+                    fill="#ffffff"
+                    stroke="#eeeeee"
+                    strokeWidth="1"
+                  />
+                </Svg>
               </View>
-              <View style={styles.walletTitleContainer}>
-                <Text style={styles.walletTitle}>Myanmar Kyat (MMK)</Text>
-                <Text style={styles.walletAmount}>
-                  {user.money_balance
-                    ? parseFloat(user.money_balance).toLocaleString()
-                    : 0}{' '}
-                </Text>
-                {user.money_debt > 0 && (
-                  <Text style={styles.debtText}>
-                    Debt:{' '}
-                    {parseFloat(user.money_debt.toString()).toLocaleString()}{' '}
-                    MMK
+              <View style={[styles.walletHeader, styles.compactWalletHeader]}>
+                <View style={[styles.walletIcon, styles.compactWalletIcon]}>
+                  <Text style={[styles.currencyText, { fontSize: 16 }]}>
+                    Ks
                   </Text>
-                )}
+                </View>
+                <View style={styles.walletTitleContainer}>
+                  <Text style={styles.walletTitle}>Balance (MMK)</Text>
+                  <Text
+                    style={[styles.walletAmount, styles.compactWalletAmount]}
+                  >
+                    {user.money_balance
+                      ? Math.floor(
+                          parseFloat(user.money_balance) || 0,
+                        ).toLocaleString()
+                      : 0}
+                  </Text>
+                  {Number(user.money_debt || 0) > 0 && (
+                    <Text style={[styles.debtText, { fontSize: 10 }]}>
+                      Debt:{' '}
+                      {Math.floor(Number(user.money_debt)).toLocaleString()}
+                    </Text>
+                  )}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.walletActions}>
-              <TouchableOpacity
-                style={[styles.walletActionButton, styles.historyButton]}
-                onPress={() => navigation.navigate('MoneyHistory')}
-              >
-                <MaterialIcons name="history" size={20} color="#666" />
-                <Text style={styles.historyButtonText}>History</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.walletActionButton, styles.loanButton]}
-                onPress={handleLoanRequest}
-                disabled={requestLoanIsLoading}
-              >
-                {requestLoanIsLoading ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <>
-                    <MaterialIcons
-                      name="account-balance-wallet"
-                      size={20}
-                      color="#666"
-                    />
-                    <Text style={styles.loanButtonText}>Loan</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-              {user.money_debt > 0 && (
+              <View style={styles.compactWalletActions}>
                 <TouchableOpacity
-                  style={[styles.walletActionButton, styles.historyButton]}
-                  onPress={handleOpenRepayModal}
+                  style={[
+                    styles.walletActionButton,
+                    styles.topupButton,
+                    styles.compactActionButton,
+                  ]}
+                  onPress={handleRefillMMK}
+                  disabled={requestRefillIsLoading}
+                >
+                  <MaterialIcons name="add" size={18} color="#fff" />
+                  <Text style={styles.topupButtonText}>Refill</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.walletActionButton,
+                    styles.loanButton,
+                    styles.compactActionButton,
+                  ]}
+                  onPress={handleLoanRequest}
+                  disabled={requestLoanIsLoading}
                 >
                   <MaterialIcons
-                    name="payments"
-                    size={20}
-                    color={colors.primary}
+                    name="account-balance-wallet"
+                    size={18}
+                    color="#666"
                   />
-                  <Text
-                    style={[
-                      styles.historyButtonText,
-                      { color: colors.primary },
-                    ]}
-                  >
-                    Repay
-                  </Text>
+                  <Text style={styles.loanButtonText}>Loan</Text>
                 </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={[styles.walletActionButton, styles.topupButton]}
-                onPress={handleRefillMMK}
-                disabled={requestRefillIsLoading}
-              >
-                {requestRefillIsLoading ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <>
-                    <MaterialIcons name="add" size={20} color="#fff" />
-                    <Text style={styles.topupButtonText}>Refill</Text>
-                  </>
+
+                {Number(user.money_debt || 0) > 0 && (
+                  <TouchableOpacity
+                    style={[
+                      styles.walletActionButton,
+                      styles.historyButton,
+                      styles.compactActionButton,
+                    ]}
+                    onPress={handleOpenRepayModal}
+                  >
+                    <MaterialIcons
+                      name="payments"
+                      size={18}
+                      color={colors.primary}
+                    />
+                    <Text
+                      style={[
+                        styles.historyButtonText,
+                        { color: colors.primary },
+                      ]}
+                    >
+                      Repay
+                    </Text>
+                  </TouchableOpacity>
                 )}
-              </TouchableOpacity>
-            </View>
-          </View>
 
-          {/* Coin Wallet Card */}
-          <View style={styles.balanceCard}>
-            <View style={styles.walletHeader}>
-              <View style={[styles.walletIcon, styles.coinIcon]}>
-                <MaterialIcons
-                  name="monetization-on"
-                  size={32}
-                  color="#ffd700"
-                />
-              </View>
-              <View style={styles.walletTitleContainer}>
-                <Text style={styles.walletTitle}>Total Coins</Text>
-                <Text style={[styles.walletAmount, styles.coinAmount]}>
-                  {user.coins ?? 0}
-                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.walletActionButton,
+                    styles.historyButton,
+                    styles.compactActionButton,
+                  ]}
+                  onPress={() => navigation.navigate('MoneyHistory')}
+                >
+                  <MaterialIcons name="history" size={18} color="#666" />
+                  <Text style={styles.historyButtonText}>History</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
-            <View style={styles.walletActions}>
+            {/* Floating Conversion Arrow */}
+            {convertCoinsIsLoading ? (
+              <View style={styles.floatingConversionLoadingButton}>
+                <ActivityIndicator size="small" color={colors.white} />
+              </View>
+            ) : (
               <TouchableOpacity
-                style={[styles.walletActionButton, styles.historyButton]}
-                onPress={() => navigation.navigate('CoinHistory')}
-              >
-                <MaterialIcons name="history" size={20} color="#666" />
-                <Text style={styles.historyButtonText}>History</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.walletActionButton, styles.loanButton]}
+                style={styles.floatingConversionButton}
+                activeOpacity={0.8}
                 onPress={handleConvertCoins}
                 disabled={convertCoinsIsLoading}
               >
-                {convertCoinsIsLoading ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <>
-                    <MaterialIcons name="swap-horiz" size={20} color="#666" />
-                    <Text style={styles.loanButtonText}>Convert</Text>
-                  </>
-                )}
+                <MaterialIcons
+                  name="trending-flat"
+                  size={24}
+                  color={colors.primary}
+                />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.walletActionButton, styles.coinTopupButton]}
-                activeOpacity={0.7}
-                onPress={handleTopUpCoins}
-                disabled={requestRefillIsLoading}
-              >
-                <MaterialIcons name="add" size={20} color="#fff" />
-                <Text style={styles.topupButtonText}>Top Up</Text>
-              </TouchableOpacity>
+            )}
+
+            {/* Coin Wallet Card */}
+            <View style={styles.compactBalanceCard}>
+              <View style={StyleSheet.absoluteFill}>
+                <Svg
+                  width="100%"
+                  height="100%"
+                  viewBox="0 0 160 320"
+                  preserveAspectRatio="none"
+                >
+                  <Path
+                    d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,304 C 160,312.8 152.8,320 144,320 L 16,320 C 7.2,320 0,312.8 0,304 L 0,190 C 0,175 12,175 12,160 C 12,145 0,145 0,130 L 0,16 C 0,7.2 7.2,0 16,0 Z"
+                    fill="#ffffff"
+                    stroke="#eeeeee"
+                    strokeWidth="1"
+                  />
+                </Svg>
+              </View>
+              <View style={[styles.walletHeader, styles.compactWalletHeader]}>
+                <View
+                  style={[
+                    styles.walletIcon,
+                    styles.coinIcon,
+                    styles.compactWalletIcon,
+                  ]}
+                >
+                  <MaterialIcons
+                    name="monetization-on"
+                    size={20}
+                    color="#fff9e6"
+                  />
+                </View>
+                <View style={styles.walletTitleContainer}>
+                  <Text style={styles.walletTitle}>Coins</Text>
+                  <Text
+                    style={[
+                      styles.walletAmount,
+                      styles.coinAmount,
+                      styles.compactWalletAmount,
+                    ]}
+                  >
+                    {user.coins ?? 0}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.compactWalletActions}>
+                <TouchableOpacity
+                  style={[
+                    styles.walletActionButton,
+                    styles.coinTopupButton,
+                    styles.compactActionButton,
+                  ]}
+                  onPress={handleTopUpCoins}
+                  disabled={requestRefillIsLoading}
+                >
+                  <MaterialIcons name="add" size={18} color={colors.white} />
+                  <Text style={styles.topupButtonText}>Refill</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.walletActionButton,
+                    styles.historyButton,
+                    styles.compactActionButton,
+                  ]}
+                  onPress={() => navigation.navigate('CoinHistory')}
+                >
+                  <MaterialIcons name="history" size={18} color="#666" />
+                  <Text style={styles.historyButtonText}>History</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
@@ -594,11 +666,11 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support & Settings</Text>
 
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+          {/* <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
             <MaterialIcons name="settings" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Account Settings</Text>
             <MaterialIcons name="chevron-right" size={24} color="#ccc" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
             <MaterialIcons name="help" size={24} color={colors.primary} />
@@ -619,7 +691,9 @@ export default function ProfileScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                {coinMode === 'topup' ? 'Top Up Coins' : 'Convert to Balance'}
+                {coinMode === 'topup'
+                  ? 'Top Up Coins'
+                  : 'Convert MMK into Coins'}
               </Text>
               <TouchableOpacity
                 onPress={() => setCoinModalVisible(false)}
@@ -631,7 +705,7 @@ export default function ProfileScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                {coinMode === 'topup' ? 'Coins to Buy' : 'Coins to Exchange'}
+                {coinMode === 'topup' ? 'Coins to Buy' : 'Amount of Coins'}
               </Text>
               <TextInput
                 style={styles.amountInput}
@@ -645,11 +719,10 @@ export default function ProfileScreen() {
 
             <View style={styles.exchangeInfo}>
               <Text style={styles.rateText}>
-                Exchange Rate: 1 Coin ={' '}
-                {coinRateData?.coin_to_money_rate || '...'} MMK
+                Rate: 1 Coin = {coinRateData?.coin_to_money_rate || '...'} MMK
               </Text>
               <Text style={styles.resultText}>
-                {coinMode === 'topup' ? 'Total Cost: ' : 'You Receive: '}
+                {coinMode === 'topup' ? 'Estimated Cost: ' : 'Total Cost: '}
                 {coinAmount && coinRateData?.coin_to_money_rate
                   ? (
                       Number(coinAmount) * coinRateData.coin_to_money_rate
@@ -670,9 +743,13 @@ export default function ProfileScreen() {
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleConfirmCoinTransaction}
               >
-                <Text style={styles.confirmButtonText}>
-                  {coinMode === 'topup' ? 'Confirm Order' : 'Exchange Now'}
-                </Text>
+                {convertCoinsIsLoading || requestRefillIsLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.confirmButtonText}>
+                    {coinMode === 'topup' ? 'Request Coins' : 'Convert'}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -710,7 +787,10 @@ export default function ProfileScreen() {
                 />
                 <Text style={[styles.debtText, { marginTop: 4 }]}>
                   Current Debt:{' '}
-                  {parseFloat(user.money_debt.toString()).toLocaleString()} MMK
+                  {parseFloat(
+                    (user.money_debt || 0).toString(),
+                  ).toLocaleString()}{' '}
+                  MMK
                 </Text>
               </View>
 

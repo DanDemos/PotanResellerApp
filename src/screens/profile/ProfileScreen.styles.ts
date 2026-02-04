@@ -1,5 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { colors } from '@/theme/colors';
+
+const { width: screenWidth } = Dimensions.get('window');
+const gap = 12;
+const paddingHorizontal = 16;
+const cardWidth = (screenWidth - (paddingHorizontal * 2) - gap) / 2;
 
 export const styles = StyleSheet.create({
   container: {
@@ -47,7 +52,7 @@ export const styles = StyleSheet.create({
   vipBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFD700',
+    backgroundColor: colors.coinColor,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -73,7 +78,7 @@ export const styles = StyleSheet.create({
   infoCard: {
     backgroundColor: '#f9f9f9',
     borderRadius: 12,
-    paddingVertical: 12,
+    paddingTop: 12,
     paddingHorizontal: 12,
     marginBottom: 8,
   },
@@ -110,6 +115,76 @@ export const styles = StyleSheet.create({
     // Android Shadow
     elevation: 3,
   },
+  walletsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  compactBalanceCard: {
+    width: cardWidth,
+    padding: 16,
+    marginBottom: 0,
+    minHeight: 320,
+    justifyContent: 'space-between',
+    backgroundColor: 'transparent',
+  },
+  floatingConversionButton: {
+    position: 'absolute',
+    left: cardWidth - 14,
+    top: '50%',
+    transform: [{ translateY: -20 }],
+    zIndex: 20, // Higher than notch
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.coinColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  floatingConversionLoadingButton: {
+    position: 'absolute',
+    left: cardWidth - 14,
+    top: '50%',
+    transform: [{ translateY: -20 }],
+    zIndex: 20, // Higher than notch
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+
+  compactWalletHeader: {
+    marginBottom: 12,
+    gap: 10,
+    height: 80, // Fix header height for alignment
+  },
+  compactWalletIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  compactWalletAmount: {
+    fontSize: 20,
+    marginTop: 0,
+  },
+  compactWalletActions: {
+    flex: 1,
+    flexDirection: 'column',
+    gap: 8,
+    marginTop: 12,
+    justifyContent: 'flex-end', // Align buttons to bottom
+  },
+  compactActionButton: {
+    flex: 0,
+    paddingVertical: 10,
+    height: 44, // Consistent button height
+  },
   walletHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -120,12 +195,12 @@ export const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#e6f3ff',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   coinIcon: {
-    backgroundColor: '#fff9e6',
+    backgroundColor: colors.coinColor,
   },
   walletTitleContainer: {
     flex: 1,
@@ -144,7 +219,7 @@ export const styles = StyleSheet.create({
   currencyText: {
     fontSize: 20,
     fontWeight: '800',
-    color: colors.primary,
+    color: '#e6f3ff',
   },
   debtText: {
     fontSize: 12,
@@ -191,10 +266,10 @@ export const styles = StyleSheet.create({
     color: '#ffffff',
   },
   coinAmount: {
-    color: '#FFA500', // Gold/Orange for coins
+    color: colors.coinColor, // Gold/Orange for coins
   },
   coinTopupButton: {
-    backgroundColor: '#FFA500',
+    backgroundColor: colors.coinColor,
   },
   actionButton: {
     flexDirection: 'row',
