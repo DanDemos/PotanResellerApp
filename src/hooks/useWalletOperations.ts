@@ -181,82 +181,85 @@ export function useWalletOperations({
   }, [repayLoanIsError, repayLoanError]);
 
   // Handler Functions
-  const handleRefillMMK = useCallback(() => {
+  const handleConfirmRefill = async (
+    amount: string,
+    note: string,
+    photo: any,
+    walletType: 'money' | 'coins' = 'money',
+  ) => {
     if (typeof userId !== 'number') return;
 
-    Alert.prompt(
-      'Refill MMK',
-      'Enter the amount you wish to refill (MMK)',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Refill',
-          onPress: async (amount: string | undefined) => {
-            if (!amount || isNaN(Number(amount))) {
-              Alert.alert(
-                'Invalid Amount',
-                'Please enter a valid numeric amount.',
-              );
-              return;
-            }
-            requestRefill({
-              target_user_id: userId,
-              money_amount: amount,
-              wallet_type: 'money',
-              note: 'Refill from Mobile',
-            });
+    const formData = new FormData();
+    formData.append('wallet_type', walletType);
+    formData.append('target_user_id', userId.toString());
+    if (walletType === 'money') {
+      formData.append('money_amount', amount);
+    } else {
+      formData.append('coins_amount', amount);
+    }
+    formData.append('note', note || `Refill ${walletType} from Mobile`);
+
+    if (photo) {
+      const photoData = {
+        uri: photo.uri,
+        type:
+          photo.type === 'image/jpg'
+            ? 'image/jpeg'
+            : photo.type || 'image/jpeg',
+        name: photo.fileName || 'refill.jpg',
+      };
+      formData.append('photo', photoData as any);
+    }
+
+    return requestRefill(formData).unwrap();
+  };
+
+  const handleLoanRequest = useCallback(
+    () => {
+      if (typeof userId !== 'number') return;
+
+      Alert.prompt(
+        'Loan Request',
+        'Enter the amount you wish to borrow (MMK)',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Request',
+            onPress: async (amount: string | undefined) => {
+              if (!amount || isNaN(Number(amount))) {
+                Alert.alert(
+                  'Invalid Amount',
+                  'Please enter a valid numeric amount.',
+                );
+                return;
+              }
+              requestLoan({
+                borrower_user_id: userId.toString(),
+                amount: amount,
+                note: 'Loan request from Mobile',
+              });
+            },
           },
-        },
-      ],
-      'plain-text',
-    );
-  }, [userId, requestRefill]);
+        ],
+        'plain-text',
+      );
+    },
+    [userId, requestLoan],
+  );
 
-  const handleLoanRequest = useCallback(() => {
-    if (typeof userId !== 'number') return;
-
-    Alert.prompt(
-      'Loan Request',
-      'Enter the amount you wish to borrow (MMK)',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Request',
-          onPress: async (amount: string | undefined) => {
-            if (!amount || isNaN(Number(amount))) {
-              Alert.alert(
-                'Invalid Amount',
-                'Please enter a valid numeric amount.',
-              );
-              return;
-            }
-            requestLoan({
-              borrower_user_id: userId.toString(),
-              amount: amount,
-              note: 'Loan request from Mobile',
-            });
-          },
-        },
-      ],
-      'plain-text',
-    );
-  }, [userId, requestLoan]);
-
-  const handleConfirmCoinTransaction = async (mode: 'topup' | 'convert', amount: string) => {
+  const handleConfirmCoinTransaction = async (
+    mode: 'topup' | 'convert',
+    amount: string,
+    note: string = '',
+    photo: any = null,
+  ) => {
     if (!amount || isNaN(Number(amount))) {
       Alert.alert('Invalid Amount', 'Please enter a valid numeric amount.');
       return;
     }
 
     if (mode === 'topup') {
-      if (typeof userId === 'number') {
-        return requestRefill({
-          target_user_id: userId,
-          coins_amount: amount,
-          wallet_type: 'coins',
-          note: 'Coin Top Up from Mobile',
-        }).unwrap();
-      }
+      return handleConfirmRefill(amount, note, photo, 'coins');
     } else {
       return convertMoneyToCoin({
         amount: Number(amount),
@@ -264,14 +267,19 @@ export function useWalletOperations({
     }
   };
 
-  const handleConfirmRepayment = async (amount: string, note: string, photo: any) => {
+  const handleConfirmRepayment = async (
+    amount: string,
+    note: string,
+    photo: any,
+  ) => {
     const formData = new FormData();
     formData.append('amount', amount);
     formData.append('note', note || 'Loan repayment from Mobile');
 
     const photoData = {
       uri: photo.uri,
-      type: photo.type === 'image/jpg' ? 'image/jpeg' : (photo.type || 'image/jpeg'),
+      type:
+        photo.type === 'image/jpg' ? 'image/jpeg' : photo.type || 'image/jpeg',
       name: photo.fileName || 'repayment.jpg',
     };
 
@@ -293,7 +301,7 @@ export function useWalletOperations({
     convertCoinsIsSuccess,
     repayLoanIsSuccess,
     // Handlers
-    handleRefillMMK,
+    handleConfirmRefill,
     handleLoanRequest,
     handleConfirmCoinTransaction,
     handleConfirmRepayment,

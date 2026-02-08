@@ -124,7 +124,7 @@ export const styles = StyleSheet.create({
     width: cardWidth,
     padding: 16,
     marginBottom: 0,
-    minHeight: 320,
+    minHeight: 280,
     justifyContent: 'space-between',
     backgroundColor: 'transparent',
   },
@@ -178,12 +178,26 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 8,
     marginTop: 12,
-    justifyContent: 'flex-end', // Align buttons to bottom
+    justifyContent: 'flex-start', // Align buttons to top
   },
   compactActionButton: {
-    flex: 0,
+    flex: 1, // Change flex to 1 so it takes remaining space in actionRow
     paddingVertical: 10,
     height: 44, // Consistent button height
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    width: '100%',
+  },
+  historyIconBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   walletHeader: {
     flexDirection: 'row',

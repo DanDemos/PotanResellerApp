@@ -48,11 +48,11 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
             <Svg
               width="100%"
               height="100%"
-              viewBox="0 0 160 320"
+              viewBox="0 0 160 280"
               preserveAspectRatio="none"
             >
               <Path
-                d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,130 C 160,145 148,145 148,160 C 148,175 160,175 160,190 L 160,304 C 160,312.8 152.8,320 144,320 L 16,320 C 7.2,320 0,312.8 0,304 L 0,16 C 0,7.2 7.2,0 16,0 Z"
+                d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,110 C 160,125 148,125 148,140 C 148,155 160,155 160,170 L 160,264 C 160,272.8 152.8,280 144,280 L 16,280 C 7.2,280 0,272.8 0,264 L 0,16 C 0,7.2 7.2,0 16,0 Z"
                 fill="#ffffff"
                 stroke="#eeeeee"
                 strokeWidth="1"
@@ -81,69 +81,84 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
           </View>
 
           <View style={styles.compactWalletActions}>
-            <TouchableOpacity
-              style={[
-                styles.walletActionButton,
-                styles.topupButton,
-                styles.compactActionButton,
-              ]}
-              onPress={handleRefillMMK}
-              disabled={requestRefillIsLoading}
-            >
-              <MaterialIcons name="add" size={18} color="#fff" />
-              <Text style={styles.topupButtonText}>Refill</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.walletActionButton,
-                styles.loanButton,
-                styles.compactActionButton,
-              ]}
-              onPress={handleLoanRequest}
-              disabled={requestLoanIsLoading}
-            >
-              <MaterialIcons
-                name="account-balance-wallet"
-                size={18}
-                color="#666"
-              />
-              <Text style={styles.loanButtonText}>Loan</Text>
-            </TouchableOpacity>
-
-            {Number(user.money_debt || 0) > 0 && (
+            <View style={styles.actionRow}>
               <TouchableOpacity
                 style={[
                   styles.walletActionButton,
-                  styles.historyButton,
+                  styles.topupButton,
                   styles.compactActionButton,
                 ]}
-                onPress={handleOpenRepayModal}
+                onPress={handleRefillMMK}
+                disabled={requestRefillIsLoading}
+              >
+                <MaterialIcons name="add" size={18} color="#fff" />
+                <Text style={styles.topupButtonText}>Refill</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.historyIconBtn}
+                onPress={() => navigation.navigate('MoneyHistory')}
+              >
+                <MaterialIcons name="history" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[
+                  styles.walletActionButton,
+                  styles.loanButton,
+                  styles.compactActionButton,
+                ]}
+                onPress={handleLoanRequest}
+                disabled={requestLoanIsLoading}
               >
                 <MaterialIcons
-                  name="payments"
+                  name="account-balance-wallet"
                   size={18}
-                  color={colors.primary}
+                  color="#666"
                 />
-                <Text
-                  style={[styles.historyButtonText, { color: colors.primary }]}
-                >
-                  Repay
-                </Text>
+                <Text style={styles.loanButtonText}>Loan</Text>
               </TouchableOpacity>
-            )}
+              <TouchableOpacity
+                style={styles.historyIconBtn}
+                onPress={() => navigation.navigate('PendingLoans')}
+              >
+                <MaterialIcons name="history" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[
-                styles.walletActionButton,
-                styles.historyButton,
-                styles.compactActionButton,
-              ]}
-              onPress={() => navigation.navigate('MoneyHistory')}
-            >
-              <MaterialIcons name="history" size={18} color="#666" />
-              <Text style={styles.historyButtonText}>History</Text>
-            </TouchableOpacity>
+            {Number(user.money_debt || 0) > 0 && (
+              <View style={styles.actionRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.walletActionButton,
+                    styles.historyButton,
+                    styles.compactActionButton,
+                  ]}
+                  onPress={handleOpenRepayModal}
+                >
+                  <MaterialIcons
+                    name="payments"
+                    size={18}
+                    color={colors.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.historyButtonText,
+                      { color: colors.primary },
+                    ]}
+                  >
+                    Repay
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.historyIconBtn}
+                  onPress={() => navigation.navigate('RepayHistory')}
+                >
+                  <MaterialIcons name="history" size={20} color="#666" />
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
 
@@ -173,11 +188,11 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
             <Svg
               width="100%"
               height="100%"
-              viewBox="0 0 160 320"
+              viewBox="0 0 160 280"
               preserveAspectRatio="none"
             >
               <Path
-                d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,304 C 160,312.8 152.8,320 144,320 L 16,320 C 7.2,320 0,312.8 0,304 L 0,190 C 0,175 12,175 12,160 C 12,145 0,145 0,130 L 0,16 C 0,7.2 7.2,0 16,0 Z"
+                d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,264 C 160,272.8 152.8,280 144,280 L 16,280 C 7.2,280 0,272.8 0,264 L 0,170 C 0,155 12,155 12,140 C 12,125 0,125 0,110 L 0,16 C 0,7.2 7.2,0 16,0 Z"
                 fill="#ffffff"
                 stroke="#eeeeee"
                 strokeWidth="1"
@@ -209,30 +224,26 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
           </View>
 
           <View style={styles.compactWalletActions}>
-            <TouchableOpacity
-              style={[
-                styles.walletActionButton,
-                styles.coinTopupButton,
-                styles.compactActionButton,
-              ]}
-              onPress={handleTopUpCoins}
-              disabled={requestRefillIsLoading}
-            >
-              <MaterialIcons name="add" size={18} color={colors.white} />
-              <Text style={styles.topupButtonText}>Refill</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.walletActionButton,
-                styles.historyButton,
-                styles.compactActionButton,
-              ]}
-              onPress={() => navigation.navigate('CoinHistory')}
-            >
-              <MaterialIcons name="history" size={18} color="#666" />
-              <Text style={styles.historyButtonText}>History</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[
+                  styles.walletActionButton,
+                  styles.coinTopupButton,
+                  styles.compactActionButton,
+                ]}
+                onPress={handleTopUpCoins}
+                disabled={requestRefillIsLoading}
+              >
+                <MaterialIcons name="add" size={18} color={colors.white} />
+                <Text style={styles.topupButtonText}>Refill</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.historyIconBtn}
+                onPress={() => navigation.navigate('CoinHistory')}
+              >
+                <MaterialIcons name="history" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>

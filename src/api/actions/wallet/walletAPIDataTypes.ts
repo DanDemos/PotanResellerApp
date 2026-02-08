@@ -107,12 +107,14 @@ export type RequestRefillRequest =
     target_user_id: number;
     money_amount: string;
     note: string;
+    photo: any;
   }
   | {
     wallet_type: 'coins';
     target_user_id: number;
     coins_amount: string;
     note: string;
+    photo: any;
   };
 
 export type RefillRequest = {
@@ -188,4 +190,56 @@ export type RepayLoanResponse = {
     request_id: number;
     status: string;
   };
+};
+
+export type PendingLoan = {
+  id: number;
+  borrower_user_id: number;
+  amount: string;
+  note: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GetPendingLoansResponse = {
+  message: string;
+  data: PendingLoan[];
+};
+
+export type GetPendingLoansRequest = void;
+
+export type RepayRequest = {
+  id: number;
+  amount: string;
+  note: string | null;
+  status: string;
+  reject_reason: string | null;
+  photo_path: string | null;
+  created_at: string;
+};
+
+export type GetRepayRequestsResponse = {
+  current_page: number;
+  data: RepayRequest[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: {
+    url: string | null;
+    label: string;
+    page: number | null;
+    active: boolean;
+  }[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+};
+
+export type GetRepayRequestsRequest = {
+  page?: number;
 };

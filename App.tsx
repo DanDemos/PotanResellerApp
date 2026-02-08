@@ -36,6 +36,8 @@ import { MoneyHistoryScreen } from '@/screens/history/MoneyHistoryScreen';
 import { ChatScreen } from '@/screens/chat/ChatScreen';
 import { LoginScreen } from '@/screens/login/LoginScreen';
 import { SupportScreen } from '@/screens/support/SupportScreen';
+import { PendingLoansScreen } from '@/screens/history/PendingLoansScreen';
+import { RepayHistoryScreen } from '@/screens/history/RepayHistoryScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -192,6 +194,20 @@ function RootNavigator(): React.ReactNode {
         component={MoneyHistoryScreen}
         options={{
           title: 'MMK History',
+        }}
+      />
+      <RootStack.Screen
+        name="PendingLoans"
+        component={PendingLoansScreen}
+        options={{
+          title: 'Pending Loans',
+        }}
+      />
+      <RootStack.Screen
+        name="RepayHistory"
+        component={RepayHistoryScreen}
+        options={{
+          title: 'Repayment History',
         }}
       />
       <RootStack.Screen

@@ -19,6 +19,10 @@ import {
   GetCoinsRateResponse,
   RepayLoanRequest,
   RepayLoanResponse,
+  GetPendingLoansRequest,
+  GetPendingLoansResponse,
+  GetRepayRequestsRequest,
+  GetRepayRequestsResponse,
 } from '@/api/actions/wallet/walletAPIDataTypes';
 
 export const walletApi = createApi({
@@ -56,7 +60,7 @@ export const walletApi = createApi({
         params,
       }),
     }),
-    requestRefill: builder.mutation<RequestRefillResponse, RequestRefillRequest>({
+    requestRefill: builder.mutation<RequestRefillResponse, FormData>({
       query: (body) => ({
         url: '/refills/request',
         method: 'POST',
@@ -112,6 +116,19 @@ export const walletApi = createApi({
         },
       }),
     }),
+    getPendingLoans: builder.query<GetPendingLoansResponse, GetPendingLoansRequest>({
+      query: () => ({
+        url: '/money/loan/pending',
+        method: 'GET',
+      }),
+    }),
+    getRepayRequests: builder.query<GetRepayRequestsResponse, GetRepayRequestsRequest>({
+      query: (params) => ({
+        url: '/money/loan/repay/my-requests',
+        method: 'GET',
+        params,
+      }),
+    }),
   }),
 });
 
@@ -125,4 +142,6 @@ export const {
   useConvertMoneyToCoinMutation,
   useGetCoinsRateQuery,
   useRepayLoanMutation,
+  useGetPendingLoansQuery,
+  useGetRepayRequestsQuery,
 } = walletApi;

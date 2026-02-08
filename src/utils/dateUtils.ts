@@ -34,3 +34,21 @@ export function formatHistoryDate(dateStr: string) {
     return dateStr;
   }
 }
+
+export function formatFullDate(dateStr: string) {
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+      return dateStr;
+    }
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch (e) {
+    return dateStr;
+  }
+}
