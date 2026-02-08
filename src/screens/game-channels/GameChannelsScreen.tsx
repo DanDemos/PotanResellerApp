@@ -42,10 +42,7 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
     isLoading: notiIsLoading,
     isFetching: notiIsFetching,
     refetch: notiRefetch,
-  } = useGetNotificationListQuery(
-    { page: notiPage, per_page: 15 },
-    { skip: !showNotifications && notifications.length === 0 },
-  );
+  } = useGetNotificationListQuery({ page: notiPage, per_page: 15 });
 
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
@@ -191,6 +188,12 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
     );
   }
 
+  const handleMainRefresh = useCallback(() => {
+    channelsRefetch();
+    setNotiPage(1);
+    notiRefetch();
+  }, [channelsRefetch, notiRefetch]);
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -313,7 +316,7 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
           renderItem={renderChannelItem}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onRefresh={channelsRefetch}
+          onRefresh={handleMainRefresh}
           refreshing={channelsIsLoading}
         />
       )}
