@@ -34,6 +34,7 @@ Follow these rules strictly when working on this project.
 - **Named Exports**: Never use `export default` unless strictly necessary (e.g., for certain library requirements). Always use named exports: `export function ComponentName() { ... }`.
 - **Icons**: Use `@react-native-vector-icons/material-design-icons` exclusively.
 - **Safe Area**: Do not use `SafeAreaView` from `react-native` (it is deprecated). Always use `SafeAreaProvider` and `useSafeAreaInsets` (or `SafeAreaView` with `edges`) from `react-native-safe-area-context`.
+- **Modals**: For components that function as modals, always end the name with `Modal` (e.g., `RepaymentModal`, `CoinTransactionModal`) instead of `Component`.
 
 ### Styling
 
