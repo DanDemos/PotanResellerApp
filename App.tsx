@@ -35,6 +35,7 @@ import { CoinHistoryScreen } from '@/screens/history/CoinHistoryScreen';
 import { MoneyHistoryScreen } from '@/screens/history/MoneyHistoryScreen';
 import { ChatScreen } from '@/screens/chat/ChatScreen';
 import { LoginScreen } from '@/screens/login/LoginScreen';
+import { SupportScreen } from '@/screens/support/SupportScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -191,6 +192,20 @@ function RootNavigator(): React.ReactNode {
         component={MoneyHistoryScreen}
         options={{
           title: 'MMK History',
+        }}
+      />
+      <RootStack.Screen
+        name="Support"
+        component={SupportScreen}
+        options={{
+          title: 'Help & Support',
+          headerStyle: {
+            backgroundColor: '#ffffff',
+          },
+          headerTintColor: colors.primary,
+          headerTitleStyle: {
+            fontWeight: '600',
+          },
         }}
       />
     </RootStack.Navigator>

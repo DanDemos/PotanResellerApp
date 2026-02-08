@@ -206,7 +206,11 @@ export function ProfileScreen(): React.ReactNode {
             <MaterialIcons name="chevron-right" size={24} color="#ccc" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('Support')}
+          >
             <MaterialIcons name="help" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Help & Support</Text>
             <MaterialIcons name="chevron-right" size={24} color="#ccc" />
