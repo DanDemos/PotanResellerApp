@@ -25,7 +25,7 @@ import {
 import { Message } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 import { ActivityIndicator } from 'react-native';
 
-export default function ChatScreen() {
+export function ChatScreen(): React.ReactNode {
   const route = useRoute<any>();
   const { channelUuid, gameName } = route.params || {};
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);

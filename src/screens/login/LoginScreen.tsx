@@ -16,14 +16,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/schemas/authSchemas';
 import { useLoginMutation } from '@/api/actions/auth/authApi';
-import PasswordInput from '@/components/common/PasswordInput/PasswordInput';
+import { PasswordInput } from '@/components/common/PasswordInput/PasswordInput';
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/redux/slices/authSlice';
 import { styles } from './LoginScreen.styles';
 import { colors } from '@/theme/colors';
 
-function LoginScreen() {
+export function LoginScreen(): React.ReactNode {
   const dispatch = useDispatch();
   const { control, handleSubmit, formState } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -140,5 +140,3 @@ function LoginScreen() {
     </SafeAreaView>
   );
 }
-
-export default LoginScreen;

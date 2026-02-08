@@ -21,7 +21,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import Toast from 'react-native-toast-message';
 import { useGetUserDataQuery } from '@/api/actions/user/userApi';
 import { useChangePasswordMutation } from '@/api/actions/auth/authApi';
-import PasswordInput from '@/components/common/PasswordInput/PasswordInput';
+import { PasswordInput } from '@/components/common/PasswordInput/PasswordInput';
 import {
   useRequestRefillMutation,
   useRequestLoanMutation,
@@ -32,7 +32,7 @@ import {
 import { colors } from '@/theme/colors';
 import { styles } from './ProfileScreen.styles';
 
-export default function ProfileScreen() {
+export function ProfileScreen(): React.ReactNode {
   const {
     data: userData,
     isLoading: userIsLoading,

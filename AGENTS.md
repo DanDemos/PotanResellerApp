@@ -30,7 +30,8 @@ Follow these rules strictly when working on this project.
 
 ### Components
 
-- **Functional Components**: Always use `function ComponentName() {}` instead of `const ComponentName = () => {}`.
+- **Functional Components**: Always use `function ComponentName(): React.ReactNode {}` instead of `const ComponentName = () => {}`. **Always declare the explicit return type.**
+- **Named Exports**: Never use `export default` unless strictly necessary (e.g., for certain library requirements). Always use named exports: `export function ComponentName() { ... }`.
 - **Icons**: Use `@react-native-vector-icons/material-design-icons` exclusively.
 - **Safe Area**: Do not use `SafeAreaView` from `react-native` (it is deprecated). Always use `SafeAreaProvider` and `useSafeAreaInsets` (or `SafeAreaView` with `edges`) from `react-native-safe-area-context`.
 

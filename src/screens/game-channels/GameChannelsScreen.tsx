@@ -17,7 +17,7 @@ import { styles } from './GameChannelsScreen.styles';
 import { useGetChannelsQuery } from '@/api/actions/gameChannel/gameChannelApi';
 import { Channel } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 
-export default function GameChannelsScreen({ navigation }: any) {
+export function GameChannelsScreen({ navigation }: any): React.ReactNode {
   const {
     data: channelsData,
     isLoading: channelsIsLoading,

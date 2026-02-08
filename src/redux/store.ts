@@ -16,7 +16,7 @@ import {
   REGISTER,
 } from 'redux-persist';
 
-import authReducer from './slices/authSlice';
+import { authReducer } from './slices/authSlice';
 
 const persistConfig = {
   key: 'auth',
@@ -53,4 +53,4 @@ setupListeners(store.dispatch);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-export default store;
+

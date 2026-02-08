@@ -24,22 +24,22 @@ import { NavigationContainer } from '@react-navigation/native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import Toast from 'react-native-toast-message';
 
-import store, { persistor, RootState } from '@/redux/store';
+import { store, persistor, RootState } from '@/redux/store';
 import { logout } from '@/redux/slices/authSlice';
 import { useLogoutMutation } from '@/api/actions/auth/authApi';
 import { colors } from '@/theme/colors';
 
-import ProfileScreen from '@/screens/profile/ProfileScreen';
-import GameChannelsScreen from '@/screens/game-channels/GameChannelsScreen';
-import CoinHistoryScreen from '@/screens/history/CoinHistoryScreen';
-import MoneyHistoryScreen from '@/screens/history/MoneyHistoryScreen';
-import ChatScreen from '@/screens/chat/ChatScreen';
-import LoginScreen from '@/screens/login/LoginScreen';
+import { ProfileScreen } from '@/screens/profile/ProfileScreen';
+import { GameChannelsScreen } from '@/screens/game-channels/GameChannelsScreen';
+import { CoinHistoryScreen } from '@/screens/history/CoinHistoryScreen';
+import { MoneyHistoryScreen } from '@/screens/history/MoneyHistoryScreen';
+import { ChatScreen } from '@/screens/chat/ChatScreen';
+import { LoginScreen } from '@/screens/login/LoginScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-function CustomDrawerContent(props: any) {
+function CustomDrawerContent(props: any): React.ReactNode {
   const dispatch = useDispatch();
   const [logoutApi] = useLogoutMutation();
   const insets = useSafeAreaInsets();
@@ -96,7 +96,7 @@ function CustomDrawerContent(props: any) {
   );
 }
 
-function ChatStackNavigator() {
+function ChatStackNavigator(): React.ReactNode {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -126,7 +126,7 @@ function ChatStackNavigator() {
   );
 }
 
-function MainDrawerNavigator() {
+function MainDrawerNavigator(): React.ReactNode {
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawerContent {...props} />}
@@ -153,7 +153,7 @@ function MainDrawerNavigator() {
 
 const RootStack = createNativeStackNavigator();
 
-function RootNavigator() {
+function RootNavigator(): React.ReactNode {
   return (
     <RootStack.Navigator
       screenOptions={{
@@ -197,7 +197,7 @@ function RootNavigator() {
   );
 }
 
-function AppContent() {
+function AppContent(): React.ReactNode {
   const isLoggedIn = useSelector((state: RootState) => !!state.auth.token);
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -219,7 +219,7 @@ function AppContent() {
   );
 }
 
-function App() {
+export function App(): React.ReactNode {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
@@ -228,5 +228,3 @@ function App() {
     </Provider>
   );
 }
-
-export default App;

@@ -17,7 +17,7 @@ import { colors } from '@/theme/colors';
 import { RootState } from '@/redux/store';
 import { formatHistoryDate } from '@/utils/dateUtils';
 
-export default function CoinHistoryScreen() {
+export function CoinHistoryScreen(): React.ReactNode {
   const userID = useSelector((state: RootState) => state.auth.user?.id);
   const [historyItems, setHistoryItems] = useState<CoinHistoryItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);

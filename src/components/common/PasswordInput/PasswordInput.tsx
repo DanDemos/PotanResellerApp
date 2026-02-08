@@ -16,12 +16,12 @@ interface PasswordInputProps extends TextInputProps {
   containerStyle?: ViewStyle;
 }
 
-const PasswordInput: React.FC<PasswordInputProps> = ({
+export function PasswordInput({
   label,
   error,
   containerStyle,
   ...textInputProps
-}) => {
+}: PasswordInputProps): React.ReactNode {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -49,6 +49,4 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
-};
-
-export default PasswordInput;
+}

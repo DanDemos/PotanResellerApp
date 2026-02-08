@@ -14,7 +14,7 @@ import { styles } from './MoneyHistoryScreen.styles';
 import { colors } from '@/theme/colors';
 import { formatHistoryDate } from '@/utils/dateUtils';
 
-export default function MoneyHistoryScreen() {
+export function MoneyHistoryScreen(): React.ReactNode {
   const [historyItems, setHistoryItems] = useState<MoneyHistoryGroupedItem[]>(
     [],
   );
