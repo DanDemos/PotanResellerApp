@@ -16,6 +16,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/schemas/authSchemas';
 import { useLoginMutation } from '@/api/actions/auth/authApi';
+import PasswordInput from '@/components/common/PasswordInput/PasswordInput';
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/redux/slices/authSlice';
@@ -28,7 +29,6 @@ function LoginScreen() {
     resolver: zodResolver(loginSchema),
     defaultValues: { phone: '', password: '' },
   });
-  const [showPassword, setShowPassword] = useState(false);
 
   const [
     login,
@@ -107,40 +107,19 @@ function LoginScreen() {
           )}
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={styles.passwordInput}
-                  placeholder="Enter your password"
-                  placeholderTextColor="#9ca3af"
-                  value={value}
-                  onChangeText={onChange}
-                  secureTextEntry={!showPassword}
-                />
-                <TouchableOpacity
-                  style={styles.eyeIcon}
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  <MaterialIcons
-                    name={showPassword ? 'visibility' : 'visibility-off'}
-                    size={24}
-                    color="#9ca3af"
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-          {formState.errors.password && (
-            <Text style={{ color: 'red', marginTop: 6 }}>
-              {String(formState.errors.password.message)}
-            </Text>
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { onChange, value } }) => (
+            <PasswordInput
+              label="Password"
+              placeholder="Enter your password"
+              value={value}
+              onChangeText={onChange}
+              error={formState.errors.password?.message?.toString()}
+            />
           )}
-        </View>
+        />
 
         <TouchableOpacity
           style={[styles.button, loginIsLoading ? { opacity: 0.7 } : {}]}
@@ -150,7 +129,7 @@ function LoginScreen() {
           <Text style={styles.buttonText}>
             <Text style={styles.buttonText}>
               {loginIsLoading ? (
-                <ActivityIndicator size="small" color={colors.primary} />
+                <ActivityIndicator size="small" color={colors.white} />
               ) : (
                 'Sign In'
               )}

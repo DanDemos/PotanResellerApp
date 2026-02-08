@@ -151,14 +151,24 @@ export type RequestLoanResponse = {
   data: any;
 };
 
-export type ConvertCoinsRequest = {
-  coins: number;
-  note: string;
+export type ConvertMoneyToCoinRequest = {
+  amount: number;
 };
 
-export type ConvertCoinsResponse = {
+export type ConvertMoneyToCoinResponse = {
   message: string;
-  data: any;
+  data: {
+    ok: boolean;
+    idempotent: boolean;
+    transaction_id: number;
+    money_spent: number;
+    coins_added: number;
+    rate_used: number;
+    money_before: number;
+    money_after: number;
+    coins_before: number;
+    coins_after: number;
+  };
 };
 
 export type GetCoinsRateResponse = {

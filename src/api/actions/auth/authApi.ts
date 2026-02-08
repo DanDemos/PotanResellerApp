@@ -1,6 +1,6 @@
 import { BACKEND_API_URL } from '@env';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { LoginRequest, LoginResponse, LogoutRequest, LogoutResponse } from '@/api/actions/auth/authAPIDataTypes';
+import { LoginRequest, LoginResponse, LogoutRequest, LogoutResponse, ChangePasswordRequest, ChangePasswordResponse } from '@/api/actions/auth/authAPIDataTypes';
 import type { RootState } from '@/redux/store';
 
 export const authApi = createApi({
@@ -30,7 +30,14 @@ export const authApi = createApi({
         method: 'POST',
       }),
     }),
+    changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordRequest>({
+      query: (body) => ({
+        url: '/change-password',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation } = authApi;
+export const { useLoginMutation, useLogoutMutation, useChangePasswordMutation } = authApi;

@@ -20,10 +20,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import Toast from 'react-native-toast-message';
 import { useGetUserDataQuery } from '@/api/actions/user/userApi';
+import { useChangePasswordMutation } from '@/api/actions/auth/authApi';
+import PasswordInput from '@/components/common/PasswordInput/PasswordInput';
 import {
   useRequestRefillMutation,
   useRequestLoanMutation,
-  useConvertCoinsMutation,
+  useConvertMoneyToCoinMutation,
   useGetCoinsRateQuery,
   useRepayLoanMutation,
 } from '@/api/actions/wallet/walletApi';
@@ -60,7 +62,7 @@ export default function ProfileScreen() {
     },
   ] = useRequestLoanMutation();
   const [
-    convertCoins,
+    convertMoneyToCoin,
     {
       isLoading: convertCoinsIsLoading,
       isSuccess: convertCoinsIsSuccess,
@@ -68,7 +70,7 @@ export default function ProfileScreen() {
       data: convertCoinsData,
       error: convertCoinsError,
     },
-  ] = useConvertCoinsMutation();
+  ] = useConvertMoneyToCoinMutation();
   const { data: coinRateData } = useGetCoinsRateQuery();
 
   // Coin Modal State
@@ -92,6 +94,22 @@ export default function ProfileScreen() {
       error: repayLoanError,
     },
   ] = useRepayLoanMutation();
+
+  // Change Password State
+  const [passwordModalVisible, setPasswordModalVisible] = React.useState(false);
+  const [currentPassword, setCurrentPassword] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+
+  const [
+    changePassword,
+    {
+      isLoading: changePasswordIsLoading,
+      isSuccess: changePasswordIsSuccess,
+      isError: changePasswordIsError,
+      error: changePasswordError,
+    },
+  ] = useChangePasswordMutation();
 
   useFocusEffect(
     useCallback(() => {
@@ -211,6 +229,35 @@ export default function ProfileScreen() {
     }
   }, [repayLoanIsError, repayLoanError]);
 
+  useEffect(() => {
+    if (changePasswordIsSuccess) {
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Password changed successfully',
+      });
+      setPasswordModalVisible(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+  }, [changePasswordIsSuccess]);
+
+  useEffect(() => {
+    if (changePasswordIsError && changePasswordError) {
+      const err = changePasswordError as any;
+      const message =
+        typeof err?.message === 'string'
+          ? err.message
+          : err?.data?.message || 'Failed to change password';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
+    }
+  }, [changePasswordIsError, changePasswordError]);
+
   const onRefresh = useCallback(() => {
     userRefetch();
   }, [userRefetch]);
@@ -310,9 +357,8 @@ export default function ProfileScreen() {
         });
       }
     } else {
-      convertCoins({
-        coins: Number(coinAmount),
-        note: 'Coin exchange from Mobile',
+      convertMoneyToCoin({
+        amount: Number(coinAmount),
       });
     }
     setCoinModalVisible(false);
@@ -364,6 +410,31 @@ export default function ProfileScreen() {
     formData.append('photo', photoFile as any);
 
     repayLoan(formData);
+  };
+
+  const handleOpenPasswordModal = useCallback(() => {
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordModalVisible(true);
+  }, []);
+
+  const handleConfirmChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'New passwords do not match');
+      return;
+    }
+
+    changePassword({
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: confirmPassword,
+    });
   };
 
   const isLoading = userIsLoading;
@@ -672,6 +743,16 @@ export default function ProfileScreen() {
             <MaterialIcons name="chevron-right" size={24} color="#ccc" />
           </TouchableOpacity> */}
 
+          <TouchableOpacity
+            style={styles.actionButton}
+            activeOpacity={0.7}
+            onPress={handleOpenPasswordModal}
+          >
+            <MaterialIcons name="lock" size={24} color={colors.primary} />
+            <Text style={styles.actionButtonText}>Change Password</Text>
+            <MaterialIcons name="chevron-right" size={24} color="#ccc" />
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
             <MaterialIcons name="help" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Help & Support</Text>
@@ -858,6 +939,73 @@ export default function ProfileScreen() {
                   ) : (
                     <Text style={styles.confirmButtonText}>
                       Submit Repayment
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Change Password Modal */}
+      <Modal
+        visible={passwordModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPasswordModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Change Password</Text>
+              <TouchableOpacity
+                onPress={() => setPasswordModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <MaterialIcons name="close" size={24} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <PasswordInput
+                label="Current Password"
+                placeholder="Enter current password"
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+              />
+
+              <PasswordInput
+                label="New Password"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChangeText={setNewPassword}
+              />
+
+              <PasswordInput
+                label="Confirm New Password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setPasswordModalVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={handleConfirmChangePassword}
+                  disabled={changePasswordIsLoading}
+                >
+                  {changePasswordIsLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>
+                      Update Password
                     </Text>
                   )}
                 </TouchableOpacity>

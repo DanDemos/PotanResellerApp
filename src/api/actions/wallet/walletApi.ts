@@ -14,8 +14,8 @@ import {
   GetMoneyHistoryGroupedResponse,
   RequestLoanRequest,
   RequestLoanResponse,
-  ConvertCoinsRequest,
-  ConvertCoinsResponse,
+  ConvertMoneyToCoinRequest,
+  ConvertMoneyToCoinResponse,
   GetCoinsRateResponse,
   RepayLoanRequest,
   RepayLoanResponse,
@@ -83,9 +83,9 @@ export const walletApi = createApi({
         },
       }),
     }),
-    convertCoins: builder.mutation<ConvertCoinsResponse, ConvertCoinsRequest>({
+    convertMoneyToCoin: builder.mutation<ConvertMoneyToCoinResponse, ConvertMoneyToCoinRequest>({
       query: (body) => ({
-        url: '/coins/convert',
+        url: '/money/convert',
         method: 'POST',
         body,
         headers: {
@@ -119,7 +119,7 @@ export const {
   useRequestRefillMutation,
   useGetMoneyHistoryGroupedQuery,
   useRequestLoanMutation,
-  useConvertCoinsMutation,
+  useConvertMoneyToCoinMutation,
   useGetCoinsRateQuery,
   useRepayLoanMutation,
 } = walletApi;
