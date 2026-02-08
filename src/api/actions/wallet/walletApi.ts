@@ -30,6 +30,9 @@ export const walletApi = createApi({
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
+      if (!headers.has('Accept')) {
+        headers.set('Accept', 'application/json');
+      }
       return headers;
     },
   }),

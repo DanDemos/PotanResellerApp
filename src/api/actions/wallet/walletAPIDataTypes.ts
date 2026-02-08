@@ -183,5 +183,9 @@ export type RepayLoanRequest = {
 
 export type RepayLoanResponse = {
   message: string;
-  data: any;
+  data: {
+    idempotent: boolean;
+    request_id: number;
+    status: string;
+  };
 };

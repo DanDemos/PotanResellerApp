@@ -12,6 +12,7 @@ import {
   TextInput,
   Image,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -216,6 +217,7 @@ export function ProfileScreen(): React.ReactNode {
 
   useEffect(() => {
     if (repayLoanIsError && repayLoanError) {
+      console.log(repayLoanError, 'repayLoanError');
       const err = repayLoanError as any;
       const message =
         typeof err?.message === 'string'
@@ -401,13 +403,16 @@ export function ProfileScreen(): React.ReactNode {
     formData.append('note', repayNote || 'Loan repayment from Mobile');
 
     // Construct file object for FormData
-    const photoFile = {
+    const photo = {
       uri: repayPhoto.uri,
-      type: repayPhoto.type || 'image/jpeg',
-      name: repayPhoto.fileName || `repayment_${Date.now()}.jpg`,
+      type:
+        repayPhoto.type === 'image/jpg'
+          ? 'image/jpeg'
+          : repayPhoto.type || 'image/jpeg',
+      name: repayPhoto.fileName || 'repayment.jpg',
     };
 
-    formData.append('photo', photoFile as any);
+    formData.append('photo', photo as any);
 
     repayLoan(formData);
   };
