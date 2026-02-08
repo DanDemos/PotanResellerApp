@@ -27,3 +27,46 @@ export type GetUserResponse = {
 };
 
 export type GetUserRequest = void;
+
+export type NotificationItem = {
+  id: string;
+  type: string;
+  read_at: string | null;
+  created_at: string;
+  data: {
+    title: string;
+    message: string;
+    meta: any;
+  };
+  title: string;
+  message: string;
+  meta: any;
+};
+
+export type GetNotificationListResponse = {
+  unread: number;
+  items: NotificationItem[];
+  current_page?: number;
+  last_page?: number;
+  total?: number;
+  per_page?: number;
+};
+
+export type GetNotificationListRequest = {
+  page?: number;
+  per_page?: number;
+};
+
+export type MarkNotificationAsReadRequest = {
+  id: string;
+};
+
+export type MarkNotificationAsReadResponse = {
+  ok: boolean;
+};
+
+export type MarkAllNotificationsAsReadRequest = void;
+
+export type MarkAllNotificationsAsReadResponse = {
+  ok: boolean;
+};
