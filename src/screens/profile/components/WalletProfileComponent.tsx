@@ -15,26 +15,26 @@ import { User } from '@/api/actions/user/userAPIDataTypes';
 interface WalletProfileComponentProps {
   user: User;
   navigation: any;
-  handleRefillMMK: () => void;
+  openRefillModal: () => void;
   requestRefillIsLoading: boolean;
-  handleLoanRequest: () => void;
+  openLoanModal: () => void;
   requestLoanIsLoading: boolean;
-  handleOpenRepayModal: () => void;
-  handleTopUpCoins: () => void;
-  handleConvertCoins: () => void;
+  openRepayModal: () => void;
+  openCoinTopUpModal: () => void;
+  openCoinConvertModal: () => void;
   convertCoinsIsLoading: boolean;
 }
 
 export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
   user,
   navigation,
-  handleRefillMMK,
+  openRefillModal,
   requestRefillIsLoading,
-  handleLoanRequest,
+  openLoanModal,
   requestLoanIsLoading,
-  handleOpenRepayModal,
-  handleTopUpCoins,
-  handleConvertCoins,
+  openRepayModal,
+  openCoinTopUpModal,
+  openCoinConvertModal,
   convertCoinsIsLoading,
 }) => {
   return (
@@ -54,7 +54,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
               <Path
                 d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,110 C 160,125 148,125 148,140 C 148,155 160,155 160,170 L 160,264 C 160,272.8 152.8,280 144,280 L 16,280 C 7.2,280 0,272.8 0,264 L 0,16 C 0,7.2 7.2,0 16,0 Z"
                 fill="#ffffff"
-                stroke="#eeeeee"
+                stroke="#e0e0e0"
                 strokeWidth="1"
               />
             </Svg>
@@ -88,7 +88,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                   styles.topupButton,
                   styles.compactActionButton,
                 ]}
-                onPress={handleRefillMMK}
+                onPress={openRefillModal}
                 disabled={requestRefillIsLoading}
               >
                 <MaterialIcons name="add" size={18} color="#fff" />
@@ -109,7 +109,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                   styles.loanButton,
                   styles.compactActionButton,
                 ]}
-                onPress={handleLoanRequest}
+                onPress={openLoanModal}
                 disabled={requestLoanIsLoading}
               >
                 <MaterialIcons
@@ -135,7 +135,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                     styles.historyButton,
                     styles.compactActionButton,
                   ]}
-                  onPress={handleOpenRepayModal}
+                  onPress={openRepayModal}
                 >
                   <MaterialIcons
                     name="payments"
@@ -171,7 +171,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
           <TouchableOpacity
             style={styles.floatingConversionButton}
             activeOpacity={0.8}
-            onPress={handleConvertCoins}
+            onPress={openCoinConvertModal}
             disabled={convertCoinsIsLoading}
           >
             <MaterialIcons
@@ -194,7 +194,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
               <Path
                 d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,264 C 160,272.8 152.8,280 144,280 L 16,280 C 7.2,280 0,272.8 0,264 L 0,170 C 0,155 12,155 12,140 C 12,125 0,125 0,110 L 0,16 C 0,7.2 7.2,0 16,0 Z"
                 fill="#ffffff"
-                stroke="#eeeeee"
+                stroke="#e0e0e0"
                 strokeWidth="1"
               />
             </Svg>
@@ -231,7 +231,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                   styles.coinTopupButton,
                   styles.compactActionButton,
                 ]}
-                onPress={handleTopUpCoins}
+                onPress={openCoinTopUpModal}
                 disabled={requestRefillIsLoading}
               >
                 <MaterialIcons name="add" size={18} color={colors.white} />

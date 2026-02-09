@@ -176,15 +176,17 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
               <Text style={styles.rateText}>
                 Rate: 1 Coin = {coinRateData?.coin_to_money_rate || '...'} MMK
               </Text>
-              <Text style={styles.resultText}>
-                {coinMode === 'topup' ? 'Estimated Cost: ' : 'Total Cost: '}
-                {coinAmount && coinRateData?.coin_to_money_rate
-                  ? (
-                      Number(coinAmount) * coinRateData.coin_to_money_rate
-                    ).toLocaleString()
-                  : '0'}{' '}
-                MMK
-              </Text>
+              {coinMode !== 'topup' && (
+                <Text style={styles.resultText}>
+                  {'You will use up: '}
+                  {coinAmount && coinRateData?.coin_to_money_rate
+                    ? (
+                        Number(coinAmount) * coinRateData.coin_to_money_rate
+                      ).toLocaleString()
+                    : '0'}{' '}
+                  MMK
+                </Text>
+              )}
             </View>
 
             <View style={styles.modalActions}>

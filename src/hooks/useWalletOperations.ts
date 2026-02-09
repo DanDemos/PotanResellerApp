@@ -214,38 +214,14 @@ export function useWalletOperations({
     return requestRefill(formData).unwrap();
   };
 
-  const handleLoanRequest = useCallback(
-    () => {
-      if (typeof userId !== 'number') return;
-
-      Alert.prompt(
-        'Loan Request',
-        'Enter the amount you wish to borrow (MMK)',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Request',
-            onPress: async (amount: string | undefined) => {
-              if (!amount || isNaN(Number(amount))) {
-                Alert.alert(
-                  'Invalid Amount',
-                  'Please enter a valid numeric amount.',
-                );
-                return;
-              }
-              requestLoan({
-                borrower_user_id: userId.toString(),
-                amount: amount,
-                note: 'Loan request from Mobile',
-              });
-            },
-          },
-        ],
-        'plain-text',
-      );
-    },
-    [userId, requestLoan],
-  );
+  const handleConfirmLoan = async (amount: string, note: string) => {
+    if (typeof userId !== 'number') return;
+    return requestLoan({
+      borrower_user_id: userId.toString(),
+      amount: amount,
+      note: note || 'Loan request from Mobile',
+    }).unwrap();
+  };
 
   const handleConfirmCoinTransaction = async (
     mode: 'topup' | 'convert',
@@ -302,7 +278,7 @@ export function useWalletOperations({
     repayLoanIsSuccess,
     // Handlers
     handleConfirmRefill,
-    handleLoanRequest,
+    handleConfirmLoan,
     handleConfirmCoinTransaction,
     handleConfirmRepayment,
   };

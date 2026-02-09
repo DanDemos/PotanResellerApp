@@ -21,6 +21,7 @@ import { RepaymentModal } from './components/RepaymentModal';
 import { CoinTransactionModal } from './components/CoinTransactionModal';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { RefillModal } from './components/RefillModal';
+import { LoanRequestModal } from './components/LoanRequestModal';
 
 export function ProfileScreen(): React.ReactNode {
   const navigation = useNavigation<any>();
@@ -29,6 +30,7 @@ export function ProfileScreen(): React.ReactNode {
   const [coinModalVisible, setCoinModalVisible] = useState(false);
   const [repayModalVisible, setRepayModalVisible] = useState(false);
   const [refillModalVisible, setRefillModalVisible] = useState(false);
+  const [loanModalVisible, setLoanModalVisible] = useState(false);
 
   // Success callbacks to close modals
   const handlePasswordChangeSuccess = useCallback(() => {
@@ -39,6 +41,7 @@ export function ProfileScreen(): React.ReactNode {
     setCoinModalVisible(false);
     setRepayModalVisible(false);
     setRefillModalVisible(false);
+    setLoanModalVisible(false);
   }, []);
 
   const {
@@ -64,8 +67,9 @@ export function ProfileScreen(): React.ReactNode {
     convertCoinsIsSuccess,
     requestRefillIsSuccess,
     repayLoanIsSuccess,
+    requestLoanIsSuccess,
     handleConfirmRefill,
-    handleLoanRequest,
+    handleConfirmLoan,
     handleConfirmCoinTransaction,
     handleConfirmRepayment,
   } = useWalletOperations({
@@ -87,15 +91,19 @@ export function ProfileScreen(): React.ReactNode {
     setCoinModalVisible(true);
   }, []);
 
-  const handleOpenRepayModal = useCallback(() => {
+  const openRepayModal = useCallback(() => {
     setRepayModalVisible(true);
   }, []);
 
-  const handleOpenRefillModal = useCallback(() => {
+  const openLoanModal = useCallback(() => {
+    setLoanModalVisible(true);
+  }, []);
+
+  const openRefillModal = useCallback(() => {
     setRefillModalVisible(true);
   }, []);
 
-  const handleOpenPasswordModal = useCallback(() => {
+  const openPasswordModal = useCallback(() => {
     setPasswordModalVisible(true);
   }, []);
 
@@ -189,13 +197,13 @@ export function ProfileScreen(): React.ReactNode {
         <WalletProfileComponent
           user={user}
           navigation={navigation}
-          handleRefillMMK={handleOpenRefillModal}
+          openRefillModal={openRefillModal}
           requestRefillIsLoading={requestRefillIsLoading}
-          handleLoanRequest={handleLoanRequest}
+          openLoanModal={openLoanModal}
           requestLoanIsLoading={requestLoanIsLoading}
-          handleOpenRepayModal={handleOpenRepayModal}
-          handleTopUpCoins={handleTopUpCoins}
-          handleConvertCoins={handleConvertCoinsAction}
+          openRepayModal={openRepayModal}
+          openCoinTopUpModal={handleTopUpCoins}
+          openCoinConvertModal={handleConvertCoinsAction}
           convertCoinsIsLoading={convertCoinsIsLoading}
         />
 
@@ -206,7 +214,7 @@ export function ProfileScreen(): React.ReactNode {
           <TouchableOpacity
             style={styles.actionButton}
             activeOpacity={0.7}
-            onPress={handleOpenPasswordModal}
+            onPress={openPasswordModal}
           >
             <MaterialIcons name="lock" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Change Password</Text>
@@ -262,6 +270,15 @@ export function ProfileScreen(): React.ReactNode {
         isLoading={changePasswordIsLoading}
         isSuccess={changePasswordIsSuccess}
         onSubmit={handleChangePassword}
+      />
+
+      {/* Loan Request Modal */}
+      <LoanRequestModal
+        visible={loanModalVisible}
+        setVisible={setLoanModalVisible}
+        isLoading={requestLoanIsLoading}
+        isSuccess={requestLoanIsSuccess}
+        onSubmit={handleConfirmLoan}
       />
     </SafeAreaView>
   );

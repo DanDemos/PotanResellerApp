@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingTop: 16,
   },
   sectionTitle: {
     fontSize: 16,
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
   infoCard: {
     backgroundColor: '#f9f9f9',
     borderRadius: 12,
-    paddingTop: 12,
+    paddingVertical: 12,
     paddingHorizontal: 12,
     marginBottom: 8,
   },
@@ -373,12 +373,12 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: '#0369A1',
     fontWeight: '600',
-    marginBottom: 4,
   },
   resultText: {
     fontSize: 16,
     fontWeight: '800',
     color: '#0284C7',
+    marginTop: 4,
   },
   modalActions: {
     flexDirection: 'row',
