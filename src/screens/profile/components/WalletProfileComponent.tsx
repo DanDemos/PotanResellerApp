@@ -210,7 +210,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
               <MaterialIcons name="monetization-on" size={20} color="#fff9e6" />
             </View>
             <View style={styles.walletTitleContainer}>
-              <Text style={styles.walletTitle}>Coins</Text>
+              <Text style={styles.walletTitle}>Smile Coins</Text>
               <Text
                 style={[
                   styles.walletAmount,
