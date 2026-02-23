@@ -8,6 +8,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@env": [
+        "src/types/env.d.ts"
       ]
     }
   },

@@ -11,6 +11,6 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-unused-vars': ['warn'],
-    'import/no-unresolved': 'error',
+    'import/no-unresolved': ['error', { ignore: ['@env'] }],
   },
 };

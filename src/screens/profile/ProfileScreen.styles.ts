@@ -127,6 +127,8 @@ export const styles = StyleSheet.create({
     minHeight: 280,
     justifyContent: 'space-between',
     backgroundColor: 'transparent',
+    borderColor: '#eee',
+    borderWidth: 1,
   },
   floatingConversionButton: {
     position: 'absolute',

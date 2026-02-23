@@ -44,7 +44,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
       <View style={styles.walletsContainer}>
         {/* MMK Wallet Card */}
         <View style={styles.compactBalanceCard}>
-          <View style={StyleSheet.absoluteFill}>
+          {/* <View style={StyleSheet.absoluteFill}>
             <Svg
               width="100%"
               height="100%"
@@ -58,7 +58,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                 strokeWidth="1"
               />
             </Svg>
-          </View>
+          </View> */}
           <View style={[styles.walletHeader, styles.compactWalletHeader]}>
             <View style={[styles.walletIcon, styles.compactWalletIcon]}>
               <Text style={[styles.currencyText, { fontSize: 16 }]}>Ks</Text>
@@ -163,7 +163,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
         </View>
 
         {/* Floating Conversion Arrow */}
-        {convertCoinsIsLoading ? (
+        {/* {convertCoinsIsLoading ? (
           <View style={styles.floatingConversionLoadingButton}>
             <ActivityIndicator size="small" color={colors.white} />
           </View>
@@ -180,11 +180,11 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
               color={colors.primary}
             />
           </TouchableOpacity>
-        )}
+        )} */}
 
         {/* Coin Wallet Card */}
         <View style={styles.compactBalanceCard}>
-          <View style={StyleSheet.absoluteFill}>
+          {/* <View style={StyleSheet.absoluteFill}>
             <Svg
               width="100%"
               height="100%"
@@ -198,7 +198,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                 strokeWidth="1"
               />
             </Svg>
-          </View>
+          </View> */}
           <View style={[styles.walletHeader, styles.compactWalletHeader]}>
             <View
               style={[
