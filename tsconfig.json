@@ -10,7 +10,7 @@
         "./src/*"
       ],
       "@env": [
-        "src/types/env.d.ts"
+        "src/global/types/env.d.ts"
       ]
     }
   },

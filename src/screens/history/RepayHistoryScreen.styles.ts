@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -11,11 +11,11 @@ export const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

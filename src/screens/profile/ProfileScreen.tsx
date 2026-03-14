@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,105 +7,33 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  StyleSheet,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 import { styles } from './ProfileScreen.styles';
-import { useUserOperations } from '@/hooks/useUserOperations';
-import { useWalletOperations } from '@/hooks/useWalletOperations';
 import { WalletProfileComponent } from './components/WalletProfileComponent';
-import { RepaymentModal } from './components/RepaymentModal';
-import { CoinTransactionModal } from './components/CoinTransactionModal';
-import { ChangePasswordModal } from './components/ChangePasswordModal';
-import { RefillModal } from './components/RefillModal';
-import { LoanRequestModal } from './components/LoanRequestModal';
+import { RepaymentModal } from './modals/RepaymentModal';
+import { CoinTransactionModal } from './modals/CoinTransactionModal';
+import { ChangePasswordModal } from './modals/ChangePasswordModal';
+import { RefillModal } from './modals/RefillModal';
+import { LoanRequestModal } from './modals/LoanRequestModal';
+
+// VIPER Imports
+import { useProfileInteractor } from '@/features/profile/ProfileInteractor';
+import { ProfileRouter } from '@/features/profile/ProfileRouter';
+import { useProfilePresenter } from '@/features/profile/ProfilePresentor';
 
 export function ProfileScreen(): React.ReactNode {
   const navigation = useNavigation<any>();
-  // UI Visibility States
-  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
-  const [coinModalVisible, setCoinModalVisible] = useState(false);
-  const [repayModalVisible, setRepayModalVisible] = useState(false);
-  const [refillModalVisible, setRefillModalVisible] = useState(false);
-  const [loanModalVisible, setLoanModalVisible] = useState(false);
 
-  // Success callbacks to close modals
-  const handlePasswordChangeSuccess = useCallback(() => {
-    setPasswordModalVisible(false);
-  }, []);
+  // VIPER Initialization
+  const interactor = useProfileInteractor();
+  const router = useMemo(() => new ProfileRouter(navigation), [navigation]);
+  const presenter = useProfilePresenter(interactor, router);
 
-  const handleWalletOperationSuccess = useCallback(() => {
-    setCoinModalVisible(false);
-    setRepayModalVisible(false);
-    setRefillModalVisible(false);
-    setLoanModalVisible(false);
-  }, []);
-
-  const {
-    userData,
-    userIsLoading,
-    userIsFetching,
-    userError,
-    userRefetch,
-    changePasswordIsLoading,
-    changePasswordIsSuccess,
-    onRefresh,
-    handleChangePassword,
-  } = useUserOperations({
-    onPasswordChangeSuccess: handlePasswordChangeSuccess,
-  });
-
-  const {
-    coinRateData,
-    requestRefillIsLoading,
-    requestLoanIsLoading,
-    convertCoinsIsLoading,
-    repayLoanIsLoading,
-    convertCoinsIsSuccess,
-    requestRefillIsSuccess,
-    repayLoanIsSuccess,
-    requestLoanIsSuccess,
-    handleConfirmRefill,
-    handleConfirmLoan,
-    handleConfirmCoinTransaction,
-    handleConfirmRepayment,
-  } = useWalletOperations({
-    userId: userData?.user?.id,
-    userRefetch,
-    onSuccess: handleWalletOperationSuccess,
-  });
-
-  // Modal specific visibility toggles
-  const [coinMode, setCoinMode] = useState<'topup' | 'convert'>('topup');
-
-  const handleTopUpCoins = useCallback(() => {
-    setCoinMode('topup');
-    setCoinModalVisible(true);
-  }, []);
-
-  const handleConvertCoinsAction = useCallback(() => {
-    setCoinMode('convert');
-    setCoinModalVisible(true);
-  }, []);
-
-  const openRepayModal = useCallback(() => {
-    setRepayModalVisible(true);
-  }, []);
-
-  const openLoanModal = useCallback(() => {
-    setLoanModalVisible(true);
-  }, []);
-
-  const openRefillModal = useCallback(() => {
-    setRefillModalVisible(true);
-  }, []);
-
-  const openPasswordModal = useCallback(() => {
-    setPasswordModalVisible(true);
-  }, []);
+  const { userRefetch } = interactor;
 
   useFocusEffect(
     useCallback(() => {
@@ -113,7 +41,7 @@ export function ProfileScreen(): React.ReactNode {
     }, [userRefetch]),
   );
 
-  if (userIsLoading) {
+  if (presenter.isLoading) {
     return (
       <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -121,10 +49,10 @@ export function ProfileScreen(): React.ReactNode {
     );
   }
 
-  if (userError || !userData || !userData.user) {
+  if (presenter.error || !presenter.user) {
     const errorMsg =
-      (userError as any)?.data?.message ||
-      (userError as any)?.message ||
+      (presenter.error as any)?.data?.message ||
+      (presenter.error as any)?.message ||
       'Failed to load profile';
     return (
       <View style={[styles.container, styles.center]}>
@@ -133,17 +61,17 @@ export function ProfileScreen(): React.ReactNode {
     );
   }
 
-  const user = userData.user;
+  const user = presenter.user;
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
-            refreshing={userIsFetching}
-            onRefresh={onRefresh}
+            refreshing={presenter.isFetching}
+            onRefresh={presenter.onRefresh}
             colors={[colors.primary]}
             tintColor={colors.primary}
           />
@@ -161,7 +89,7 @@ export function ProfileScreen(): React.ReactNode {
             <Text style={styles.email}>{user.email ?? 'No email'}</Text>
             {(user.type === 'vip' || user.type === 'buyer') && (
               <View style={styles.vipBadge}>
-                <MaterialIcons name="star" size={16} color="#000" />
+                <MaterialIcons name="star" size={16} color={colors.textDark} />
                 <Text style={styles.vipText}>VIP MEMBER</Text>
               </View>
             )}
@@ -197,14 +125,14 @@ export function ProfileScreen(): React.ReactNode {
         <WalletProfileComponent
           user={user}
           navigation={navigation}
-          openRefillModal={openRefillModal}
-          requestRefillIsLoading={requestRefillIsLoading}
-          openLoanModal={openLoanModal}
-          requestLoanIsLoading={requestLoanIsLoading}
-          openRepayModal={openRepayModal}
-          openCoinTopUpModal={handleTopUpCoins}
-          openCoinConvertModal={handleConvertCoinsAction}
-          convertCoinsIsLoading={convertCoinsIsLoading}
+          openRefillModal={presenter.openRefillModal}
+          requestRefillIsLoading={presenter.refillLoading}
+          openLoanModal={presenter.openLoanModal}
+          requestLoanIsLoading={presenter.loanLoading}
+          openRepayModal={presenter.openRepayModal}
+          openCoinTopUpModal={presenter.handleTopUpCoins}
+          openCoinConvertModal={presenter.handleConvertCoinsAction}
+          convertCoinsIsLoading={presenter.convertLoading}
         />
 
         {/* Other Actions Section */}
@@ -214,7 +142,7 @@ export function ProfileScreen(): React.ReactNode {
           <TouchableOpacity
             style={styles.actionButton}
             activeOpacity={0.7}
-            onPress={openPasswordModal}
+            onPress={presenter.openPasswordModal}
           >
             <MaterialIcons name="lock" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Change Password</Text>
@@ -224,7 +152,7 @@ export function ProfileScreen(): React.ReactNode {
           <TouchableOpacity
             style={styles.actionButton}
             activeOpacity={0.7}
-            onPress={() => navigation.navigate('Support')}
+            onPress={presenter.navigateToSupport}
           >
             <MaterialIcons name="help" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Help & Support</Text>
@@ -235,50 +163,47 @@ export function ProfileScreen(): React.ReactNode {
 
       {/* Refill Modal */}
       <RefillModal
-        visible={refillModalVisible}
-        setVisible={setRefillModalVisible}
-        isLoading={requestRefillIsLoading}
-        isSuccess={requestRefillIsSuccess}
-        onSubmit={handleConfirmRefill}
+        visible={presenter.refillModalVisible}
+        setVisible={presenter.setRefillModalVisible}
+        isLoading={presenter.refillLoading}
+        isSuccess={presenter.refillSuccess}
+        onSubmit={presenter.confirmRefill}
       />
 
       {/* Coin Transaction Modal */}
       <CoinTransactionModal
-        visible={coinModalVisible}
-        setVisible={setCoinModalVisible}
-        coinMode={coinMode}
-        coinRateData={coinRateData}
-        handleConfirm={handleConfirmCoinTransaction}
-        isLoading={convertCoinsIsLoading || requestRefillIsLoading}
-        isSuccess={convertCoinsIsSuccess || requestRefillIsSuccess}
+        visible={presenter.coinModalVisible}
+        setVisible={presenter.setCoinModalVisible}
+        coinMode={presenter.coinMode}
+        coinRateData={presenter.coinRateData}
+        handleConfirm={presenter.confirmCoinTransaction}
+        isLoading={presenter.convertLoading || presenter.refillLoading}
+        isSuccess={presenter.convertSuccess || presenter.refillSuccess}
       />
 
       {/* Repayment Modal */}
       <RepaymentModal
-        visible={repayModalVisible}
-        setVisible={setRepayModalVisible}
-        isLoading={repayLoanIsLoading}
-        isSuccess={repayLoanIsSuccess}
-        onSubmit={handleConfirmRepayment}
+        visible={presenter.repayModalVisible}
+        setVisible={presenter.setRepayModalVisible}
+        isLoading={presenter.repayLoading}
+        isSuccess={presenter.repaySuccess}
+        onSubmit={presenter.confirmRepayment}
         user={user}
       />
 
       {/* Change Password Modal */}
       <ChangePasswordModal
-        visible={passwordModalVisible}
-        setVisible={setPasswordModalVisible}
-        isLoading={changePasswordIsLoading}
-        isSuccess={changePasswordIsSuccess}
-        onSubmit={handleChangePassword}
+        visible={presenter.passwordModalVisible}
+        setVisible={presenter.setPasswordModalVisible}
       />
 
       {/* Loan Request Modal */}
       <LoanRequestModal
-        visible={loanModalVisible}
-        setVisible={setLoanModalVisible}
-        isLoading={requestLoanIsLoading}
-        isSuccess={requestLoanIsSuccess}
-        onSubmit={handleConfirmLoan}
+        visible={presenter.loanModalVisible}
+        setVisible={presenter.setLoanModalVisible}
+        isLoading={presenter.loanLoading}
+        isSuccess={presenter.loanSuccess}
+        onSubmit={presenter.confirmLoan}
       />
     </SafeAreaView>
   );

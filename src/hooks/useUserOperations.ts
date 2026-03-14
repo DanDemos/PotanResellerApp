@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import Toast from 'react-native-toast-message';
 import { useGetUserDataQuery } from '@/api/actions/user/userApi';
 import { useChangePasswordMutation } from '@/api/actions/auth/authApi';
@@ -60,11 +60,11 @@ export function useUserOperations({ onPasswordChangeSuccess }: UseUserOperations
     userRefetch();
   }, [userRefetch]);
 
-  const handleChangePassword = async (data: ChangePasswordRequest) => {
+  const handleChangePassword = useCallback(async (data: ChangePasswordRequest) => {
     return changePassword(data).unwrap();
-  };
+  }, [changePassword]);
 
-  return {
+  return useMemo(() => ({
     // Data
     userData,
     userIsLoading,
@@ -77,5 +77,15 @@ export function useUserOperations({ onPasswordChangeSuccess }: UseUserOperations
     // Handlers
     onRefresh,
     handleChangePassword,
-  };
+  }), [
+    userData,
+    userIsLoading,
+    userIsFetching,
+    userError,
+    userRefetch,
+    changePasswordIsLoading,
+    changePasswordIsSuccess,
+    onRefresh,
+    handleChangePassword
+  ]);
 }

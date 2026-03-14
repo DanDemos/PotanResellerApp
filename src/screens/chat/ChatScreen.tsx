@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,66 +8,43 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 import { styles } from './ChatScreen.styles';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import {
-  useGetChannelMessagesQuery,
-  useMarkMessageAsReadMutation,
-} from '@/api/actions/gameChannel/gameChannelApi';
 import { Message } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
-import { ActivityIndicator } from 'react-native';
+
+// VIPER Imports
+import { useChatInteractor } from '@/features/chat/ChatInteractor';
+import { ChatRouter } from '@/features/chat/ChatRouter';
+import { useChatPresentor } from '@/features/chat/ChatPresentor';
 
 export function ChatScreen(): React.ReactNode {
   const route = useRoute<any>();
-  const { channelUuid, gameName } = route.params || {};
+  const navigation = useNavigation<any>();
+  const { channelUuid } = route.params || {};
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
 
-  const {
-    data: messagesData,
-    isLoading: messagesIsLoading,
-    error: messagesError,
-    refetch: messagesRefetch,
-  } = useGetChannelMessagesQuery(channelUuid, {
-    skip: !channelUuid,
-    refetchOnMountOrArgChange: true,
-  });
+  // VIPER Initialization
+  const interactor = useChatInteractor(channelUuid);
+  const router = useMemo(() => new ChatRouter(navigation), [navigation]);
+  const presenter = useChatPresentor(interactor, router, currentUserId);
 
-  const [markAsRead] = useMarkMessageAsReadMutation();
-
-  const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
 
-  const messages = messagesData?.messages?.data || [];
-
-  // Mark messages as read when they arrive
+  // View-specific UI side effect: Scroll to end on new messages
   useEffect(() => {
-    if (messages.length > 0 && currentUserId) {
-      messages.forEach(msg => {
-        if (!msg.read_at && msg.sender_id !== currentUserId) {
-          markAsRead(msg.id);
-        }
-      });
+    if (presenter.messages.length > 0) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
-  }, [messages, currentUserId, markAsRead]);
-
-  const handleSendMessage = () => {
-    if (inputText.trim() === '') return;
-    // TODO: Implement send message API
-    console.log('Sending message:', inputText);
-    setInputText('');
-  };
-
-  useEffect(() => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  }, [messages]);
+  }, [presenter.messages]);
 
   const renderMessage = ({ item }: { item: Message }) => {
     const isUser = item.sender_id === currentUserId;
@@ -107,25 +82,25 @@ export function ChatScreen(): React.ReactNode {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
         {/* Messages List */}
-        {messagesIsLoading ? (
+        {presenter.isLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
-        ) : messagesError ? (
+        ) : presenter.error ? (
           <View style={styles.center}>
             <Text style={styles.errorText}>
-              {(messagesError as any)?.data?.message ||
-                (messagesError as any)?.message ||
+              {(presenter.error as any)?.data?.message ||
+                (presenter.error as any)?.message ||
                 'Failed to load messages'}
             </Text>
             <TouchableOpacity
-              onPress={() => messagesRefetch()}
+              onPress={() => presenter.refetch()}
               style={styles.retryButton}
             >
               <Text style={styles.retryButtonText}>Retry</Text>
@@ -134,13 +109,13 @@ export function ChatScreen(): React.ReactNode {
         ) : (
           <FlatList
             ref={flatListRef}
-            data={messages}
+            data={presenter.messages}
             keyExtractor={item => item.id.toString()}
             renderItem={renderMessage}
             contentContainerStyle={styles.messagesContent}
             scrollEnabled={true}
-            onRefresh={messagesRefetch}
-            refreshing={messagesIsLoading}
+            onRefresh={presenter.refetch}
+            refreshing={presenter.isLoading}
             ListEmptyComponent={
               <View style={styles.center}>
                 <Text style={styles.emptyText}>No messages yet</Text>
@@ -155,18 +130,18 @@ export function ChatScreen(): React.ReactNode {
             <TextInput
               style={styles.input}
               placeholder="Type your message..."
-              placeholderTextColor="#999"
-              value={inputText}
-              onChangeText={setInputText}
+              placeholderTextColor={colors.textLight}
+              value={presenter.inputText}
+              onChangeText={presenter.setInputText}
               multiline
             />
           </View>
           <TouchableOpacity
             style={styles.sendButton}
-            onPress={handleSendMessage}
+            onPress={presenter.handleSendMessage}
             activeOpacity={0.7}
           >
-            <MaterialIcons name="send" size={20} color="#ffffff" />
+            <MaterialIcons name="send" size={20} color={colors.white} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

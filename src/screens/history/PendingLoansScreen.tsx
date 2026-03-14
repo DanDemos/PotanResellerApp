@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
@@ -9,26 +10,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useGetPendingLoansQuery } from '@/api/actions/wallet/walletApi';
 import { PendingLoan } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './PendingLoansScreen.styles';
-import { colors } from '@/theme/colors';
-import { formatFullDate } from '@/utils/dateUtils';
+import { colors } from '@/global/theme/colors';
+import { formatFullDate } from '@/global/utils/dateUtils';
+import { usePendingLoansPresentor } from '@/features/history/PendingLoans/PendingLoansPresentor';
 
-export function PendingLoansScreen(): React.ReactNode {
-  const {
-    data: loansData,
-    isLoading,
-    isFetching,
-    error,
-    refetch,
-  } = useGetPendingLoansQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
-
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+export function PendingLoansScreen({ navigation }: any): React.ReactNode {
+  const presenter = usePendingLoansPresentor(navigation);
 
   function renderItem({ item }: { item: PendingLoan }) {
     return (
@@ -54,7 +43,7 @@ export function PendingLoansScreen(): React.ReactNode {
     );
   }
 
-  if (isLoading) {
+  if (presenter.isLoading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -62,16 +51,16 @@ export function PendingLoansScreen(): React.ReactNode {
     );
   }
 
-  if (error) {
+  if (presenter.error) {
     return (
       <View style={styles.center}>
         <MaterialIcons name="error-outline" size={60} color="#EF4444" />
         <Text style={styles.errorText}>
-          {(error as any)?.data?.message || 'Failed to load pending loans'}
+          {(presenter.error as any)?.data?.message || 'Failed to load pending loans'}
         </Text>
         <TouchableOpacity
           style={{ marginTop: 20, padding: 10 }}
-          onPress={onRefresh}
+          onPress={presenter.onRefresh}
         >
           <Text style={{ color: colors.primary, fontWeight: '700' }}>
             Retry
@@ -84,14 +73,14 @@ export function PendingLoansScreen(): React.ReactNode {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <FlatList
-        data={loansData?.data || []}
+        data={presenter.loansData?.data || []}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl
-            refreshing={isFetching}
-            onRefresh={onRefresh}
+            refreshing={presenter.isFetching}
+            onRefresh={presenter.onRefresh}
             colors={[colors.primary]}
           />
         }

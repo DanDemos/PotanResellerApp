@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,14 +12,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    backgroundColor: '#ffffff', // White header
+    backgroundColor: colors.white, // White header
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333333', // Dark text
+    color: colors.text, // Dark text
     flex: 1,
     marginLeft: 24,
   },
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -136,10 +136,10 @@ export const styles = StyleSheet.create({
     right: 16,
     width: 300,
     maxHeight: 400,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
@@ -230,10 +230,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 4,
     borderWidth: 2,
-    borderColor: '#ffffff',
+    borderColor: colors.white,
   },
   badgeText: {
-    color: '#ffffff',
+    color: colors.white,
     fontSize: 10,
     fontWeight: 'bold',
   },
@@ -254,7 +254,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: 'bold',
   },
 });

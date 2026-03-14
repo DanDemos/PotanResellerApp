@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { styles } from '../ProfileScreen.styles';
+import { useCoinTransactionPresenter } from '@/features/profile/modals/CoinTransaction/CoinTransactionPresenter';
+import { colors } from '@/global/theme/colors';
 
 interface CoinTransactionModalProps {
   visible: boolean;
@@ -29,7 +29,7 @@ interface CoinTransactionModalProps {
   isSuccess: boolean;
 }
 
-export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
+export function CoinTransactionModal({
   visible,
   setVisible,
   coinMode,
@@ -37,61 +37,30 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
   handleConfirm,
   isLoading,
   isSuccess,
-}) => {
-  const [coinAmount, setCoinAmount] = useState('');
-  const [note, setNote] = useState('');
-  const [photo, setPhoto] = useState<any>(null);
-
-  // Clear inputs on success or when closed
-  useEffect(() => {
-    if (isSuccess || !visible) {
-      setCoinAmount('');
-      setNote('');
-      setPhoto(null);
-      if (isSuccess) {
-        setVisible(false);
-      }
-    }
-  }, [isSuccess, visible, setVisible]);
-
-  const pickImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      setPhoto(result.assets[0]);
-    }
-  };
-
-  const onConfirm = async () => {
-    if (!coinAmount || isNaN(Number(coinAmount))) {
-      Alert.alert('Invalid Amount', 'Please enter a valid numeric amount.');
-      return;
-    }
-
-    if (coinMode === 'topup' && !photo) {
-      Alert.alert(
-        'Photo Required',
-        'Please select a photo of your payment receipt.',
-      );
-      return;
-    }
-
-    try {
-      await handleConfirm(coinMode, coinAmount, note, photo);
-    } catch (error) {
-      // Error is handled by Toast in the hook
-    }
-  };
+}: CoinTransactionModalProps): React.ReactNode {
+  const {
+    coinAmount,
+    setCoinAmount,
+    note,
+    setNote,
+    photo,
+    pickImage,
+    onConfirm,
+    handleClose,
+  } = useCoinTransactionPresenter(
+    visible,
+    setVisible,
+    coinMode,
+    isSuccess,
+    handleConfirm,
+  );
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={() => setVisible(false)}
+      onRequestClose={handleClose}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
@@ -99,10 +68,7 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
             <Text style={styles.modalTitle}>
               {coinMode === 'topup' ? 'Top Up Coins' : 'Convert MMK into Coins'}
             </Text>
-            <TouchableOpacity
-              onPress={() => setVisible(false)}
-              style={styles.closeButton}
-            >
+            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
               <MaterialIcons name="close" size={24} color="#94A3B8" />
             </TouchableOpacity>
           </View>
@@ -143,7 +109,7 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
                     style={[
                       styles.photoPicker,
                       photo && {
-                        backgroundColor: '#fff',
+                        backgroundColor: colors.white,
                         borderStyle: 'solid',
                       },
                     ]}
@@ -192,7 +158,7 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setVisible(false)}
+                onPress={handleClose}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -202,7 +168,7 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={colors.white} />
                 ) : (
                   <Text style={styles.confirmButtonText}>
                     {coinMode === 'topup' ? 'Request Coins' : 'Convert'}
@@ -215,4 +181,4 @@ export const CoinTransactionModal: React.FC<CoinTransactionModalProps> = ({
       </View>
     </Modal>
   );
-};
+}

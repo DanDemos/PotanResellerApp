@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { styles } from '../ProfileScreen.styles';
 import { User } from '@/api/actions/user/userAPIDataTypes';
+import { useRepaymentPresenter } from '@/features/profile/modals/Repayment/RepaymentPresenter';
+import { colors } from '@/global/theme/colors';
 
 interface RepaymentModalProps {
   visible: boolean;
@@ -24,77 +24,37 @@ interface RepaymentModalProps {
   user: User;
 }
 
-export const RepaymentModal: React.FC<RepaymentModalProps> = ({
+export function RepaymentModal({
   visible,
   setVisible,
   isLoading,
   isSuccess,
   onSubmit,
   user,
-}) => {
-  const [repayAmount, setRepayAmount] = useState('');
-  const [repayNote, setRepayNote] = useState('');
-  const [repayPhoto, setRepayPhoto] = useState<any>(null);
-
-  // Clear inputs on success or when closed
-  useEffect(() => {
-    if (isSuccess || !visible) {
-      setRepayAmount('');
-      setRepayNote('');
-      setRepayPhoto(null);
-      if (isSuccess) {
-        setVisible(false);
-      }
-    }
-  }, [isSuccess, visible, setVisible]);
-
-  const pickRepaymentImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      setRepayPhoto(result.assets[0]);
-    }
-  };
-
-  const onConfirm = async () => {
-    if (!repayAmount || isNaN(Number(repayAmount))) {
-      Alert.alert('Invalid Amount', 'Please enter a valid numeric amount.');
-      return;
-    }
-
-    if (!repayPhoto) {
-      Alert.alert(
-        'Photo Required',
-        'Please select a photo of your payment receipt.',
-      );
-      return;
-    }
-
-    try {
-      await onSubmit(repayAmount, repayNote, repayPhoto);
-    } catch (error) {
-      // Error is handled by Toast in the hook
-    }
-  };
+}: RepaymentModalProps): React.ReactNode {
+  const {
+    repayAmount,
+    setRepayAmount,
+    repayNote,
+    setRepayNote,
+    repayPhoto,
+    pickRepaymentImage,
+    onConfirm,
+    handleClose,
+  } = useRepaymentPresenter(visible, setVisible, isSuccess, onSubmit);
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={() => setVisible(false)}
+      onRequestClose={handleClose}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Repay Loan</Text>
-            <TouchableOpacity
-              onPress={() => setVisible(false)}
-              style={styles.closeButton}
-            >
+            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
               <MaterialIcons name="close" size={24} color="#94A3B8" />
             </TouchableOpacity>
           </View>
@@ -136,7 +96,7 @@ export const RepaymentModal: React.FC<RepaymentModalProps> = ({
                 style={[
                   styles.photoPicker,
                   repayPhoto && {
-                    backgroundColor: '#fff',
+                    backgroundColor: colors.white,
                     borderStyle: 'solid',
                   },
                 ]}
@@ -166,7 +126,7 @@ export const RepaymentModal: React.FC<RepaymentModalProps> = ({
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setVisible(false)}
+                onPress={handleClose}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -176,7 +136,7 @@ export const RepaymentModal: React.FC<RepaymentModalProps> = ({
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={colors.white} />
                 ) : (
                   <Text style={styles.confirmButtonText}>Submit Repayment</Text>
                 )}
@@ -187,4 +147,4 @@ export const RepaymentModal: React.FC<RepaymentModalProps> = ({
       </View>
     </Modal>
   );
-};
+}

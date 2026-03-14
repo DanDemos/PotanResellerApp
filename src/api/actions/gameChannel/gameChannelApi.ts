@@ -1,6 +1,5 @@
-import { BACKEND_API_URL } from '@env';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { RootState } from '@/redux/store';
+import { rtkBaseApi } from '@/api/fetchers/rtkBaseApi';
+import { ENDPOINTS } from '@/api/endpoints';
 import {
   GetChannelsRequest,
   GetChannelsResponse,
@@ -10,40 +9,31 @@ import {
   MarkMessageAsReadResponse
 } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 
-console.log(BACKEND_API_URL, "BACKEND_API_URL in gameChannelApi")
-export const gameChannelApi = createApi({
-  reducerPath: 'gameChannelApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: BACKEND_API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      headers.set('Content-Type', 'application/json');
-      return headers;
-    },
-  }),
+export const gameChannelApi = rtkBaseApi.injectEndpoints({
   endpoints: (builder) => ({
     getChannels: builder.query<GetChannelsResponse, GetChannelsRequest>({
       query: () => ({
-        url: '/chat/channels',
+        url: ENDPOINTS.GAME_CHANNEL.GET_CHANNELS,
         method: 'GET',
       }),
+      providesTags: ['Channels'],
     }),
     getChannelMessages: builder.query<GetChannelMessagesResponse, GetChannelMessagesRequest>({
       query: (channelUuid) => ({
-        url: `/chat/channels/${channelUuid}`,
+        url: ENDPOINTS.GAME_CHANNEL.GET_CHANNEL_MESSAGES(channelUuid),
         method: 'GET',
       }),
+      providesTags: ['Messages'],
     }),
     markMessageAsRead: builder.mutation<MarkMessageAsReadResponse, MarkMessageAsReadRequest>({
       query: (messageId) => ({
-        url: `/chat/messages/${messageId}/read`,
+        url: ENDPOINTS.GAME_CHANNEL.MARK_MESSAGE_READ(messageId),
         method: 'PATCH',
       }),
+      invalidatesTags: ['Messages'],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const {
@@ -51,3 +41,4 @@ export const {
   useGetChannelMessagesQuery,
   useMarkMessageAsReadMutation
 } = gameChannelApi;
+

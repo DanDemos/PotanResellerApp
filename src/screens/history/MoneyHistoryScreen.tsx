@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
@@ -8,81 +9,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useGetMoneyHistoryGroupedQuery } from '@/api/actions/wallet/walletApi';
 import { MoneyHistoryGroupedItem } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './MoneyHistoryScreen.styles';
-import { colors } from '@/theme/colors';
-import { formatHistoryDate } from '@/utils/dateUtils';
+import { colors } from '@/global/theme/colors';
+import { formatHistoryDate } from '@/global/utils/dateUtils';
+import { useMoneyHistoryPresentor } from '@/features/history/MoneyHistory/MoneyHistoryPresentor';
 
-export function MoneyHistoryScreen(): React.ReactNode {
-  const [historyItems, setHistoryItems] = useState<MoneyHistoryGroupedItem[]>(
-    [],
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const [interval, setInterval] = useState<'daily' | 'weekly' | 'monthly'>(
-    'daily',
-  );
-
-  const {
-    data: moneyHistoryData,
-    isFetching: moneyHistoryIsFetching,
-    isLoading: moneyHistoryIsLoading,
-    error: moneyHistoryError,
-    refetch: moneyHistoryRefetch,
-  } = useGetMoneyHistoryGroupedQuery(
-    {
-      interval,
-      page: currentPage,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
-
-  // Handle data updates and infinite scroll merging
-  useEffect(() => {
-    if (moneyHistoryData?.data?.data) {
-      const newData = moneyHistoryData.data.data;
-      if (currentPage === 1) {
-        setHistoryItems(newData);
-      } else {
-        // Only append if it's actually new data for a new page
-        setHistoryItems(prev => {
-          // Prevent duplicates by checking buckets
-          const existingBuckets = new Set(prev.map(item => item.bucket));
-          const newItems = newData.filter(
-            item => !existingBuckets.has(item.bucket),
-          );
-          return [...prev, ...newItems];
-        });
-      }
-    }
-  }, [moneyHistoryData, currentPage]);
-
-  const onRefresh = useCallback(() => {
-    setCurrentPage(1);
-    moneyHistoryRefetch();
-  }, [moneyHistoryRefetch]);
-
-  function loadMore() {
-    if (
-      !moneyHistoryIsFetching &&
-      moneyHistoryData?.data &&
-      currentPage < moneyHistoryData.data.last_page
-    ) {
-      setCurrentPage(prev => prev + 1);
-    }
-  }
-
-  function handleIntervalChange(newInterval: 'daily' | 'weekly' | 'monthly') {
-    if (newInterval === interval) {
-      moneyHistoryRefetch();
-    } else {
-      setInterval(newInterval);
-      setCurrentPage(1);
-      setHistoryItems([]);
-    }
-  }
+export function MoneyHistoryScreen({ navigation }: any): React.ReactNode {
+  const presenter = useMoneyHistoryPresentor(navigation);
 
   function renderItem({ item }: { item: MoneyHistoryGroupedItem }) {
     const isPositive = parseFloat(item.net_amount) >= 0;
@@ -158,15 +92,15 @@ export function MoneyHistoryScreen(): React.ReactNode {
                 key={item}
                 style={[
                   styles.filterButton,
-                  interval === item && styles.filterButtonActive,
+                  presenter.interval === item && styles.filterButtonActive,
                 ]}
-                onPress={() => handleIntervalChange(item)}
+                onPress={() => presenter.handleIntervalChange(item)}
                 activeOpacity={0.7}
               >
                 <Text
                   style={[
                     styles.filterButtonText,
-                    interval === item && styles.filterButtonTextActive,
+                    presenter.interval === item && styles.filterButtonTextActive,
                   ]}
                 >
                   {item.charAt(0).toUpperCase() + item.slice(1)}
@@ -183,27 +117,27 @@ export function MoneyHistoryScreen(): React.ReactNode {
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       {renderFilterBar()}
 
-      {moneyHistoryIsLoading && currentPage === 1 ? (
+      {presenter.moneyHistoryIsLoading && presenter.currentPage === 1 ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
-      ) : moneyHistoryError && historyItems.length === 0 ? (
+      ) : presenter.moneyHistoryError && presenter.historyItems.length === 0 ? (
         <View style={styles.center}>
           <MaterialIcons name="error-outline" size={60} color="#EF4444" />
           <Text style={styles.errorText}>
-            {(moneyHistoryError as any)?.data?.message ||
-              (moneyHistoryError as any)?.message ||
+            {(presenter.moneyHistoryError as any)?.data?.message ||
+              (presenter.moneyHistoryError as any)?.message ||
               'Failed to load history'}
           </Text>
           <TouchableOpacity
             style={[
               styles.retryButton,
-              moneyHistoryIsFetching && { opacity: 0.7 },
+              presenter.moneyHistoryIsFetching && { opacity: 0.7 },
             ]}
-            onPress={onRefresh}
-            disabled={moneyHistoryIsFetching}
+            onPress={presenter.onRefresh}
+            disabled={presenter.moneyHistoryIsFetching}
           >
-            {moneyHistoryIsFetching ? (
+            {presenter.moneyHistoryIsFetching ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
               <Text style={styles.retryButtonText}>Try Again</Text>
@@ -212,16 +146,16 @@ export function MoneyHistoryScreen(): React.ReactNode {
         </View>
       ) : (
         <FlatList
-          data={historyItems}
+          data={presenter.historyItems}
           keyExtractor={item => item.bucket}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
-          onRefresh={onRefresh}
-          refreshing={moneyHistoryIsFetching && currentPage === 1}
-          onEndReached={loadMore}
+          onRefresh={presenter.onRefresh}
+          refreshing={presenter.moneyHistoryIsFetching && presenter.currentPage === 1}
+          onEndReached={presenter.loadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            moneyHistoryIsFetching && currentPage > 1 ? (
+            presenter.moneyHistoryIsFetching && presenter.currentPage > 1 ? (
               <View style={styles.footerLoading}>
                 <ActivityIndicator color={colors.primary} />
               </View>

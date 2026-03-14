@@ -1,6 +1,5 @@
-import { BACKEND_API_URL } from '@env';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { RootState } from '@/redux/store';
+import { rtkBaseApi } from '@/api/fetchers/rtkBaseApi';
+import { ENDPOINTS } from '@/api/endpoints';
 import {
   GetUserRequest,
   GetUserResponse,
@@ -12,34 +11,21 @@ import {
   MarkAllNotificationsAsReadResponse,
 } from '@/api/actions/user/userAPIDataTypes';
 
-console.log(BACKEND_API_URL, "BACKEND_API_URL in userApi")
-export const userApi = createApi({
-  reducerPath: 'userApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: BACKEND_API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      headers.set('Content-Type', 'application/json');
-      return headers;
-    },
-  }),
-  tagTypes: ['Notifications'],
+export const userApi = rtkBaseApi.injectEndpoints({
   endpoints: (builder) => ({
     getUserData: builder.query<GetUserResponse, GetUserRequest>({
       query: () => ({
-        url: '/me',
+        url: ENDPOINTS.USER.GET_ME,
         method: 'GET',
       }),
+      providesTags: ['Profile'],
     }),
     getNotificationList: builder.query<
       GetNotificationListResponse,
       GetNotificationListRequest
     >({
       query: (params) => ({
-        url: '/notifications',
+        url: ENDPOINTS.USER.NOTIFICATIONS,
         method: 'GET',
         params,
       }),
@@ -50,7 +36,7 @@ export const userApi = createApi({
       MarkNotificationAsReadRequest
     >({
       query: ({ id }) => ({
-        url: `/notifications/${id}/read`,
+        url: ENDPOINTS.USER.MARK_NOTIFICATION_READ(id),
         method: 'POST',
       }),
       invalidatesTags: ['Notifications'],
@@ -60,12 +46,13 @@ export const userApi = createApi({
       MarkAllNotificationsAsReadRequest
     >({
       query: () => ({
-        url: '/notifications/read-all',
+        url: ENDPOINTS.USER.MARK_ALL_NOTIFICATIONS_READ,
         method: 'POST',
       }),
       invalidatesTags: ['Notifications'],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const {
@@ -74,3 +61,4 @@ export const {
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
 } = userApi;
+

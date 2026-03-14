@@ -1,82 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  RefreshControl,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useGetRepayRequestsQuery } from '@/api/actions/wallet/walletApi';
 import { RepayRequest } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './RepayHistoryScreen.styles';
-import { colors } from '@/theme/colors';
-import { formatFullDate } from '@/utils/dateUtils';
+import { colors } from '@/global/theme/colors';
+import { formatFullDate } from '@/global/utils/dateUtils';
+import { useRepayHistoryPresentor } from '@/features/history/RepayHistory/RepayHistoryPresentor';
 
-export function RepayHistoryScreen(): React.ReactNode {
-  const [historyItems, setHistoryItems] = useState<RepayRequest[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const {
-    data: repayData,
-    isLoading,
-    isFetching,
-    error,
-    refetch,
-  } = useGetRepayRequestsQuery(
-    {
-      page: currentPage,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
-
-  useEffect(() => {
-    if (repayData?.data) {
-      const newData = repayData.data;
-      if (currentPage === 1) {
-        setHistoryItems(newData);
-      } else {
-        setHistoryItems(prev => {
-          const existingIds = new Set(prev.map(item => item.id));
-          const filteredNewData = newData.filter(
-            item => !existingIds.has(item.id),
-          );
-          return [...prev, ...filteredNewData];
-        });
-      }
-    }
-  }, [repayData, currentPage]);
-
-  const onRefresh = useCallback(() => {
-    setCurrentPage(1);
-    refetch();
-  }, [refetch]);
-
-  function loadMore() {
-    if (!isFetching && repayData && currentPage < repayData.last_page) {
-      setCurrentPage(prev => prev + 1);
-    }
-  }
-
-  function getStatusColor(status: string) {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return { bg: '#DCFCE7', text: '#166534' };
-      case 'rejected':
-      case 'failed':
-        return { bg: '#FEE2E2', text: '#991B1B' };
-      default:
-        return { bg: '#FEF3C7', text: '#D97706' };
-    }
-  }
+export function RepayHistoryScreen({ navigation }: any): React.ReactNode {
+  const presenter = useRepayHistoryPresentor(navigation);
 
   function renderItem({ item }: { item: RepayRequest }) {
-    const statusColors = getStatusColor(item.status);
+    const statusColors = presenter.getStatusColor(item.status);
 
     return (
       <View style={styles.card}>
@@ -131,7 +75,7 @@ export function RepayHistoryScreen(): React.ReactNode {
     );
   }
 
-  if (isLoading && currentPage === 1) {
+  if (presenter.isLoading && presenter.currentPage === 1) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -139,16 +83,16 @@ export function RepayHistoryScreen(): React.ReactNode {
     );
   }
 
-  if (error && historyItems.length === 0) {
+  if (presenter.error && presenter.historyItems.length === 0) {
     return (
       <View style={styles.center}>
         <MaterialIcons name="error-outline" size={60} color="#EF4444" />
         <Text style={styles.errorText}>
-          {(error as any)?.data?.message || 'Failed to load repayment history'}
+          {(presenter.error as any)?.data?.message || 'Failed to load repayment history'}
         </Text>
         <TouchableOpacity
           style={{ marginTop: 20, padding: 10 }}
-          onPress={onRefresh}
+          onPress={presenter.onRefresh}
         >
           <Text style={{ color: colors.primary, fontWeight: '700' }}>
             Retry
@@ -161,16 +105,16 @@ export function RepayHistoryScreen(): React.ReactNode {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <FlatList
-        data={historyItems}
+        data={presenter.historyItems}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
-        onRefresh={onRefresh}
-        refreshing={isFetching && currentPage === 1}
-        onEndReached={loadMore}
+        onRefresh={presenter.onRefresh}
+        refreshing={presenter.isFetching && presenter.currentPage === 1}
+        onEndReached={presenter.loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
-          isFetching && currentPage > 1 ? (
+          presenter.isFetching && presenter.currentPage > 1 ? (
             <View style={{ paddingVertical: 20 }}>
               <ActivityIndicator color={colors.primary} />
             </View>

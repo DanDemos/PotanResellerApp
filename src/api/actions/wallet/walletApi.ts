@@ -1,6 +1,5 @@
-import { BACKEND_API_URL } from '@env';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { RootState } from '@/redux/store';
+import { rtkBaseApi } from '@/api/fetchers/rtkBaseApi';
+import { ENDPOINTS } from '@/api/endpoints';
 import {
   GetWalletBalanceRequest,
   GetWalletBalanceResponse,
@@ -25,111 +24,108 @@ import {
   GetRepayRequestsResponse,
 } from '@/api/actions/wallet/walletAPIDataTypes';
 
-export const walletApi = createApi({
-  reducerPath: 'walletApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: BACKEND_API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      if (!headers.has('Accept')) {
-        headers.set('Accept', 'application/json');
-      }
-      return headers;
-    },
-  }),
+export const walletApi = rtkBaseApi.injectEndpoints({
   endpoints: (builder) => ({
     getWalletBalance: builder.query<GetWalletBalanceResponse, GetWalletBalanceRequest>({
       query: () => ({
-        url: '/money/me',
+        url: ENDPOINTS.WALLET.GET_BALANCE,
         method: 'GET',
       }),
+      providesTags: ['Wallet'],
     }),
     getCoinsData: builder.query<GetCoinsDataResponse, GetCoinsDataRequest>({
       query: () => ({
-        url: '/coins/me',
+        url: ENDPOINTS.WALLET.GET_COINS_DATA,
         method: 'GET',
       }),
+      providesTags: ['Wallet'],
     }),
     getCoinHistory: builder.query<GetCoinHistoryResponse, GetCoinHistoryRequest>({
       query: (params) => ({
-        url: '/coins/history',
+        url: ENDPOINTS.WALLET.GET_COIN_HISTORY,
         method: 'GET',
         params,
       }),
+      providesTags: ['Wallet'],
     }),
     requestRefill: builder.mutation<RequestRefillResponse, FormData>({
       query: (body) => ({
-        url: '/refills/request',
+        url: ENDPOINTS.WALLET.REQUEST_REFILL,
         method: 'POST',
         body,
         headers: {
           'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
         },
       }),
+      invalidatesTags: ['Wallet'],
     }),
     getMoneyHistoryGrouped: builder.query<
       GetMoneyHistoryGroupedResponse,
       GetMoneyHistoryGroupedRequest
     >({
       query: (params) => ({
-        url: '/money/historyGrouped',
+        url: ENDPOINTS.WALLET.GET_MONEY_HISTORY_GROUPED,
         method: 'GET',
         params,
       }),
+      providesTags: ['Wallet'],
     }),
     requestLoan: builder.mutation<RequestLoanResponse, RequestLoanRequest>({
       query: (body) => ({
-        url: '/money/loan',
+        url: ENDPOINTS.WALLET.REQUEST_LOAN,
         method: 'POST',
         body,
         headers: {
           'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
         },
       }),
+      invalidatesTags: ['Wallet'],
     }),
     convertMoneyToCoin: builder.mutation<ConvertMoneyToCoinResponse, ConvertMoneyToCoinRequest>({
       query: (body) => ({
-        url: '/money/convert',
+        url: ENDPOINTS.WALLET.CONVERT_MONEY_TO_COIN,
         method: 'POST',
         body,
         headers: {
           'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
         },
       }),
+      invalidatesTags: ['Wallet'],
     }),
     getCoinsRate: builder.query<GetCoinsRateResponse, void>({
       query: () => ({
-        url: '/coins/rate',
+        url: ENDPOINTS.WALLET.GET_COINS_RATE,
         method: 'GET',
       }),
     }),
     repayLoan: builder.mutation<RepayLoanResponse, FormData>({
       query: (body) => ({
-        url: '/money/loan/repay/request',
+        url: ENDPOINTS.WALLET.REPAY_LOAN,
         method: 'POST',
         body,
         headers: {
           'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
         },
       }),
+      invalidatesTags: ['Wallet'],
     }),
     getPendingLoans: builder.query<GetPendingLoansResponse, GetPendingLoansRequest>({
       query: () => ({
-        url: '/money/loan/pending',
+        url: ENDPOINTS.WALLET.GET_PENDING_LOANS,
         method: 'GET',
       }),
+      providesTags: ['Wallet'],
     }),
     getRepayRequests: builder.query<GetRepayRequestsResponse, GetRepayRequestsRequest>({
       query: (params) => ({
-        url: '/money/loan/repay/my-requests',
+        url: ENDPOINTS.WALLET.GET_REPAY_REQUESTS,
         method: 'GET',
         params,
       }),
+      providesTags: ['Wallet'],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const {
@@ -145,3 +141,4 @@ export const {
   useGetPendingLoansQuery,
   useGetRepayRequestsQuery,
 } = walletApi;
+

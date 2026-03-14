@@ -1,81 +1,24 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
-  Platform,
   ActivityIndicator,
   Image,
 } from 'react-native';
-import MaterialIcons from '@react-native-vector-icons/material-icons';
 import Logo from '@/assets/logo.png';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, LoginFormData } from '@/schemas/authSchemas';
-import { useLoginMutation } from '@/api/actions/auth/authApi';
+import { Controller } from 'react-hook-form';
 import { PasswordInput } from '@/components/common/PasswordInput/PasswordInput';
-import Toast from 'react-native-toast-message';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '@/redux/slices/authSlice';
 import { styles } from './LoginScreen.styles';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
+import { useLoginPresenter } from '@/features/auth/login/LoginPresenter';
 
-export function LoginScreen(): React.ReactNode {
-  const dispatch = useDispatch();
-  const { control, handleSubmit, formState } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { phone: '', password: '' },
-  });
+export function LoginScreen({ navigation }: any): React.ReactNode {
+  const presenter = useLoginPresenter(navigation);
 
-  const [
-    login,
-    {
-      isLoading: loginIsLoading,
-      isSuccess: loginIsSuccess,
-      isError: loginIsError,
-      data: loginData,
-      error: loginError,
-    },
-  ] = useLoginMutation();
-
-  useEffect(() => {
-    if (loginIsSuccess && loginData) {
-      dispatch(
-        setCredentials({ user: loginData.user, token: loginData.token }),
-      );
-      Toast.show({
-        type: 'success',
-        text1: 'Login Successful',
-        text2: 'Redirecting to home...',
-        visibilityTime: 2000,
-      });
-    }
-  }, [loginIsSuccess, loginData, dispatch]);
-
-  useEffect(() => {
-    if (loginIsError && loginError) {
-      const err = loginError as any;
-      const message =
-        typeof err?.message === 'string'
-          ? err.message
-          : err?.data?.message || 'Invalid phone or password';
-      Toast.show({
-        type: 'error',
-        text1: 'Login Failed',
-        text2: message,
-      });
-    }
-  }, [loginIsError, loginError]);
-
-  const onSubmit = (formData: LoginFormData) => {
-    login({
-      phone: formData.phone,
-      password: formData.password,
-    });
-  };
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.card}>
@@ -86,7 +29,7 @@ export function LoginScreen(): React.ReactNode {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Phone Number</Text>
           <Controller
-            control={control}
+            control={presenter.control}
             name="phone"
             render={({ field: { onChange, value } }) => (
               <TextInput
@@ -100,15 +43,15 @@ export function LoginScreen(): React.ReactNode {
               />
             )}
           />
-          {formState.errors.phone && (
-            <Text style={{ color: 'red', marginTop: 6 }}>
-              {String(formState.errors.phone.message)}
+          {presenter.formState.errors.phone && (
+            <Text style={{ color: colors.error, marginTop: 6 }}>
+              {String(presenter.formState.errors.phone.message)}
             </Text>
           )}
         </View>
 
         <Controller
-          control={control}
+          control={presenter.control}
           name="password"
           render={({ field: { onChange, value } }) => (
             <PasswordInput
@@ -116,24 +59,22 @@ export function LoginScreen(): React.ReactNode {
               placeholder="Enter your password"
               value={value}
               onChangeText={onChange}
-              error={formState.errors.password?.message?.toString()}
+              error={presenter.formState.errors.password?.message?.toString()}
             />
           )}
         />
 
         <TouchableOpacity
-          style={[styles.button, loginIsLoading ? { opacity: 0.7 } : {}]}
-          onPress={handleSubmit(onSubmit)}
-          disabled={loginIsLoading}
+          style={[styles.button, presenter.loginIsLoading ? { opacity: 0.7 } : {}]}
+          onPress={presenter.handleSubmit(presenter.onSubmit)}
+          disabled={presenter.loginIsLoading}
         >
           <Text style={styles.buttonText}>
-            <Text style={styles.buttonText}>
-              {loginIsLoading ? (
-                <ActivityIndicator size="small" color={colors.white} />
-              ) : (
-                'Sign In'
-              )}
-            </Text>
+            {presenter.loginIsLoading ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              'Sign In'
+            )}
           </Text>
         </TouchableOpacity>
       </View>

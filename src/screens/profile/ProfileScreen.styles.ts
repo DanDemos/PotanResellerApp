@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 const { width: screenWidth } = Dimensions.get('window');
 const gap = 12;
@@ -9,7 +9,7 @@ const cardWidth = (screenWidth - (paddingHorizontal * 2) - gap) / 2;
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
   },
   scrollContent: {
     paddingVertical: 0,
@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   avatarContainer: {
     width: 64,
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   avatarText: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.white,
   },
   nameContainer: {
     flex: 1,
@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: colors.text,
     marginBottom: 4,
   },
   email: {
@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
   vipText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#000',
+    color: colors.textDark,
     marginLeft: 4,
   },
   section: {
@@ -72,7 +72,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: colors.text,
     marginBottom: 12,
   },
   infoCard: {
@@ -92,23 +92,23 @@ export const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textLight,
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
   balanceCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#eee',
     // iOS Shadow
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#fff',
+    borderColor: colors.white,
   },
   floatingConversionLoadingButton: {
     position: 'absolute',
@@ -158,7 +158,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#fff',
+    borderColor: colors.white,
   },
 
   compactWalletHeader: {
@@ -197,7 +197,7 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.backgroundLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -258,7 +258,7 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   historyButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.backgroundLight,
   },
   historyButtonText: {
     fontSize: 14,
@@ -266,7 +266,7 @@ export const styles = StyleSheet.create({
     color: '#666',
   },
   loanButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.backgroundLight,
   },
   loanButtonText: {
     fontSize: 14,
@@ -279,7 +279,7 @@ export const styles = StyleSheet.create({
   topupButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.white,
   },
   coinAmount: {
     color: colors.coinColor, // Gold/Orange for coins
@@ -301,14 +301,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
   center: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   errorText: {
-    color: 'red',
+    color: colors.error,
     fontSize: 16,
   },
   modalOverlay: {
@@ -318,10 +318,10 @@ export const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
     shadowRadius: 20,
@@ -405,7 +405,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   confirmButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 15,
   },

@@ -1,12 +1,12 @@
 import { StyleSheet, Platform } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff', // White background
+    backgroundColor: colors.white, // White background
     padding: 20,
   },
   card: {
@@ -89,7 +89,7 @@ export const styles = StyleSheet.create({
     }),
   },
   buttonText: {
-    color: '#ffffff', // White
+    color: colors.white, // White
     fontSize: 16,
     fontWeight: '600',
   },

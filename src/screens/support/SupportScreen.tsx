@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 import { styles } from './SupportScreen.styles';
 
 export function SupportScreen(): React.ReactNode {

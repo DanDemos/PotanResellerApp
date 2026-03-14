@@ -27,7 +27,7 @@ import Toast from 'react-native-toast-message';
 import { store, persistor, RootState } from '@/redux/store';
 import { logout } from '@/redux/slices/authSlice';
 import { useLogoutMutation } from '@/api/actions/auth/authApi';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 import { ProfileScreen } from '@/screens/profile/ProfileScreen';
 import { GameChannelsScreen } from '@/screens/game-channels/GameChannelsScreen';
@@ -81,10 +81,10 @@ function CustomDrawerContent(props: any): React.ReactNode {
       <DrawerItem
         label="Logout"
         icon={({ size }) => (
-          <MaterialIcons name="logout" size={size} color="#ffffff" />
+          <MaterialIcons name="logout" size={size} color={colors.white} />
         )}
         onPress={handleLogout}
-        labelStyle={{ color: '#ffffff', fontWeight: '700' }}
+        labelStyle={{ color: colors.white, fontWeight: '700' }}
         style={{
           backgroundColor: '#ff4444',
           borderRadius: 8,
@@ -117,7 +117,7 @@ function ChatStackNavigator(): React.ReactNode {
         options={{
           title: 'Chat',
           headerStyle: {
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.white,
           },
           headerTintColor: colors.primary,
           headerTitleStyle: {
@@ -137,7 +137,7 @@ function MainDrawerNavigator(): React.ReactNode {
         headerShown: false,
         drawerActiveTintColor: colors.primary,
         drawerStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.white,
           width: 280,
         },
         drawerLabelStyle: {
@@ -174,7 +174,7 @@ function RootNavigator(): React.ReactNode {
         options={{
           title: 'My Profile',
           headerStyle: {
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.white,
           },
           headerTintColor: colors.primary,
           headerTitleStyle: {
@@ -216,7 +216,7 @@ function RootNavigator(): React.ReactNode {
         options={{
           title: 'Help & Support',
           headerStyle: {
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.white,
           },
           headerTintColor: colors.primary,
           headerTitleStyle: {
@@ -236,7 +236,7 @@ function AppContent(): React.ReactNode {
     <SafeAreaProvider>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor="#ffffff"
+        backgroundColor={colors.white}
       />
       {!isLoggedIn ? (
         <LoginScreen />

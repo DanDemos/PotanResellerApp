@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
@@ -6,79 +7,37 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { PasswordInput } from '@/components/common/PasswordInput/PasswordInput';
 import { styles } from '../ProfileScreen.styles';
-import { ChangePasswordRequest } from '@/api/actions/auth/authAPIDataTypes';
+import { useChangePasswordPresenter } from '@/features/auth/change-password/ChangePasswordPresenter';
+import { colors } from '@/global/theme/colors';
 
 interface ChangePasswordModalProps {
   visible: boolean;
   setVisible: (visible: boolean) => void;
-  isLoading: boolean;
-  isSuccess: boolean;
-  onSubmit: (data: ChangePasswordRequest) => Promise<any>;
 }
 
 export function ChangePasswordModal({
   visible,
   setVisible,
-  isLoading,
-  isSuccess,
-  onSubmit,
 }: ChangePasswordModalProps): React.ReactNode {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Clear inputs on success or when closed
-  useEffect(() => {
-    if (isSuccess || !visible) {
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      if (isSuccess) {
-        setVisible(false);
-      }
-    }
-  }, [isSuccess, visible, setVisible]);
-
-  const handleConfirm = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
-      return;
-    }
-
-    try {
-      await onSubmit({
-        current_password: currentPassword,
-        new_password: newPassword,
-        new_password_confirmation: confirmPassword,
-      });
-    } catch (error) {
-      // Error is handled by Toast in the hook
-    }
-  };
+  const presenter = useChangePasswordPresenter(visible, setVisible);
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={() => setVisible(false)}
+      onRequestClose={presenter.handleClose}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Change Password</Text>
             <TouchableOpacity
-              onPress={() => setVisible(false)}
+              onPress={presenter.handleClose}
               style={styles.closeButton}
             >
               <MaterialIcons name="close" size={24} color="#94A3B8" />
@@ -89,38 +48,38 @@ export function ChangePasswordModal({
             <PasswordInput
               label="Current Password"
               placeholder="Enter current password"
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
+              value={presenter.currentPassword}
+              onChangeText={presenter.setCurrentPassword}
             />
 
             <PasswordInput
               label="New Password"
               placeholder="Enter new password"
-              value={newPassword}
-              onChangeText={setNewPassword}
+              value={presenter.newPassword}
+              onChangeText={presenter.setNewPassword}
             />
 
             <PasswordInput
               label="Confirm New Password"
               placeholder="Confirm new password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              value={presenter.confirmPassword}
+              onChangeText={presenter.setConfirmPassword}
             />
 
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setVisible(false)}
+                onPress={presenter.handleClose}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleConfirm}
-                disabled={isLoading}
+                onPress={presenter.handleConfirm}
+                disabled={presenter.changePasswordIsLoading}
               >
-                {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                {presenter.changePasswordIsLoading ? (
+                  <ActivityIndicator size="small" color={colors.white} />
                 ) : (
                   <Text style={styles.confirmButtonText}>Update Password</Text>
                 )}

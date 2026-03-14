@@ -1,16 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { View, Text, TouchableOpacity } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 import { styles } from '../ProfileScreen.styles';
 import { User } from '@/api/actions/user/userAPIDataTypes';
+import { useWalletProfilePresenter } from '@/features/profile/components/WalletProfilePresenter';
 
 interface WalletProfileComponentProps {
   user: User;
@@ -25,7 +19,7 @@ interface WalletProfileComponentProps {
   convertCoinsIsLoading: boolean;
 }
 
-export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
+export function WalletProfileComponent({
   user,
   navigation,
   openRefillModal,
@@ -34,9 +28,16 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
   requestLoanIsLoading,
   openRepayModal,
   openCoinTopUpModal,
-  openCoinConvertModal,
-  convertCoinsIsLoading,
-}) => {
+}: WalletProfileComponentProps): React.ReactNode {
+  const {
+    formattedBalance,
+    formattedDebt,
+    navigateToMoneyHistory,
+    navigateToPendingLoans,
+    navigateToRepayHistory,
+    navigateToCoinHistory,
+  } = useWalletProfilePresenter(user, navigation);
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Wallet</Text>
@@ -44,21 +45,6 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
       <View style={styles.walletsContainer}>
         {/* MMK Wallet Card */}
         <View style={styles.compactBalanceCard}>
-          {/* <View style={StyleSheet.absoluteFill}>
-            <Svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 160 280"
-              preserveAspectRatio="none"
-            >
-              <Path
-                d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,110 C 160,125 148,125 148,140 C 148,155 160,155 160,170 L 160,264 C 160,272.8 152.8,280 144,280 L 16,280 C 7.2,280 0,272.8 0,264 L 0,16 C 0,7.2 7.2,0 16,0 Z"
-                fill="#ffffff"
-                stroke="#e0e0e0"
-                strokeWidth="1"
-              />
-            </Svg>
-          </View> */}
           <View style={[styles.walletHeader, styles.compactWalletHeader]}>
             <View style={[styles.walletIcon, styles.compactWalletIcon]}>
               <Text style={[styles.currencyText, { fontSize: 16 }]}>Ks</Text>
@@ -66,15 +52,11 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
             <View style={styles.walletTitleContainer}>
               <Text style={styles.walletTitle}>Balance (MMK)</Text>
               <Text style={[styles.walletAmount, styles.compactWalletAmount]}>
-                {user.money_balance
-                  ? Math.floor(
-                      parseFloat(user.money_balance) || 0,
-                    ).toLocaleString()
-                  : 0}
+                {formattedBalance}
               </Text>
               {Number(user.money_debt || 0) > 0 && (
                 <Text style={[styles.debtText, { fontSize: 10 }]}>
-                  Debt: {Math.floor(Number(user.money_debt)).toLocaleString()}
+                  Debt: {formattedDebt}
                 </Text>
               )}
             </View>
@@ -91,12 +73,12 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                 onPress={openRefillModal}
                 disabled={requestRefillIsLoading}
               >
-                <MaterialIcons name="add" size={18} color="#fff" />
+                <MaterialIcons name="add" size={18} color={colors.white} />
                 <Text style={styles.topupButtonText}>Refill</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.historyIconBtn}
-                onPress={() => navigation.navigate('MoneyHistory')}
+                onPress={navigateToMoneyHistory}
               >
                 <MaterialIcons name="history" size={20} color="#666" />
               </TouchableOpacity>
@@ -121,7 +103,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.historyIconBtn}
-                onPress={() => navigation.navigate('PendingLoans')}
+                onPress={navigateToPendingLoans}
               >
                 <MaterialIcons name="history" size={20} color="#666" />
               </TouchableOpacity>
@@ -153,7 +135,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.historyIconBtn}
-                  onPress={() => navigation.navigate('RepayHistory')}
+                  onPress={navigateToRepayHistory}
                 >
                   <MaterialIcons name="history" size={20} color="#666" />
                 </TouchableOpacity>
@@ -162,43 +144,8 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
           </View>
         </View>
 
-        {/* Floating Conversion Arrow */}
-        {/* {convertCoinsIsLoading ? (
-          <View style={styles.floatingConversionLoadingButton}>
-            <ActivityIndicator size="small" color={colors.white} />
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.floatingConversionButton}
-            activeOpacity={0.8}
-            onPress={openCoinConvertModal}
-            disabled={convertCoinsIsLoading}
-          >
-            <MaterialIcons
-              name="trending-flat"
-              size={24}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        )} */}
-
         {/* Coin Wallet Card */}
         <View style={styles.compactBalanceCard}>
-          {/* <View style={StyleSheet.absoluteFill}>
-            <Svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 160 280"
-              preserveAspectRatio="none"
-            >
-              <Path
-                d="M 16,0 L 144,0 C 152.8,0 160,7.2 160,16 L 160,264 C 160,272.8 152.8,280 144,280 L 16,280 C 7.2,280 0,272.8 0,264 L 0,170 C 0,155 12,155 12,140 C 12,125 0,125 0,110 L 0,16 C 0,7.2 7.2,0 16,0 Z"
-                fill="#ffffff"
-                stroke="#e0e0e0"
-                strokeWidth="1"
-              />
-            </Svg>
-          </View> */}
           <View style={[styles.walletHeader, styles.compactWalletHeader]}>
             <View
               style={[
@@ -207,7 +154,11 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
                 styles.compactWalletIcon,
               ]}
             >
-              <MaterialIcons name="monetization-on" size={20} color="#fff9e6" />
+              <MaterialIcons
+                name="monetization-on"
+                size={20}
+                color={colors.white}
+              />
             </View>
             <View style={styles.walletTitleContainer}>
               <Text style={styles.walletTitle}>Smile Coins</Text>
@@ -239,7 +190,7 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.historyIconBtn}
-                onPress={() => navigation.navigate('CoinHistory')}
+                onPress={navigateToCoinHistory}
               >
                 <MaterialIcons name="history" size={20} color="#666" />
               </TouchableOpacity>
@@ -249,4 +200,4 @@ export const WalletProfileComponent: React.FC<WalletProfileComponentProps> = ({
       </View>
     </View>
   );
-};
+}

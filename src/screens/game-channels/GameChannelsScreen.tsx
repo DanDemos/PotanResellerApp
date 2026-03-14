@@ -1,126 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
   StatusBar,
-  ImageSourcePropType,
-  Image,
   ActivityIndicator,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import GameIcon1 from '@/assets/game1.png';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 import { styles } from './GameChannelsScreen.styles';
-import { useGetChannelsQuery } from '@/api/actions/gameChannel/gameChannelApi';
 import { Channel } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
-import {
-  useGetNotificationListQuery,
-  useMarkNotificationAsReadMutation,
-  useMarkAllNotificationsAsReadMutation,
-} from '@/api/actions/user/userApi';
 import { NotificationItem } from '@/api/actions/user/userAPIDataTypes';
-import { useGetCustomProductPurchasesQuery } from '@/api/actions/custom-product/customProductApi';
+import { useGameChannelsPresentor } from '@/features/game-channels/GameChannelsPresentor';
 
 export function GameChannelsScreen({ navigation }: any): React.ReactNode {
-  const {
-    data: channelsData,
-    isLoading: channelsIsLoading,
-    error: channelsError,
-    refetch: channelsRefetch,
-  } = useGetChannelsQuery(undefined);
-
-  // Notification States
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [notiPage, setNotiPage] = useState(1);
-
-  const {
-    data: notiData,
-    isLoading: notiIsLoading,
-    isFetching: notiIsFetching,
-    refetch: notiRefetch,
-  } = useGetNotificationListQuery({ page: notiPage, per_page: 15 });
-
-  const {
-    data: customProductData,
-    isLoading: customProductIsLoading,
-    error: customProductError,
-    refetch: customProductRefetch,
-  } = useGetCustomProductPurchasesQuery();
-
-  console.log(customProductData, 'customProductData');
-
-  const [markAsRead] = useMarkNotificationAsReadMutation();
-  const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
-
-  useEffect(() => {
-    if (notiData?.items) {
-      if (notiPage === 1) {
-        setNotifications(notiData.items);
-      } else {
-        setNotifications(prev => {
-          const existingIds = new Set(prev.map((n: NotificationItem) => n.id));
-          const newNotis = notiData.items!.filter(
-            (n: NotificationItem) => !existingIds.has(n.id),
-          );
-          return [...prev, ...newNotis];
-        });
-      }
-    }
-  }, [notiData, notiPage]);
-
-  const handleLoadMoreNoti = useCallback(() => {
-    if (
-      !notiIsFetching &&
-      notiData &&
-      notiData.last_page &&
-      notiPage < notiData.last_page
-    ) {
-      setNotiPage(prev => prev + 1);
-    }
-  }, [notiIsFetching, notiData, notiPage]);
-
-  const handleRefreshNoti = useCallback(() => {
-    setNotiPage(1);
-    notiRefetch();
-  }, [notiRefetch]);
-
-  const handleNotificationClick = async (item: NotificationItem) => {
-    if (!item.read_at) {
-      try {
-        await markAsRead({ id: item.id }).unwrap();
-      } catch (err) {
-        console.error('Failed to mark notification as read:', err);
-      }
-    }
-    // Optionally handle navigation based on notification type/meta here
-  };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await markAllAsRead().unwrap();
-    } catch (err) {
-      console.error('Failed to mark all notifications as read:', err);
-    }
-  };
+  const presenter = useGameChannelsPresentor(navigation);
 
   function renderChannelItem({ item }: { item: Channel }) {
     return (
       <TouchableOpacity
         style={styles.channelItem}
-        onPress={() =>
-          navigation.navigate('Chat', {
-            channelUuid: item.uuid,
-            gameName: item.game.name,
-          })
-        }
+        onPress={() => presenter.navigateToChat(item.uuid, item.game.name)}
         activeOpacity={0.6}
       >
-        {/* Avatar */}
         <View style={styles.avatarContainer}>
           <View style={styles.avatarPlaceholder}>
             <Text style={styles.avatarText}>
@@ -129,9 +35,7 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
           </View>
         </View>
 
-        {/* Content */}
         <View style={styles.channelContent}>
-          {/* Top Row: Name and Time */}
           <View style={styles.topRow}>
             <View style={styles.nameContainer}>
               <Text style={styles.channelName} numberOfLines={1}>
@@ -159,7 +63,6 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
             </View>
           </View>
 
-          {/* Bottom Row: Last Message and Badge */}
           <View style={styles.bottomRow}>
             <Text style={styles.messageText} numberOfLines={2}>
               {item.last_message?.body || 'No messages yet'}
@@ -174,7 +77,7 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
     return (
       <TouchableOpacity
         style={styles.notificationItem}
-        onPress={() => handleNotificationClick(item)}
+        onPress={() => presenter.handleNotificationClick(item)}
         activeOpacity={0.7}
       >
         {!item.read_at && <View style={styles.unreadDot} />}
@@ -198,25 +101,19 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
     );
   }
 
-  const handleMainRefresh = useCallback(() => {
-    channelsRefetch();
-    setNotiPage(1);
-    notiRefetch();
-  }, [channelsRefetch, notiRefetch]);
-
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <MaterialIcons name="menu" size={26} color="#333333" />
+        <TouchableOpacity onPress={presenter.openDrawer}>
+          <MaterialIcons name="menu" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Game List</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity
-            onPress={() => setShowNotifications(true)}
+            onPress={() => presenter.setShowNotifications(true)}
             style={styles.iconButton}
           >
             <View>
@@ -225,17 +122,19 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
                 size={26}
                 color={colors.primary}
               />
-              {notiData && notiData.unread > 0 && (
+              {presenter.notiData && presenter.notiData.unread > 0 && (
                 <View style={styles.notificationBadge}>
                   <Text style={styles.badgeText}>
-                    {notiData.unread > 9 ? '9+' : notiData.unread}
+                    {presenter.notiData.unread > 9
+                      ? '9+'
+                      : presenter.notiData.unread}
                   </Text>
                 </View>
               )}
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Profile')}
+            onPress={presenter.navigateToProfile}
             style={styles.iconButton}
           >
             <MaterialIcons name="person" size={26} color={colors.primary} />
@@ -245,42 +144,42 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
 
       {/* Notification Dropdown Modal */}
       <Modal
-        visible={showNotifications}
+        visible={presenter.showNotifications}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowNotifications(false)}
+        onRequestClose={() => presenter.setShowNotifications(false)}
       >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => setShowNotifications(false)}
+          onPress={() => presenter.setShowNotifications(false)}
         >
           <View style={styles.dropdownContainer}>
             <View style={styles.dropdownHeader}>
               <Text style={styles.dropdownTitle}>Notifications</Text>
-              {notiData && notiData.unread > 0 && (
-                <TouchableOpacity onPress={handleMarkAllAsRead}>
+              {presenter.notiData && presenter.notiData.unread > 0 && (
+                <TouchableOpacity onPress={presenter.handleMarkAllAsRead}>
                   <Text style={styles.markAllReadText}>Mark all as read</Text>
                 </TouchableOpacity>
               )}
             </View>
             <FlatList
-              data={notifications}
+              data={presenter.notifications}
               keyExtractor={item => item.id.toString()}
               renderItem={renderNotificationItem}
-              onEndReached={handleLoadMoreNoti}
+              onEndReached={presenter.handleLoadMoreNoti}
               onEndReachedThreshold={0.5}
-              onRefresh={handleRefreshNoti}
-              refreshing={notiIsFetching && notiPage === 1}
+              onRefresh={presenter.handleRefreshNoti}
+              refreshing={presenter.notiIsFetching && presenter.notiPage === 1}
               ListFooterComponent={
-                notiIsFetching && notiPage > 1 ? (
+                presenter.notiIsFetching && presenter.notiPage > 1 ? (
                   <View style={styles.loadingFooter}>
                     <ActivityIndicator size="small" color={colors.primary} />
                   </View>
                 ) : null
               }
               ListEmptyComponent={
-                !notiIsLoading ? (
+                !presenter.notiIsLoading ? (
                   <View style={styles.listEmpty}>
                     <MaterialIcons
                       name="notifications-none"
@@ -301,19 +200,19 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
       </Modal>
 
       {/* Channel List */}
-      {channelsIsLoading ? (
+      {presenter.channelsIsLoading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
-      ) : channelsError ? (
+      ) : presenter.channelsError ? (
         <View style={styles.center}>
           <Text style={styles.errorText}>
-            {(channelsError as any)?.data?.message ||
-              (channelsError as any)?.message ||
+            {(presenter.channelsError as any)?.data?.message ||
+              (presenter.channelsError as any)?.message ||
               'Failed to load channels.'}
           </Text>
           <TouchableOpacity
-            onPress={() => channelsRefetch()}
+            onPress={() => presenter.channelsRefetch()}
             style={styles.retryButton}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
@@ -321,13 +220,13 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
         </View>
       ) : (
         <FlatList
-          data={channelsData?.data || []}
+          data={presenter.channelsData?.data || []}
           keyExtractor={item => item.id.toString()}
           renderItem={renderChannelItem}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onRefresh={handleMainRefresh}
-          refreshing={channelsIsLoading}
+          onRefresh={presenter.handleMainRefresh}
+          refreshing={presenter.channelsIsLoading}
         />
       )}
     </SafeAreaView>

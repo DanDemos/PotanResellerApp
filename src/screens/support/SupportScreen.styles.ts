@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/global/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
   },
   loadingContainer: {
     position: 'absolute',
@@ -13,6 +14,6 @@ export const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
   },
 });

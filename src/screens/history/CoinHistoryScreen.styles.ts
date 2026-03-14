@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -11,11 +11,11 @@ export const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
@@ -77,13 +77,13 @@ export const styles = StyleSheet.create({
     backgroundColor: '#E2E8F0',
   },
   filterBar: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
     shadowRadius: 8,
@@ -115,8 +115,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#000',
+    backgroundColor: colors.white,
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -152,7 +152,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
   },
   retryButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 15,
   },

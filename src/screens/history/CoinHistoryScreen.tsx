@@ -1,91 +1,22 @@
-import React, { useState, useCallback, useEffect } from 'react';
+
+import React from 'react';
 import {
   View,
   Text,
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useSelector } from 'react-redux';
-import { useGetCoinHistoryQuery } from '@/api/actions/wallet/walletApi';
 import { CoinHistoryItem } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './CoinHistoryScreen.styles';
-import { colors } from '@/theme/colors';
-import { RootState } from '@/redux/store';
-import { formatHistoryDate } from '@/utils/dateUtils';
+import { colors } from '@/global/theme/colors';
+import { formatHistoryDate } from '@/global/utils/dateUtils';
+import { useCoinHistoryPresentor } from '@/features/history/CoinHistory/CoinHistoryPresentor';
 
-export function CoinHistoryScreen(): React.ReactNode {
-  const userID = useSelector((state: RootState) => state.auth.user?.id);
-  const [historyItems, setHistoryItems] = useState<CoinHistoryItem[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [interval, setInterval] = useState<'daily' | 'weekly' | 'monthly'>(
-    'daily',
-  );
-
-  const {
-    data: coinHistoryData,
-    isFetching: coinHistoryIsFetching,
-    isLoading: coinHistoryIsLoading,
-    error: coinHistoryError,
-    refetch: coinHistoryRefetch,
-  } = useGetCoinHistoryQuery(
-    {
-      interval,
-      userId: userID?.toString() || '',
-      page: currentPage,
-    },
-    {
-      skip: !userID,
-      refetchOnMountOrArgChange: true,
-    },
-  );
-
-  // Handle data updates and infinite scroll merging
-  useEffect(() => {
-    if (coinHistoryData?.data?.data) {
-      const newData = coinHistoryData.data.data;
-      if (currentPage === 1) {
-        setHistoryItems(newData);
-      } else {
-        setHistoryItems(prev => {
-          const existingBuckets = new Set(prev.map(item => item.bucket));
-          const newItems = newData.filter(
-            item => !existingBuckets.has(item.bucket),
-          );
-          return [...prev, ...newItems];
-        });
-      }
-    }
-  }, [coinHistoryData, currentPage]);
-
-  const onRefresh = useCallback(() => {
-    setCurrentPage(1);
-    coinHistoryRefetch();
-  }, [coinHistoryRefetch]);
-
-  function loadMore() {
-    if (
-      !coinHistoryIsFetching &&
-      coinHistoryData?.data &&
-      coinHistoryData.data.last_page &&
-      currentPage < coinHistoryData.data.last_page
-    ) {
-      setCurrentPage(prev => prev + 1);
-    }
-  }
-
-  function handleIntervalChange(newInterval: 'daily' | 'weekly' | 'monthly') {
-    if (newInterval === interval) {
-      coinHistoryRefetch();
-    } else {
-      setInterval(newInterval);
-      setCurrentPage(1);
-      setHistoryItems([]);
-    }
-  }
+export function CoinHistoryScreen({ navigation }: any): React.ReactNode {
+  const presenter = useCoinHistoryPresentor(navigation);
 
   function renderItem({ item }: { item: CoinHistoryItem }) {
     const isPositive = parseFloat(item.net_amount) >= 0;
@@ -159,15 +90,15 @@ export function CoinHistoryScreen(): React.ReactNode {
                 key={item}
                 style={[
                   styles.filterButton,
-                  interval === item && styles.filterButtonActive,
+                  presenter.interval === item && styles.filterButtonActive,
                 ]}
-                onPress={() => handleIntervalChange(item)}
+                onPress={() => presenter.handleIntervalChange(item)}
                 activeOpacity={0.7}
               >
                 <Text
                   style={[
                     styles.filterButtonText,
-                    interval === item && styles.filterButtonTextActive,
+                    presenter.interval === item && styles.filterButtonTextActive,
                   ]}
                 >
                   {item.charAt(0).toUpperCase() + item.slice(1)}
@@ -184,27 +115,27 @@ export function CoinHistoryScreen(): React.ReactNode {
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       {renderFilterBar()}
 
-      {coinHistoryIsLoading ? (
+      {presenter.coinHistoryIsLoading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
-      ) : coinHistoryError ? (
+      ) : presenter.coinHistoryError ? (
         <View style={styles.center}>
           <MaterialIcons name="error-outline" size={60} color="#EF4444" />
           <Text style={styles.errorText}>
-            {(coinHistoryError as any)?.data?.message ||
-              (coinHistoryError as any)?.message ||
+            {(presenter.coinHistoryError as any)?.data?.message ||
+              (presenter.coinHistoryError as any)?.message ||
               'Failed to load history'}
           </Text>
           <TouchableOpacity
             style={[
               styles.retryButton,
-              coinHistoryIsFetching && { opacity: 0.7 },
+              presenter.coinHistoryIsFetching && { opacity: 0.7 },
             ]}
-            onPress={onRefresh}
-            disabled={coinHistoryIsFetching}
+            onPress={presenter.onRefresh}
+            disabled={presenter.coinHistoryIsFetching}
           >
-            {coinHistoryIsFetching ? (
+            {presenter.coinHistoryIsFetching ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
               <Text style={styles.retryButtonText}>Try Again</Text>
@@ -213,16 +144,16 @@ export function CoinHistoryScreen(): React.ReactNode {
         </View>
       ) : (
         <FlatList
-          data={historyItems}
+          data={presenter.historyItems}
           keyExtractor={item => item.bucket}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
-          onRefresh={onRefresh}
-          refreshing={coinHistoryIsFetching && currentPage === 1}
-          onEndReached={loadMore}
+          onRefresh={presenter.onRefresh}
+          refreshing={presenter.coinHistoryIsFetching && presenter.currentPage === 1}
+          onEndReached={presenter.loadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            coinHistoryIsFetching && currentPage > 1 ? (
+            presenter.coinHistoryIsFetching && presenter.currentPage > 1 ? (
               <View style={styles.footerLoading}>
                 <ActivityIndicator color={colors.primary} />
               </View>

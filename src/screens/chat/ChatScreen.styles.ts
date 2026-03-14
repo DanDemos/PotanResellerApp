@@ -1,10 +1,10 @@
 import { StyleSheet, Platform } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/global/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
   },
   flex: {
     flex: 1,
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     // Subtle shadow for bubbles
-    shadowColor: '#000',
+    shadowColor: colors.textDark,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
     borderBottomRightRadius: 4, // Style choice for message tail
   },
   supportBubble: {
-    backgroundColor: '#ffffff', // Clean white like ProfileScreen background
+    backgroundColor: colors.white, // Clean white like ProfileScreen background
     borderBottomLeftRadius: 4,
     borderWidth: 1,
     borderColor: '#eee',
@@ -50,14 +50,14 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
   userMessageText: {
-    color: '#ffffff',
+    color: colors.white,
   },
   supportMessageText: {
-    color: '#333',
+    color: colors.text,
   },
   timestamp: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textLight,
     marginTop: 4,
     marginHorizontal: 8,
   },
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: Platform.OS === 'ios' ? 24 : 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
     gap: 8,
@@ -79,12 +79,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 0, // Reduced from 4 to minimize internal vertical gap
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   input: {
     width: '100%',
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
     paddingVertical: 10,
     minHeight: 40, // Starts as a single line height
     maxHeight: 140, // Capacity for approx 5-6 lines
@@ -121,11 +121,11 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: 'bold',
   },
   emptyText: {
-    color: '#999',
+    color: colors.textLight,
     fontSize: 16,
   },
 });

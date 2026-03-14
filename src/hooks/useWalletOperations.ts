@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {
@@ -181,7 +181,7 @@ export function useWalletOperations({
   }, [repayLoanIsError, repayLoanError]);
 
   // Handler Functions
-  const handleConfirmRefill = async (
+  const handleConfirmRefill = useCallback(async (
     amount: string,
     note: string,
     photo: any,
@@ -212,18 +212,18 @@ export function useWalletOperations({
     }
 
     return requestRefill(formData).unwrap();
-  };
+  }, [userId, requestRefill]);
 
-  const handleConfirmLoan = async (amount: string, note: string) => {
+  const handleConfirmLoan = useCallback(async (amount: string, note: string) => {
     if (typeof userId !== 'number') return;
     return requestLoan({
       borrower_user_id: userId.toString(),
       amount: amount,
       note: note || 'Loan request from Mobile',
     }).unwrap();
-  };
+  }, [userId, requestLoan]);
 
-  const handleConfirmCoinTransaction = async (
+  const handleConfirmCoinTransaction = useCallback(async (
     mode: 'topup' | 'convert',
     amount: string,
     note: string = '',
@@ -241,9 +241,9 @@ export function useWalletOperations({
         amount: Number(amount),
       }).unwrap();
     }
-  };
+  }, [handleConfirmRefill, convertMoneyToCoin]);
 
-  const handleConfirmRepayment = async (
+  const handleConfirmRepayment = useCallback(async (
     amount: string,
     note: string,
     photo: any,
@@ -262,9 +262,9 @@ export function useWalletOperations({
     formData.append('photo', photoData as any);
 
     return repayLoan(formData).unwrap();
-  };
+  }, [repayLoan]);
 
-  return {
+  return useMemo(() => ({
     // Data
     coinRateData,
     // Loading States
@@ -281,5 +281,19 @@ export function useWalletOperations({
     handleConfirmLoan,
     handleConfirmCoinTransaction,
     handleConfirmRepayment,
-  };
+  }), [
+    coinRateData,
+    requestRefillIsLoading,
+    requestLoanIsLoading,
+    convertCoinsIsLoading,
+    repayLoanIsLoading,
+    requestRefillIsSuccess,
+    requestLoanIsSuccess,
+    convertCoinsIsSuccess,
+    repayLoanIsSuccess,
+    handleConfirmRefill,
+    handleConfirmLoan,
+    handleConfirmCoinTransaction,
+    handleConfirmRepayment,
+  ]);
 }
