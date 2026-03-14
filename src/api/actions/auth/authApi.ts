@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { LoginRequest, LoginResponse, LogoutRequest, LogoutResponse, ChangePasswordRequest, ChangePasswordResponse } from '@/api/actions/auth/authAPIDataTypes';
 import type { RootState } from '@/redux/store';
 
+console.log(BACKEND_API_URL, "BACKEND_API_URL in authApi")
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({

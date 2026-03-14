@@ -10,6 +10,7 @@ import {
   MarkMessageAsReadResponse
 } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 
+console.log(BACKEND_API_URL, "BACKEND_API_URL in gameChannelApi")
 export const gameChannelApi = createApi({
   reducerPath: 'gameChannelApi',
   baseQuery: fetchBaseQuery({

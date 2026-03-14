@@ -23,6 +23,7 @@ import {
   useMarkAllNotificationsAsReadMutation,
 } from '@/api/actions/user/userApi';
 import { NotificationItem } from '@/api/actions/user/userAPIDataTypes';
+import { useGetCustomProductPurchasesQuery } from '@/api/actions/custom-product/customProductApi';
 
 export function GameChannelsScreen({ navigation }: any): React.ReactNode {
   const {
@@ -43,6 +44,15 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
     isFetching: notiIsFetching,
     refetch: notiRefetch,
   } = useGetNotificationListQuery({ page: notiPage, per_page: 15 });
+
+  const {
+    data: customProductData,
+    isLoading: customProductIsLoading,
+    error: customProductError,
+    refetch: customProductRefetch,
+  } = useGetCustomProductPurchasesQuery();
+
+  console.log(customProductData, 'customProductData');
 
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();

@@ -17,6 +17,7 @@ import {
 } from 'redux-persist';
 
 import { authReducer } from './slices/authSlice';
+import { customProductApi } from '@/api/actions/custom-product/customProductApi';
 
 const persistConfig = {
   key: 'auth',
@@ -32,6 +33,7 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [walletApi.reducerPath]: walletApi.reducer,
     [gameChannelApi.reducerPath]: gameChannelApi.reducer,
+    [customProductApi.reducerPath]: customProductApi.reducer,
     auth: persistedReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -43,7 +45,8 @@ export const store = configureStore({
       .concat(authApi.middleware)
       .concat(userApi.middleware)
       .concat(walletApi.middleware)
-      .concat(gameChannelApi.middleware),
+      .concat(gameChannelApi.middleware)
+      .concat(customProductApi.middleware),
 });
 
 export const persistor = persistStore(store);

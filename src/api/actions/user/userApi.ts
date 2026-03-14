@@ -12,6 +12,7 @@ import {
   MarkAllNotificationsAsReadResponse,
 } from '@/api/actions/user/userAPIDataTypes';
 
+console.log(BACKEND_API_URL, "BACKEND_API_URL in userApi")
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({
