@@ -38,6 +38,9 @@ export const ENDPOINTS = {
     MARK_MESSAGE_READ: (messageId: number) => `/chat/messages/${messageId}/read`,
   },
   CUSTOM_PRODUCT: {
-    GET_PURCHASES: '/custom-product-purchases',
+    GET_CATEGORIES: '/categories',
+    GET_PRODUCT_LIST: '/custom-products',
+    PURCHASE_PRODUCT: '/custom-product-purchases',
+    GET_PURCHASE_PRODUCT_HISTORY: '/custom-product-purchases',
   },
 } as const;

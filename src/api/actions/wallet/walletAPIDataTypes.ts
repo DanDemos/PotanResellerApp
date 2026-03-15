@@ -44,7 +44,7 @@ export type GetMoneyHistoryGroupedRequest = {
 };
 
 export type GetWalletBalanceResponse = {
-  balance: string;
+  money_balance: string;
 };
 
 export type GetWalletBalanceRequest = void;

@@ -11,9 +11,6 @@ export const rtkBaseApi = createApi({
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
-      if (!headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
       if (!headers.has('Accept')) {
         headers.set('Accept', 'application/json');
       }

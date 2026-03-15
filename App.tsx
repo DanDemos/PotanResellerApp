@@ -38,6 +38,8 @@ import { LoginScreen } from '@/screens/login/LoginScreen';
 import { SupportScreen } from '@/screens/support/SupportScreen';
 import { PendingLoansScreen } from '@/screens/history/PendingLoansScreen';
 import { RepayHistoryScreen } from '@/screens/history/RepayHistoryScreen';
+import { CustomProductListScreen } from '@/screens/custom-product-list/CustomProductListScreen';
+import { CustomProductHistoryScreen } from '@/screens/custom-product-history/CustomProductHistoryScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -75,7 +77,26 @@ function CustomDrawerContent(props: any): React.ReactNode {
         activeTintColor={colors.white}
         activeBackgroundColor={colors.primary}
         labelStyle={{ fontWeight: '600' }}
+        style={{
+          borderRadius: 8,
+          marginHorizontal: 10,
+        }}
+      />
+      <DrawerItem
+        label="Purchase History"
+        focused={activeRoute === 'PurchaseHistory'}
+        icon={({ color, size }) => (
+          <MaterialIcons name="history" size={size} color={color} />
+        )}
+        onPress={() => props.navigation.navigate('PurchaseHistory')}
+        activeTintColor={colors.white}
+        activeBackgroundColor={colors.primary}
+        labelStyle={{ fontWeight: '600' }}
         inactiveTintColor={colors.text}
+        style={{
+          borderRadius: 8,
+          marginHorizontal: 10,
+        }}
       />
       <View style={{ flex: 1 }} />
       <DrawerItem
@@ -222,6 +243,20 @@ function RootNavigator(): React.ReactNode {
           headerTitleStyle: {
             fontWeight: '600',
           },
+        }}
+      />
+      <RootStack.Screen
+        name="CustomProductList"
+        component={CustomProductListScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <RootStack.Screen
+        name="PurchaseHistory"
+        component={CustomProductHistoryScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </RootStack.Navigator>

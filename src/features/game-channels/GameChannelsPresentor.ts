@@ -21,6 +21,7 @@ export function useGameChannelsPresentor(navigation: any) {
     channelsRefetch,
   } = interactor;
 
+
   // Sync notifications list
   useEffect(() => {
     if (notiData?.items) {
@@ -53,6 +54,12 @@ export function useGameChannelsPresentor(navigation: any) {
     setNotiPage(1);
     notiRefetch();
   }, [notiRefetch]);
+
+  useEffect(() => {
+    if (showNotifications) {
+      handleRefreshNoti();
+    }
+  }, [showNotifications, handleRefreshNoti]);
 
   const handleNotificationClick = useCallback(
     async (item: NotificationItem) => {

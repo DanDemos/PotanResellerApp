@@ -257,4 +257,17 @@ export const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: 'bold',
   },
+  sectionHeader: {
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#64748b',
+    textTransform: 'uppercase',
+  },
 });
