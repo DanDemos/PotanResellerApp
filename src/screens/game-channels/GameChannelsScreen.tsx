@@ -30,14 +30,18 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
       <TouchableOpacity
         style={styles.channelItem}
         onPress={() =>
-          gameChannelsPresenter.navigateToChat(item.uuid, item.game.name)
+          gameChannelsPresenter.navigateToChat(
+            item.uuid,
+            (item as any).displayTitle,
+            (item as any).region?.id,
+          )
         }
         activeOpacity={0.6}
       >
         <View style={styles.avatarContainer}>
           <View style={styles.avatarPlaceholder}>
             <Text style={styles.avatarText}>
-              {item.game.name.substring(0, 2).toUpperCase()}
+              {(item as any).displayTitle.substring(0, 2).toUpperCase()}
             </Text>
           </View>
         </View>
@@ -46,7 +50,7 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
           <View style={styles.topRow}>
             <View style={styles.nameContainer}>
               <Text style={styles.channelName} numberOfLines={1}>
-                {item.game.name}
+                {(item as any).displayTitle}
               </Text>
             </View>
 
@@ -112,12 +116,6 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
               </Text>
             </View>
           </View>
-
-          <View style={styles.bottomRow}>
-            <Text style={styles.messageText} numberOfLines={2}>
-              Category
-            </Text>
-          </View>
         </View>
       </TouchableOpacity>
     );
@@ -160,7 +158,7 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
         <TouchableOpacity onPress={gameChannelsPresenter.openDrawer}>
           <MaterialIcons name="menu" size={26} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Game List</Text>
+        {/* <Text style={styles.headerTitle}>Game List</Text> */}
         <View style={styles.headerActions}>
           <TouchableOpacity
             onPress={() => gameChannelsPresenter.setShowNotifications(true)}
@@ -280,8 +278,8 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
         <SectionList
           sections={[
             {
-              title: 'Game Channels',
-              data: gameChannelsPresenter.channelsData?.data || [],
+              title: 'Game List',
+              data: gameChannelsPresenter.processedChannels || [],
               type: 'channel',
             },
             {

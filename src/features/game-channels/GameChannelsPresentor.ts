@@ -23,6 +23,21 @@ export function useGameChannelsPresentor(navigation: any) {
 
 
   // Sync notifications list
+  const processedChannels = useMemo(() => {
+    if (!interactor.channelsData?.data) return [];
+    
+    return interactor.channelsData.data.flatMap(channel => {
+      const activeRegions = channel.game.regions?.filter(r => r.is_active) || [];
+      if (activeRegions.length === 0) return [];
+      
+      return activeRegions.map(region => ({
+        ...channel,
+        displayTitle: `${channel.game.name} - ${region.name}`,
+        region
+      }));
+    });
+  }, [interactor.channelsData]);
+
   useEffect(() => {
     if (notiData?.items) {
       if (notiPage === 1) {
@@ -101,6 +116,7 @@ export function useGameChannelsPresentor(navigation: any) {
       handleNotificationClick,
       handleMarkAllAsRead,
       handleMainRefresh,
+      processedChannels,
     }),
     [
       interactor,
@@ -113,6 +129,7 @@ export function useGameChannelsPresentor(navigation: any) {
       handleNotificationClick,
       handleMarkAllAsRead,
       handleMainRefresh,
+      processedChannels,
     ],
   );
 }

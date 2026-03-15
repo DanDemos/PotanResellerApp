@@ -17,6 +17,6 @@ export const rtkBaseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Wallet', 'Profile', 'Notifications', 'Channels', 'Messages'],
+  tagTypes: ['Wallet', 'Profile', 'Notifications', 'Channels', 'Messages', 'ChatHistory'],
   endpoints: () => ({}),
 });

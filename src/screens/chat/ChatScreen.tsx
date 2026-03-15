@@ -27,13 +27,13 @@ import { useChatPresentor } from '@/features/chat/ChatPresentor';
 export function ChatScreen(): React.ReactNode {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { channelUuid } = route.params || {};
+  const { channelUuid, regionId } = route.params || {};
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
 
   // VIPER Initialization
   const interactor = useChatInteractor(channelUuid);
   const router = useMemo(() => new ChatRouter(navigation), [navigation]);
-  const presenter = useChatPresentor(interactor, router, currentUserId);
+  const presenter = useChatPresentor(interactor, router, currentUserId, regionId);
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -47,7 +47,7 @@ export function ChatScreen(): React.ReactNode {
   }, [presenter.messages]);
 
   const renderMessage = ({ item }: { item: Message }) => {
-    const isUser = item.sender_id === currentUserId;
+    const isUser = item.kind === 'user';
     return (
       <View
         style={[
@@ -137,11 +137,16 @@ export function ChatScreen(): React.ReactNode {
             />
           </View>
           <TouchableOpacity
-            style={styles.sendButton}
+            style={[styles.sendButton, presenter.sendIsLoading && { opacity: 0.6 }]}
             onPress={presenter.handleSendMessage}
             activeOpacity={0.7}
+            disabled={presenter.sendIsLoading || presenter.inputText.trim() === ''}
           >
-            <MaterialIcons name="send" size={20} color={colors.white} />
+            {presenter.sendIsLoading ? (
+               <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <MaterialIcons name="send" size={20} color={colors.white} />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

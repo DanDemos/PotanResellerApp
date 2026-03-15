@@ -4,10 +4,27 @@ export type User = {
   type: string;
 };
 
+export type GameRegionPivot = {
+  game_id: number;
+  region_id: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GameRegion = {
+  id: number;
+  uuid: string;
+  code: string;
+  name: string;
+  is_active: boolean;
+  pivot: GameRegionPivot;
+};
+
 export type Game = {
   id: number;
   uuid: string;
   name: string;
+  regions?: GameRegion[];
 };
 
 export type Message = {
@@ -19,6 +36,7 @@ export type Message = {
   created_at: string;
   updated_at: string;
   sender: User;
+  kind?: 'user' | 'bot' | string;
 };
 
 export type Channel = {
@@ -61,3 +79,55 @@ export type MarkMessageAsReadResponse = {
   ok: boolean;
   message?: string;
 };
+
+export type CreateOrderRequest = {
+  region_id: number;
+  product: string;
+  product_id: number;
+};
+
+export type CreateOrderResponse = {
+  message: string;
+};
+
+type PaginationLink = {
+  url: string | null;
+  label: string;
+  page: number | null;
+  active: boolean;
+};
+
+export type GetChatHistoryResponse = {
+  channel: Channel;
+  game: Game;
+  messages: {
+    current_page: number;
+    data: Message[];
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+  };
+};
+
+export type GetChatHistoryRequest = {
+  game_id: number;
+  page?: number;
+  per_page?: number;
+};
+
+export type SendChatMessageRequest = {
+  channelUuid: string;
+  body: string;
+}
+
+export type SendChatMessageResponse = {
+  message: string;
+}

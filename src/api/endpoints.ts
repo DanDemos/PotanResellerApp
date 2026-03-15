@@ -34,8 +34,11 @@ export const ENDPOINTS = {
   },
   GAME_CHANNEL: {
     GET_CHANNELS: '/chat/channels',
+    GET_CHAT_HISTORY: '/game-channels/by-game-user',
+    SEND_CHAT_MESSAGE: (channelUuid: string) => `/game-channels/${channelUuid}/messages`,
     GET_CHANNEL_MESSAGES: (channelUuid: string) => `/chat/channels/${channelUuid}`,
     MARK_MESSAGE_READ: (messageId: number) => `/chat/messages/${messageId}/read`,
+    CREATE_ORDER: '/chat/createorder',
   },
   CUSTOM_PRODUCT: {
     GET_CATEGORIES: '/categories',

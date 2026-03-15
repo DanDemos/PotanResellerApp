@@ -5,8 +5,8 @@ export function useGameChannelsRouter(navigation: any) {
   return useMemo(
     () => ({
       openDrawer: () => navigation.openDrawer(),
-      navigateToChat: (channelUuid: string, gameName: string) =>
-        navigation.navigate('Chat', { channelUuid, gameName }),
+      navigateToChat: (channelUuid: string, gameName: string, regionId?: number) =>
+        navigation.navigate('Chat', { channelUuid, gameName, regionId }),
       navigateToProfile: () => navigation.navigate('Profile'),
     }),
     [navigation],
