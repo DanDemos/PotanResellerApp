@@ -1,8 +1,7 @@
-
 import { useMemo } from 'react';
-import { useGetCategoryListQuery } from '@/api/actions/custom-product/customProductApi';
+import { useGetCategoryListQuery } from '@/api/actions/gift-card/giftCardApi';
 
-export function useCustomProductsInteractor(page?: number, perPage?: number) {
+export function useGiftCardsInteractor(page?: number, perPage?: number) {
   const {
     data: categoriesData,
     isLoading: categoriesIsLoading,

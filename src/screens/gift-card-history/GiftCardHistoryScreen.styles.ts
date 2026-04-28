@@ -39,17 +39,17 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
   },
-  productImage: {
+  giftCardImage: {
     width: 60,
     height: 60,
     borderRadius: 8,
     backgroundColor: '#f1f5f9',
   },
-  productInfo: {
+  giftCardInfo: {
     flex: 1,
     marginLeft: 12,
   },
-  productName: {
+  giftCardName: {
     fontSize: 15,
     fontWeight: '600',
     color: colors.textDark,

@@ -1,11 +1,10 @@
-
 import { useMemo } from 'react';
 
-export function useCustomProductsRouter(navigation: any) {
+export function useGiftCardsRouter(navigation: any) {
   return useMemo(
     () => ({
       navigateToProductList: (categoryId: number, categoryName: string) => {
-        navigation.navigate('CustomProductList', { categoryId, categoryName });
+        navigation.navigate('GiftCardList', { categoryId, categoryName });
       },
       openDrawer: () => {
         if (navigation.openDrawer) {

@@ -2,6 +2,7 @@ import { BACKEND_API_URL } from '@env';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '@/redux/store';
 
+console.log(BACKEND_API_URL, "BACKEND_API_URL")
 export const rtkBaseApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({

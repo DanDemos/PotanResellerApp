@@ -8,6 +8,7 @@ export function useGameChannelsRouter(navigation: any) {
       navigateToChat: (channelUuid: string, gameName: string, regionId?: number) =>
         navigation.navigate('Chat', { channelUuid, gameName, regionId }),
       navigateToProfile: () => navigation.navigate('Profile'),
+      navigateToGiftCard: () => navigation.navigate('GiftCard'),
     }),
     [navigation],
   );

@@ -9,8 +9,8 @@ export function getImageUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   if (path.startsWith('http')) return path;
 
-  // Extract base domain from BACKEND_API_URL (e.g., https://api2.potanshop.com/api -> https://api2.potanshop.com)
-  const baseDomain = BACKEND_API_URL.split('/api')[0] + '/api' + BACKEND_API_URL.split('/api')[1];
+  const baseDomain = BACKEND_API_URL.split('/api')[0];
+  console.log(baseDomain + "/storage/" + "custom_product_photos\/3a069d5d-958f-4581-b072-302e80c26a68_1775058164.jpg")
 
   return `${baseDomain}/storage/${path}`;
 }

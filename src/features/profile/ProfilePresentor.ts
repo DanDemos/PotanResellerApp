@@ -17,9 +17,10 @@ export function useProfilePresenter(
 
   // UI Toggles
   const handleTopUpCoins = useCallback(() => {
+    interactor.coinRateRefetch();
     setCoinMode('topup');
     setCoinModalVisible(true);
-  }, []);
+  }, [interactor]);
 
   const handleConvertCoinsAction = useCallback(() => {
     setCoinMode('convert');

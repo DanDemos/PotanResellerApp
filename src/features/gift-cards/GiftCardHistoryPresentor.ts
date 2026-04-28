@@ -1,14 +1,13 @@
-
 import { useState, useMemo, useCallback } from 'react';
-import { useCustomProductHistoryInteractor } from './CustomProductHistoryInteractor';
-import { useCustomProductHistoryRouter } from './CustomProductHistoryRouter';
+import { useGiftCardHistoryInteractor } from './GiftCardHistoryInteractor';
+import { useGiftCardHistoryRouter } from './GiftCardHistoryRouter';
 
-export function useCustomProductHistoryPresentor(navigation: any) {
+export function useGiftCardHistoryPresentor(navigation: any) {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
 
-  const interactor = useCustomProductHistoryInteractor(page, perPage);
-  const router = useCustomProductHistoryRouter(navigation);
+  const interactor = useGiftCardHistoryInteractor(page, perPage);
+  const router = useGiftCardHistoryRouter(navigation);
 
   const handleRefresh = useCallback(() => {
     setPage(1);

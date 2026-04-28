@@ -33,7 +33,12 @@ export function ChatScreen(): React.ReactNode {
   // VIPER Initialization
   const interactor = useChatInteractor(channelUuid);
   const router = useMemo(() => new ChatRouter(navigation), [navigation]);
-  const presenter = useChatPresentor(interactor, router, currentUserId, regionId);
+  const presenter = useChatPresentor(
+    interactor,
+    router,
+    currentUserId,
+    regionId,
+  );
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -137,13 +142,18 @@ export function ChatScreen(): React.ReactNode {
             />
           </View>
           <TouchableOpacity
-            style={[styles.sendButton, presenter.sendIsLoading && { opacity: 0.6 }]}
+            style={[
+              styles.sendButton,
+              presenter.sendIsLoading && { opacity: 0.6 },
+            ]}
             onPress={presenter.handleSendMessage}
             activeOpacity={0.7}
-            disabled={presenter.sendIsLoading || presenter.inputText.trim() === ''}
+            disabled={
+              presenter.sendIsLoading || presenter.inputText.trim() === ''
+            }
           >
             {presenter.sendIsLoading ? (
-               <ActivityIndicator size="small" color={colors.white} />
+              <ActivityIndicator size="small" color={colors.white} />
             ) : (
               <MaterialIcons name="send" size={20} color={colors.white} />
             )}

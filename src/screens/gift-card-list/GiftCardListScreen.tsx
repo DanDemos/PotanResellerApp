@@ -11,30 +11,30 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
-import { styles } from './CustomProductListScreen.styles';
-import { useCustomProductListPresentor } from '@/features/custom-products/CustomProductListPresentor';
-import { EachCustomProduct } from '@/api/actions/custom-product/customProductAPIDataTypes';
+import { styles } from './GiftCardListScreen.styles';
+import { useGiftCardListPresentor } from '@/features/gift-cards/GiftCardListPresentor';
+import { GiftCard } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
 
-export function CustomProductListScreen({
+export function GiftCardListScreen({
   navigation,
   route,
 }: any): React.ReactNode {
   const { categoryId, categoryName } = route.params;
-  const presenter = useCustomProductListPresentor(navigation, categoryId);
+  const presenter = useGiftCardListPresentor(navigation, categoryId);
 
-  function renderProductItem({ item }: { item: EachCustomProduct }) {
+  function renderGiftCardItem({ item }: { item: GiftCard }) {
     return (
       <TouchableOpacity
-        style={styles.productCard}
-        onPress={() => presenter.navigateToProductDetail(item.id)}
+        style={styles.giftCardCard}
+        onPress={() => presenter.navigateToGiftCardDetail(item.id)}
         activeOpacity={0.8}
       >
         <View style={styles.imageContainer}>
           {item.image_path ? (
             <Image
               source={{ uri: getImageUrl(item.image_path) || '' }}
-              style={styles.productImage}
+              style={styles.giftCardImage}
               resizeMode="cover"
             />
           ) : (
@@ -43,10 +43,10 @@ export function CustomProductListScreen({
             </View>
           )}
         </View>
-        <View style={styles.productInfo}>
+        <View style={styles.giftCardInfo}>
           <View style={styles.namePriceRow}>
-            <Text style={styles.productName} numberOfLines={2}>
-              {item.name || 'Product Name'}
+            <Text style={styles.giftCardName} numberOfLines={2}>
+              {item.name || 'Gift Card Name'}
             </Text>
             <View style={styles.priceContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -84,7 +84,7 @@ export function CustomProductListScreen({
         <TouchableOpacity onPress={presenter.goBack}>
           <MaterialIcons name="arrow-back" size={26} color={colors.textDark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{categoryName || 'Products'}</Text>
+        <Text style={styles.headerTitle}>{categoryName || 'Gift Cards'}</Text>
         <View style={styles.walletContainer}>
           <View style={styles.walletItem}>
             <Text style={styles.walletValue}>
@@ -109,16 +109,16 @@ export function CustomProductListScreen({
         </View>
       </View>
 
-      {presenter.productsIsLoading && presenter.page === 1 ? (
+      {presenter.giftCardsIsLoading && presenter.page === 1 ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
-      ) : presenter.productsError ? (
+      ) : presenter.giftCardsError ? (
         <View style={styles.center}>
           <MaterialIcons name="error-outline" size={60} color="#ef4444" />
           <Text style={styles.errorText}>
-            {(presenter.productsError as any)?.data?.message ||
-              'Failed to load products.'}
+            {(presenter.giftCardsError as any)?.data?.message ||
+              'Failed to load gift cards.'}
           </Text>
           <TouchableOpacity
             onPress={presenter.handleRefresh}
@@ -129,18 +129,18 @@ export function CustomProductListScreen({
         </View>
       ) : (
         <FlatList
-          data={presenter.productsData?.data || []}
+          data={presenter.giftCardsData?.data || []}
           keyExtractor={item => item.id.toString()}
-          renderItem={renderProductItem}
+          renderItem={renderGiftCardItem}
           numColumns={2}
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={{ justifyContent: 'space-between' }}
           onRefresh={presenter.handleRefresh}
-          refreshing={presenter.productsIsFetching && presenter.page === 1}
+          refreshing={presenter.giftCardsIsFetching && presenter.page === 1}
           onEndReached={presenter.handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            presenter.productsIsFetching && presenter.page > 1 ? (
+            presenter.giftCardsIsFetching && presenter.page > 1 ? (
               <View style={styles.footer}>
                 <ActivityIndicator size="small" color={colors.primary} />
               </View>
@@ -150,7 +150,7 @@ export function CustomProductListScreen({
             <View style={styles.center}>
               <MaterialIcons name="shopping-bag" size={80} color="#e2e8f0" />
               <Text style={styles.emptyText}>
-                No products found in this category.
+                No gift cards found in this category.
               </Text>
             </View>
           }

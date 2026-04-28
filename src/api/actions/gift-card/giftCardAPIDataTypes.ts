@@ -1,6 +1,6 @@
 import { User } from '@/api/actions/user/userAPIDataTypes';
 
-export type EachCustomProduct = {
+export type GiftCard = {
   id: number;
   category_id: number;
   name: string;
@@ -22,15 +22,15 @@ type PaginationLink = {
   active: boolean;
 };
 
-export type GetCustomProductListRequest = {
+export type GetGiftCardListRequest = {
   page?: number;
   per_page?: number;
   category_id?: number;
 };
 
-export type GetCustomProductListResponse = {
+export type GetGiftCardListResponse = {
   current_page: number;
-  data: EachCustomProduct[];
+  data: GiftCard[];
   first_page_url: string;
   from: number | null;
   last_page: number;
@@ -73,16 +73,15 @@ export type GetCategoriesRequest = {
   per_page?: number;
 };
 
-export type PurchaseCustomProductRequest = {
+export type PurchaseGiftCardRequest = {
   custom_product_id: number;
-  image: File;
 };
 
-export type PurchaseCustomProductResponse = {
+export type PurchaseGiftCardResponse = {
   message: string;
 };
 
-export type GetPurchaseProductHistoryRequest = {
+export type GetGiftCardHistoryRequest = {
   page?: number;
   per_page?: number;
 };
@@ -100,11 +99,11 @@ export type PurchaseHistoryItem = {
   reject_reason: string | null;
   created_at: string;
   updated_at: string;
-  custom_product: EachCustomProduct;
+  custom_product: GiftCard;
   user: User;
 };
 
-export type GetPurchaseProductHistoryResponse = {
+export type GetGiftCardHistoryResponse = {
   current_page: number;
   data: PurchaseHistoryItem[];
   first_page_url: string;

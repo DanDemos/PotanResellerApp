@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
-import { useCustomProductsInteractor } from './CustomProductsInteractor';
-import { useCustomProductsRouter } from './CustomProductsRouter';
+import { useGiftCardsInteractor } from './GiftCardsInteractor';
+import { useGiftCardsRouter } from './GiftCardsRouter';
 
-export function useCustomProductsPresentor(navigation?: any) {
+export function useGiftCardsPresentor(navigation?: any) {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
 
-  const interactor = useCustomProductsInteractor(page, perPage);
-  const router = useCustomProductsRouter(navigation);
+  const interactor = useGiftCardsInteractor(page, perPage);
+  const router = useGiftCardsRouter(navigation);
 
   return useMemo(
     () => ({

@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
   listContent: {
     padding: 16,
   },
-  productCard: {
+  giftCardCard: {
     width: columnWidth,
     backgroundColor: colors.white,
     borderRadius: 12,
@@ -46,11 +46,11 @@ export const styles = StyleSheet.create({
     height: columnWidth,
     backgroundColor: '#f1f5f9',
   },
-  productImage: {
+  giftCardImage: {
     width: '100%',
     height: '100%',
   },
-  productInfo: {
+  giftCardInfo: {
     padding: 12,
   },
   namePriceRow: {
@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 12,
   },
-  productName: {
+  giftCardName: {
     fontSize: 13,
     fontWeight: '700',
     color: colors.textDark,

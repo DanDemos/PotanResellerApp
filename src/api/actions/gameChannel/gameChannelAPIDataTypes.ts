@@ -54,13 +54,52 @@ export type Channel = {
   isPinned?: boolean;
 };
 
+export type Server = {
+  id: number;
+  name: string;
+  uuid: string;
+};
+
+export type Product = {
+  id: number;
+  name: string;
+  uuid: string;
+};
+
+export type GameItem = {
+  id: number;
+  name: string;
+  region_id: number;
+  logo: string;
+  uuid: string;
+  active: number;
+  created_at: string;
+  updated_at: string;
+  region: GameRegion; // Note: reuse GameRegion but it doesn't have pivot in this case
+  servers: Server[];
+  products: Product[];
+};
+
 export type GetChannelsResponse = {
   current_page: number;
-  data: Channel[];
+  data: GameItem[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: PaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number | string;
+  prev_page_url: string | null;
+  to: number;
   total: number;
 };
 
-export type GetChannelsRequest = void;
+export type GetChannelsRequest = {
+  page?: number;
+  per_page?: number;
+};
 
 export type GetChannelMessagesResponse = {
   channel: Channel;
@@ -80,16 +119,6 @@ export type MarkMessageAsReadResponse = {
   message?: string;
 };
 
-export type CreateOrderRequest = {
-  region_id: number;
-  product: string;
-  product_id: number;
-};
-
-export type CreateOrderResponse = {
-  message: string;
-};
-
 type PaginationLink = {
   url: string | null;
   label: string;
@@ -97,35 +126,16 @@ type PaginationLink = {
   active: boolean;
 };
 
-export type GetChatHistoryResponse = {
-  channel: Channel;
-  game: Game;
-  messages: {
-    current_page: number;
-    data: Message[];
-    first_page_url: string;
-    from: number | null;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number | null;
-    total: number;
-  };
-};
-
-export type GetChatHistoryRequest = {
-  game_id: number;
-  page?: number;
-  per_page?: number;
+export type SendChatMessageRequestItem = {
+  user_code: number | string;
+  product_id: number | string;
+  server_id?: number | string | null;
 };
 
 export type SendChatMessageRequest = {
-  channelUuid: string;
-  body: string;
+  game_id: number;
+  body?: string;
+  items?: SendChatMessageRequestItem[];
 }
 
 export type SendChatMessageResponse = {

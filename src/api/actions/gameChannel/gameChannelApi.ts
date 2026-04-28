@@ -7,10 +7,6 @@ import {
   GetChannelMessagesResponse,
   MarkMessageAsReadRequest,
   MarkMessageAsReadResponse,
-  CreateOrderRequest,
-  CreateOrderResponse,
-  GetChatHistoryRequest,
-  GetChatHistoryResponse,
   SendChatMessageRequest,
   SendChatMessageResponse,
 } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
@@ -18,9 +14,10 @@ import {
 export const gameChannelApi = rtkBaseApi.injectEndpoints({
   endpoints: (builder) => ({
     getChannels: builder.query<GetChannelsResponse, GetChannelsRequest>({
-      query: () => ({
+      query: (arg) => ({
         url: ENDPOINTS.GAME_CHANNEL.GET_CHANNELS,
         method: 'GET',
+        params: arg,
       }),
       providesTags: ['Channels'],
     }),
@@ -38,30 +35,16 @@ export const gameChannelApi = rtkBaseApi.injectEndpoints({
       }),
       invalidatesTags: ['Messages'],
     }),
-
-    getChatHistory: builder.query<GetChatHistoryResponse, GetChatHistoryRequest>({
-      query: (arg) => ({
-        url: ENDPOINTS.GAME_CHANNEL.GET_CHAT_HISTORY,
-        method: 'GET',
-        params: arg,
-      }),
-      providesTags: ['ChatHistory'],
-    }),
     sendChatMessage: builder.mutation<SendChatMessageResponse, SendChatMessageRequest>({
-      query: ({ channelUuid, body }) => ({
-        url: ENDPOINTS.GAME_CHANNEL.SEND_CHAT_MESSAGE(channelUuid),
-        method: 'POST',
-        body: { body },
-      }),
+      query: (arg) => {
+        const { game_id, ...rest } = arg;
+        return {
+          url: ENDPOINTS.GAME_CHANNEL.SEND_CHAT_MESSAGE(String(game_id)),
+          method: 'POST',
+          body: rest,
+        };
+      },
       invalidatesTags: ['Messages'],
-    }),
-    createOrder: builder.mutation<CreateOrderResponse, CreateOrderRequest>({
-      query: (orderData) => ({
-        url: ENDPOINTS.GAME_CHANNEL.CREATE_ORDER,
-        method: 'POST',
-        body: orderData,
-      }),
-      invalidatesTags: ['ChatHistory'],
     }),
   }),
   overrideExisting: false,
@@ -71,8 +54,6 @@ export const {
   useGetChannelsQuery,
   useGetChannelMessagesQuery,
   useMarkMessageAsReadMutation,
-  useGetChatHistoryQuery,
   useSendChatMessageMutation,
-  useCreateOrderMutation,
 } = gameChannelApi;
 

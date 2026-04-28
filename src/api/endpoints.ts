@@ -33,17 +33,15 @@ export const ENDPOINTS = {
     GET_REPAY_REQUESTS: '/money/loan/repay/my-requests',
   },
   GAME_CHANNEL: {
-    GET_CHANNELS: '/chat/channels',
-    GET_CHAT_HISTORY: '/game-channels/by-game-user',
-    SEND_CHAT_MESSAGE: (channelUuid: string) => `/game-channels/${channelUuid}/messages`,
+    GET_CHANNELS: '/games',
+    SEND_CHAT_MESSAGE: (game_id: string) => `/chat/channels/${game_id}/messages`,
     GET_CHANNEL_MESSAGES: (channelUuid: string) => `/chat/channels/${channelUuid}`,
     MARK_MESSAGE_READ: (messageId: number) => `/chat/messages/${messageId}/read`,
-    CREATE_ORDER: '/chat/createorder',
   },
-  CUSTOM_PRODUCT: {
+  GIFT_CARD: {
     GET_CATEGORIES: '/categories',
-    GET_PRODUCT_LIST: '/custom-products',
-    PURCHASE_PRODUCT: '/custom-product-purchases',
-    GET_PURCHASE_PRODUCT_HISTORY: '/custom-product-purchases',
+    GET_GIFT_CARD_LIST: '/custom-products',
+    PURCHASE_GIFT_CARD: '/custom-product-purchases',
+    GET_GIFT_CARD_HISTORY: '/custom-product-purchases',
   },
 } as const;

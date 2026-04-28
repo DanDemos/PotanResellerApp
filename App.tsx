@@ -38,8 +38,10 @@ import { LoginScreen } from '@/screens/login/LoginScreen';
 import { SupportScreen } from '@/screens/support/SupportScreen';
 import { PendingLoansScreen } from '@/screens/history/PendingLoansScreen';
 import { RepayHistoryScreen } from '@/screens/history/RepayHistoryScreen';
-import { CustomProductListScreen } from '@/screens/custom-product-list/CustomProductListScreen';
-import { CustomProductHistoryScreen } from '@/screens/custom-product-history/CustomProductHistoryScreen';
+import { GiftCardListScreen } from '@/screens/gift-card-list/GiftCardListScreen';
+import { GiftCardHistoryScreen } from '@/screens/gift-card-history/GiftCardHistoryScreen';
+import { GiftCardScreen } from '@/screens/GiftCard/GiftCardScreen';
+import { SocketNotificationManager } from '@/components/SocketNotificationManager';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -68,10 +70,10 @@ function CustomDrawerContent(props: any): React.ReactNode {
     >
       <View style={{ paddingTop: insets.top }} />
       <DrawerItem
-        label="Home"
+        label="Games"
         focused={activeRoute === 'ChatStack'}
         icon={({ color, size }) => (
-          <MaterialIcons name="home" size={size} color={color} />
+          <MaterialIcons name="sports-esports" size={size} color={color} />
         )}
         onPress={() => props.navigation.navigate('ChatStack')}
         activeTintColor={colors.white}
@@ -83,12 +85,27 @@ function CustomDrawerContent(props: any): React.ReactNode {
         }}
       />
       <DrawerItem
+        label="Gift Cards"
+        focused={activeRoute === 'GiftCard'}
+        icon={({ color, size }) => (
+          <MaterialIcons name="redeem" size={size} color={color} />
+        )}
+        onPress={() => props.navigation.navigate('GiftCard')}
+        activeTintColor={colors.white}
+        activeBackgroundColor={colors.primary}
+        labelStyle={{ fontWeight: '600' }}
+        style={{
+          borderRadius: 8,
+          marginHorizontal: 10,
+        }}
+      />
+      <DrawerItem
         label="Purchase History"
-        focused={activeRoute === 'PurchaseHistory'}
+        focused={activeRoute === 'GiftCardHistory'}
         icon={({ color, size }) => (
           <MaterialIcons name="history" size={size} color={color} />
         )}
-        onPress={() => props.navigation.navigate('PurchaseHistory')}
+        onPress={() => props.navigation.navigate('GiftCardHistory')}
         activeTintColor={colors.white}
         activeBackgroundColor={colors.primary}
         labelStyle={{ fontWeight: '600' }}
@@ -169,13 +186,19 @@ function MainDrawerNavigator(): React.ReactNode {
       <Drawer.Screen
         name="ChatStack"
         component={ChatStackNavigator}
-        options={{ title: 'Home' }}
+        options={{ title: 'Games' }}
+      />
+      <Drawer.Screen
+        name="GiftCard"
+        component={GiftCardScreen}
+        options={{ title: 'Gift Cards' }}
       />
     </Drawer.Navigator>
   );
 }
 
 const RootStack = createNativeStackNavigator();
+
 
 function RootNavigator(): React.ReactNode {
   return (
@@ -246,15 +269,15 @@ function RootNavigator(): React.ReactNode {
         }}
       />
       <RootStack.Screen
-        name="CustomProductList"
-        component={CustomProductListScreen}
+        name="GiftCardList"
+        component={GiftCardListScreen}
         options={{
           headerShown: false,
         }}
       />
       <RootStack.Screen
-        name="PurchaseHistory"
-        component={CustomProductHistoryScreen}
+        name="GiftCardHistory"
+        component={GiftCardHistoryScreen}
         options={{
           headerShown: false,
         }}
@@ -263,12 +286,14 @@ function RootNavigator(): React.ReactNode {
   );
 }
 
+
 function AppContent(): React.ReactNode {
   const isLoggedIn = useSelector((state: RootState) => !!state.auth.token);
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
     <SafeAreaProvider>
+      <SocketNotificationManager />
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={colors.white}

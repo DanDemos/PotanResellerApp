@@ -53,7 +53,7 @@ export function useWalletOperations({
     },
   ] = useConvertMoneyToCoinMutation();
 
-  const { data: coinRateData } = useGetCoinsRateQuery();
+  const { data: coinRateData, refetch: coinRateRefetch } = useGetCoinsRateQuery();
 
   const [
     repayLoan,
@@ -267,6 +267,7 @@ export function useWalletOperations({
   return useMemo(() => ({
     // Data
     coinRateData,
+    coinRateRefetch,
     // Loading States
     requestRefillIsLoading,
     requestLoanIsLoading,
@@ -283,6 +284,7 @@ export function useWalletOperations({
     handleConfirmRepayment,
   }), [
     coinRateData,
+    coinRateRefetch,
     requestRefillIsLoading,
     requestLoanIsLoading,
     convertCoinsIsLoading,

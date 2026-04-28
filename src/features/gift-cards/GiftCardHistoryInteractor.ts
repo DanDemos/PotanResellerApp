@@ -1,15 +1,14 @@
-
 import { useMemo } from 'react';
-import { useGetPurchaseProductHistoryQuery } from '@/api/actions/custom-product/customProductApi';
+import { useGetGiftCardHistoryQuery } from '@/api/actions/gift-card/giftCardApi';
 
-export function useCustomProductHistoryInteractor(page?: number, perPage?: number) {
+export function useGiftCardHistoryInteractor(page?: number, perPage?: number) {
   const {
     data: historyData,
     isLoading: historyIsLoading,
     isFetching: historyIsFetching,
     error: historyError,
     refetch: historyRefetch,
-  } = useGetPurchaseProductHistoryQuery({ page, per_page: perPage });
+  } = useGetGiftCardHistoryQuery({ page, per_page: perPage });
 
   return useMemo(
     () => ({

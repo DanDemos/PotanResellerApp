@@ -7,13 +7,14 @@ import {
   useMarkAllNotificationsAsReadMutation,
 } from '@/api/actions/user/userApi';
 
-export function useGameChannelsInteractor(notiPage: number) {
+export function useGameChannelsInteractor(notiPage: number, channelsPage: number) {
   const {
     data: channelsData,
     isLoading: channelsIsLoading,
+    isFetching: channelsIsFetching,
     error: channelsError,
     refetch: channelsRefetch,
-  } = useGetChannelsQuery(undefined);
+  } = useGetChannelsQuery({ page: channelsPage, per_page: 10 });
 
   const {
     data: notiData,
@@ -29,6 +30,7 @@ export function useGameChannelsInteractor(notiPage: number) {
     () => ({
       channelsData,
       channelsIsLoading,
+      channelsIsFetching,
       channelsError,
       channelsRefetch,
       notiData,
@@ -41,6 +43,7 @@ export function useGameChannelsInteractor(notiPage: number) {
     [
       channelsData,
       channelsIsLoading,
+      channelsIsFetching,
       channelsError,
       channelsRefetch,
       notiData,

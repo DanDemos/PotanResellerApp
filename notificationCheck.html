@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Checker | Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+    <script>
+        if (typeof Echo === 'undefined' && typeof LaravelEcho !== 'undefined') {
+            window.Echo = LaravelEcho;
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        @keyframes pulse-dot {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pulse-dot { animation: pulse-dot 2s infinite cubic-bezier(0.4, 0, 0.6, 1); }
+    </style>
+</head>
+<body class="bg-[#0b0f1a] text-slate-300 min-h-screen selection:bg-blue-500/30">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-10 py-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Notification <span class="text-blue-500">Live</span></h1>
+            </div>
+            <div id="statusIndicator" class="flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                Disconnected
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass rounded-2xl p-6 space-y-5">
+                    <h2 class="text-lg font-semibold text-white mb-4">Settings</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Website Domain</label>
+                            <input type="text" id="baseUrl" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 transition-colors" value="https://soetheingilin.com">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Socket Host</label>
+                                <input type="text" id="host" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 transition-colors" value="soetheingilin.com">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Port</label>
+                                <input type="text" id="port" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 transition-colors" value="443">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Transport</label>
+                                <select id="transport" class="w-full bg-[#1a1f2e] border border-white/10 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500">
+                                    <option value="ws">WebSocket</option>
+                                    <option value="polling">Polling (XHR)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">User ID</label>
+                                <input type="number" id="userId" class="w-full bg-[#1a1f2e] border border-white/10 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" value="2">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Auth Token</label>
+                            <textarea id="token" rows="2" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 transition-colors text-[11px] font-mono" placeholder="Paste your auth_token here..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button id="connectBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-all glow text-sm">
+                            Initialize
+                        </button>
+                        <button id="debugBtn" title="Raw WebSocket Test" class="px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="disconnectBtn" class="w-full border border-white/10 hover:bg-white/5 text-slate-400 py-2.5 rounded-xl transition-all hidden">
+                        Disconnect
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="glass rounded-2xl h-[calc(100vh-180px)] flex flex-col overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-white">Live Feed</h2>
+                        <button id="clearBtn" class="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Clear</button>
+                    </div>
+                    <div id="logContainer" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-center opacity-40">
+                            <p class="font-medium">Ready to connect</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusIndicator = document.getElementById('statusIndicator');
+        const logContainer = document.getElementById('logContainer');
+        const emptyState = document.getElementById('emptyState');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const debugBtn = document.getElementById('debugBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        function updateStatus(state) {
+            const dot = statusIndicator.querySelector('span');
+            const text = statusIndicator.childNodes[2];
+            statusIndicator.classList.remove('bg-green-500/10', 'bg-red-500/10', 'bg-yellow-500/10');
+            dot.classList.remove('bg-green-500', 'bg-red-500', 'bg-yellow-500', 'animate-pulse-dot');
+            if(state === 'connected'){ statusIndicator.classList.add('bg-green-500/10'); dot.classList.add('bg-green-500', 'animate-pulse-dot'); text.textContent = 'Connected'; }
+            else if(state === 'connecting'){ statusIndicator.classList.add('bg-yellow-500/10'); dot.classList.add('bg-yellow-500'); text.textContent = 'Connecting...'; }
+            else if(state === 'error'){ statusIndicator.classList.add('bg-red-500/10'); dot.classList.add('bg-red-500'); text.textContent = 'Error'; }
+            else { text.textContent = 'Disconnected'; }
+        }
+
+        function addLog(type, title, message, data = null) {
+            emptyState.style.display = 'none';
+            const div = document.createElement('div');
+            div.className = 'glass rounded-xl p-4 border-l-4 ' + (type === 'notification' ? 'border-blue-500' : type === 'error' ? 'border-red-500' : 'border-slate-500');
+            const time = new Date().toLocaleTimeString();
+            let dataHtml = data ? `<details class="mt-2"><summary class="text-[10px] font-bold text-slate-500 cursor-pointer uppercase">Details</summary><pre class="mt-2 p-2 bg-black/40 rounded-lg text-[10px] font-mono text-blue-300 overflow-x-auto">${JSON.stringify(data, null, 2)}</pre></details>` : '';
+            div.innerHTML = `<div class="flex justify-between items-start mb-1"><span class="text-[9px] font-bold uppercase tracking-widest text-slate-500">${time}</span><span class="px-1.5 py-0.5 rounded bg-white/5 text-[9px] font-bold uppercase tracking-widest text-slate-400">${type}</span></div><h4 class="text-white font-semibold text-xs">${title}</h4><p class="text-[11px] text-slate-400 mt-1">${message}</p>${dataHtml}`;
+            logContainer.prepend(div);
+        }
+
+        connectBtn.addEventListener('click', () => {
+            const baseUrl = document.getElementById('baseUrl').value.replace(/\/$/, '');
+            const host = document.getElementById('host').value;
+            const port = document.getElementById('port').value;
+            let token = document.getElementById('token').value.trim();
+            const userId = document.getElementById('userId').value;
+            const transport = document.getElementById('transport').value;
+
+            if (token.startsWith('Bearer ')) { token = token.substring(7); }
+            if (!token) { alert('Please paste your Auth Token!'); return; }
+
+            updateStatus('connecting');
+            addLog('system', 'Initializing', `Connecting as User ${userId}...`);
+            
+            try {
+                if (window.echoInstance) window.echoInstance.disconnect();
+                window.Pusher = Pusher;
+                window.echoInstance = new Echo({
+                    broadcaster: 'reverb',
+                    key: 'local',
+                    wsHost: host,
+                    wsPort: port,
+                    wssPort: port,
+                    forceTLS: true,
+                    enabledTransports: transport === 'ws' ? ['ws', 'wss'] : ['xhr_polling', 'xhr_streaming'],
+                    authEndpoint: `${baseUrl}/broadcasting/auth`,
+                    auth: { 
+                        headers: { 
+                            'Authorization': `Bearer ${token}`, 
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        } 
+                    }
+                });
+
+                const connector = window.echoInstance.connector;
+                const pusherInstance = connector?.pusher || connector?.options?.pusher;
+                
+                if (pusherInstance && pusherInstance.connection) {
+                    pusherInstance.connection.bind('connected', () => {
+                        updateStatus('connected');
+                        addLog('system', 'Socket Connected', `Transport: ${pusherInstance.connection.transport}`);
+                        connectBtn.classList.add('hidden'); disconnectBtn.classList.remove('hidden');
+                        
+                        addLog('system', 'Authorizing', `Requesting access to App.Models.User.${userId}...`);
+
+                        const channel = window.echoInstance.private(`App.Models.User.${userId}`);
+
+                        channel.subscribed(() => {
+                            addLog('system', 'Subscribed!', `Successfully listening on User ${userId} private channel.`);
+                        });
+
+                        channel.error((e) => {
+                            addLog('error', 'Subscription Error', e.type || e.error || 'Failed to subscribe', e);
+                            console.error('Full subscription error:', e);
+                        });
+
+                        channel.notification((n) => {
+                            addLog('notification', n.title || 'Notification', n.message || '', n);
+                            new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => {});
+                        });
+                    });
+                    pusherInstance.connection.bind('error', (err) => {
+                        updateStatus('error');
+                        addLog('error', 'Socket Error', err.error?.data?.message || err.message || 'Connection refused.');
+                    });
+                }
+            } catch (e) {
+                updateStatus('error');
+                addLog('error', 'Exception', e.message);
+            }
+        });
+
+        debugBtn.addEventListener('click', () => {
+            const host = document.getElementById('host').value;
+            const port = document.getElementById('port').value;
+            const wsUrl = `wss://${host}:${port}/app/local?protocol=7&client=js&version=8.4.0`;
+            addLog('system', 'Debug', `Attempting raw connection to: ${wsUrl}`);
+            const ws = new WebSocket(wsUrl);
+            ws.onopen = () => { addLog('system', 'Debug Success', 'WebSocket is reachable!'); ws.close(); };
+            ws.onerror = (e) => addLog('error', 'Debug Failed', 'Server unreachable. Check if the port 443 is open.');
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (window.echoInstance) window.echoInstance.disconnect();
+            updateStatus('disconnected');
+            connectBtn.classList.remove('hidden'); disconnectBtn.classList.add('hidden');
+        });
+
+        clearBtn.addEventListener('click', () => { logContainer.innerHTML = ''; logContainer.appendChild(emptyState); emptyState.style.display = 'flex'; });
+    </script>
+</body>
+</html>

@@ -34,24 +34,34 @@ export function useChatPresentor(
     if (text === '' || !interactor.messagesData?.channel?.uuid) return;
 
     try {
-      const orderMatch = text.match(/^([a-zA-Z0-9]+)-(\d+)$/);
+      // Logic for parsing codes like "2116374221-7255-212" or "7255*212"
+      // Split by any sequence of non-digit characters
+      const parts = text.split(/[^\d]+/).filter(Boolean);
 
-      if (orderMatch && regionId != null) {
-        await interactor.createOrder({
-          region_id: regionId,
-          product: orderMatch[1],
-          product_id: parseInt(orderMatch[2], 10),
+      const isPurchaseFormat = parts.length >= 2 && parts.length <= 3 && /[^\d\s]/.test(text);
+
+      if (isPurchaseFormat) {
+        const item: any = {
+          user_code: parts[0], // Using the first part as user_code/account id
+          product_id: parts.length === 3 ? parts[2] : parts[1],
+          server_id: parts.length === 3 ? parts[1] : null,
+        };
+
+        await interactor.sendChatMessage({
+          game_id: interactor.messagesData.channel.game_id,
+          items: [item],
+          body: text,
         }).unwrap();
       } else {
         await interactor.sendChatMessage({
-          channelUuid: interactor.messagesData.channel.uuid,
+          game_id: interactor.messagesData.channel.game_id,
           body: text,
         }).unwrap();
       }
       setInputText('');
     } catch (err: any) {
       console.error('Failed to create order or send message:', err);
-      
+
       const errorMessage =
         err?.data?.error || err?.data?.message || err?.error || err?.message || 'Unknown error occurred';
 
@@ -80,13 +90,11 @@ export function useChatPresentor(
     setInputText,
     handleSendMessage,
     handleBack,
-    isLoading: interactor.messagesIsLoading || interactor.historyLoading,
-    error: interactor.messagesError || interactor.historyError,
+    isLoading: interactor.messagesIsLoading,
+    error: interactor.messagesError,
     refetch: () => {
       interactor.messagesRefetch();
-      interactor.historyRefetch();
     },
-    history: interactor.historyData?.messages?.data || [],
-    sendIsLoading: interactor.sendIsLoading || interactor.createOrderIsLoading,
+    sendIsLoading: interactor.sendIsLoading,
   };
 }

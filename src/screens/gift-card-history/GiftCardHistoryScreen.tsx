@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   View,
@@ -12,29 +11,30 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
-import { styles } from './CustomProductHistoryScreen.styles';
-import { useCustomProductHistoryPresentor } from '@/features/custom-products/CustomProductHistoryPresentor';
-import { PurchaseHistoryItem } from '@/api/actions/custom-product/customProductAPIDataTypes';
+import { styles } from './GiftCardHistoryScreen.styles';
+import { useGiftCardHistoryPresentor } from '@/features/gift-cards/GiftCardHistoryPresentor';
+import { PurchaseHistoryItem } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
 
-export function CustomProductHistoryScreen({ navigation }: any): React.ReactNode {
-  const presenter = useCustomProductHistoryPresentor(navigation);
+export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
+  const presenter = useGiftCardHistoryPresentor(navigation);
 
   function renderHistoryItem({ item }: { item: PurchaseHistoryItem }) {
-    const product = item.custom_product;
+    const customProduct = item?.custom_product;
     const status = item.status.toLowerCase();
 
+    console.log(item, 'itemitem');
     return (
       <View style={styles.historyCard}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
-            source={{ uri: getImageUrl(product.image_path) || '' }}
-            style={styles.productImage}
+            source={{ uri: getImageUrl(customProduct?.image_path) || '' }}
+            style={styles.giftCardImage}
             resizeMode="cover"
           />
-          <View style={styles.productInfo}>
-            <Text style={styles.productName} numberOfLines={1}>
-              {product.name}
+          <View style={styles.giftCardInfo}>
+            <Text style={styles.giftCardName} numberOfLines={1}>
+              {customProduct?.name}
             </Text>
             <Text style={styles.dateText}>
               {new Date(item.created_at).toLocaleDateString([], {
@@ -45,21 +45,40 @@ export function CustomProductHistoryScreen({ navigation }: any): React.ReactNode
                 minute: '2-digit',
               })}
             </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <Text style={styles.priceText}>
-                {product.price ? parseFloat(product.price).toLocaleString() : '0'} MMK
+                {customProduct?.price
+                  ? parseFloat(customProduct.price.toString()).toLocaleString()
+                  : '0'}{' '}
+                MMK
               </Text>
-              
-              <View style={[
-                styles.statusBadge,
-                status === 'approved' ? styles.approvedBadge : 
-                status === 'rejected' ? styles.rejectedBadge : styles.pendingBadge
-              ]}>
-                <Text style={[
-                  styles.statusText,
-                  status === 'approved' ? styles.approvedText : 
-                  status === 'rejected' ? styles.rejectedText : styles.pendingText
-                ]}>
+
+              <View
+                style={[
+                  styles.statusBadge,
+                  status === 'approved'
+                    ? styles.approvedBadge
+                    : status === 'rejected'
+                    ? styles.rejectedBadge
+                    : styles.pendingBadge,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.statusText,
+                    status === 'approved'
+                      ? styles.approvedText
+                      : status === 'rejected'
+                      ? styles.rejectedText
+                      : styles.pendingText,
+                  ]}
+                >
                   {item.status}
                 </Text>
               </View>
@@ -81,7 +100,7 @@ export function CustomProductHistoryScreen({ navigation }: any): React.ReactNode
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-      
+
       <View style={styles.header}>
         <TouchableOpacity onPress={presenter.goBack}>
           <MaterialIcons name="arrow-back" size={26} color={colors.textDark} />
@@ -97,7 +116,8 @@ export function CustomProductHistoryScreen({ navigation }: any): React.ReactNode
         <View style={styles.center}>
           <MaterialIcons name="error-outline" size={60} color="#ef4444" />
           <Text style={styles.errorText}>
-            {(presenter.historyError as any)?.data?.message || 'Failed to load history.'}
+            {(presenter.historyError as any)?.data?.message ||
+              'Failed to load history.'}
           </Text>
           <TouchableOpacity
             onPress={presenter.handleRefresh}
