@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useHeaderHeight } from '@react-navigation/elements';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
 import { styles } from './ChatScreen.styles';
@@ -29,6 +30,7 @@ export function ChatScreen(): React.ReactNode {
   const navigation = useNavigation<any>();
   const { channelUuid, regionId } = route.params || {};
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
+  const headerHeight = useHeaderHeight();
 
   // VIPER Initialization
   const interactor = useChatInteractor(channelUuid);
@@ -89,7 +91,8 @@ export function ChatScreen(): React.ReactNode {
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
         style={styles.flex}
       >
         {/* Messages List */}
