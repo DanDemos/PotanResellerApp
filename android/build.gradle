@@ -19,3 +19,10 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    project.ext {
+        REACT_NATIVE_NODE_MODULES_DIR = file("${rootDir}/../node_modules/react-native")
+        REACT_NATIVE_WORKLETS_NODE_MODULES_DIR = file("${rootDir}/../node_modules/react-native-worklets")
+    }
+}
