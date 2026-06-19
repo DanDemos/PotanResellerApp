@@ -13,6 +13,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { styles } from '../ProfileScreen.styles';
 import { useRefillPresenter } from '@/features/profile/modals/Refill/RefillPresenter';
 import { colors } from '@/global/theme/colors';
+import { AdminBankInfoList } from '@/components/AdminBankInfoList';
 
 interface RefillModalProps {
   visible: boolean;
@@ -81,6 +82,8 @@ export function RefillModal({
                 onChangeText={setNote}
               />
             </View>
+
+            <AdminBankInfoList />
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Payment Proof (Photo)</Text>

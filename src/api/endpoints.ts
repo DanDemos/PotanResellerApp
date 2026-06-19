@@ -31,6 +31,7 @@ export const ENDPOINTS = {
     REPAY_LOAN: '/money/loan/repay/request',
     GET_PENDING_LOANS: '/money/loan/pending',
     GET_REPAY_REQUESTS: '/money/loan/repay/my-requests',
+    GET_ADMIN_BANK_INFOS: '/admin-bank-infos',
   },
   GAME_CHANNEL: {
     GET_CHANNELS: '/games',

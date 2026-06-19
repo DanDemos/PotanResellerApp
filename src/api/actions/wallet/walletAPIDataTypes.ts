@@ -243,3 +243,16 @@ export type GetRepayRequestsResponse = {
 export type GetRepayRequestsRequest = {
   page?: number;
 };
+
+export type AdminBankInfo = {
+  id: number;
+  bank_name: string;
+  account_number: string;
+  image_path: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GetAdminBankInfosResponse = AdminBankInfo[];
+export type GetAdminBankInfosRequest = void;

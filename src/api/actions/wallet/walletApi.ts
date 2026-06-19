@@ -124,6 +124,13 @@ export const walletApi = rtkBaseApi.injectEndpoints({
       }),
       providesTags: ['Wallet'],
     }),
+    getAdminBankInfos: builder.query<import('./walletAPIDataTypes').GetAdminBankInfosResponse, import('./walletAPIDataTypes').GetAdminBankInfosRequest>({
+      query: () => ({
+        url: ENDPOINTS.WALLET.GET_ADMIN_BANK_INFOS,
+        method: 'GET',
+      }),
+      providesTags: ['Wallet'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -140,5 +147,5 @@ export const {
   useRepayLoanMutation,
   useGetPendingLoansQuery,
   useGetRepayRequestsQuery,
+  useGetAdminBankInfosQuery,
 } = walletApi;
-

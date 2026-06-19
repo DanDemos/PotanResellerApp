@@ -13,6 +13,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { styles } from '../ProfileScreen.styles';
 import { useCoinTransactionPresenter } from '@/features/profile/modals/CoinTransaction/CoinTransactionPresenter';
 import { colors } from '@/global/theme/colors';
+import { AdminBankInfoList } from '@/components/AdminBankInfoList';
 
 interface CoinTransactionModalProps {
   visible: boolean;
@@ -63,7 +64,7 @@ export function CoinTransactionModal({
       onRequestClose={handleClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {coinMode === 'topup' ? 'Top Up Coins' : 'Convert MMK into Coins'}
@@ -74,6 +75,8 @@ export function CoinTransactionModal({
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
+            {coinMode === 'topup' && <AdminBankInfoList />}
+
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
                 {coinMode === 'topup' ? 'Coins to Buy' : 'Amount of Coins'}

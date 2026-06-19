@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -19,6 +20,17 @@ import { styles } from './ChatScreen.styles';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Message } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
+import Sound from 'react-native-sound';
+
+// Enable playback in silence mode
+Sound.setCategory('Playback');
+
+const soundAsset = Image.resolveAssetSource(require('../../assets/noti-sound.wav'));
+const notiSound = new Sound(soundAsset.uri, '', (error) => {
+  if (error) {
+    console.log('failed to load the sound', error);
+  }
+});
 
 // VIPER Imports
 import { useChatInteractor } from '@/features/chat/ChatInteractor';
@@ -91,14 +103,15 @@ export function ChatScreen(): React.ReactNode {
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
         style={styles.flex}
       >
         {/* Messages List */}
         {presenter.isLoading ? (
           <View style={styles.center}>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={colors.primary} />⏎ Reject⇧⌥⌫
+            type you
           </View>
         ) : presenter.error ? (
           <View style={styles.center}>
@@ -149,7 +162,16 @@ export function ChatScreen(): React.ReactNode {
               styles.sendButton,
               presenter.sendIsLoading && { opacity: 0.6 },
             ]}
-            onPress={presenter.handleSendMessage}
+            onPress={() => {
+              notiSound.stop(() => {
+                notiSound.play((success) => {
+                  if (!success) {
+                    console.log('Sound playback failed due to audio decoding errors');
+                  }
+                });
+              });
+              presenter.handleSendMessage();
+            }}
             activeOpacity={0.7}
             disabled={
               presenter.sendIsLoading || presenter.inputText.trim() === ''

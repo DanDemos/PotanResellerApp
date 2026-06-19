@@ -4,14 +4,16 @@ export type GiftCard = {
   id: number;
   category_id: number;
   name: string;
-  image_path: string;
-  price: string;
+  image_path: string | null;
+  price: string | number;
+  quantity?: number;
+  available_quantity?: number;
   created_at: string;
   updated_at: string;
   category: {
     id: number;
     name: string;
-    image_path: string;
+    image_path: string | null;
   };
 };
 
@@ -75,6 +77,7 @@ export type GetCategoriesRequest = {
 
 export type PurchaseGiftCardRequest = {
   custom_product_id: number;
+  quantity?: number;
 };
 
 export type PurchaseGiftCardResponse = {

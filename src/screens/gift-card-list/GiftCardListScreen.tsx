@@ -15,6 +15,7 @@ import { styles } from './GiftCardListScreen.styles';
 import { useGiftCardListPresentor } from '@/features/gift-cards/GiftCardListPresentor';
 import { GiftCard } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
+import { BuyGiftCardModal } from '@/components/BuyGiftCardModal';
 
 export function GiftCardListScreen({
   navigation,
@@ -51,7 +52,7 @@ export function GiftCardListScreen({
             <View style={styles.priceContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={styles.priceText}>
-                  {item.price ? parseFloat(item.price).toLocaleString() : '0'}
+                  {item.price ? Number(item.price).toLocaleString() : '0'}
                 </Text>
                 <Text style={styles.currencyText}>MMK</Text>
               </View>
@@ -61,7 +62,7 @@ export function GiftCardListScreen({
           <View style={styles.buyButtonContainer}>
             <TouchableOpacity
               style={styles.buyButton}
-              onPress={() => presenter.handleBuy(item.id)}
+              onPress={() => presenter.openBuyModal(item)}
               disabled={presenter.purchaseIsLoading}
             >
               {presenter.purchaseIsLoading ? (
@@ -156,6 +157,8 @@ export function GiftCardListScreen({
           }
         />
       )}
+
+      <BuyGiftCardModal presenter={presenter} />
     </SafeAreaView>
   );
 }
