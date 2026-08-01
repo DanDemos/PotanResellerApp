@@ -47,12 +47,18 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     backgroundColor: '#f9f9f9', // Soft background matching Profile
     color: '#1f2937', // Dark grey text
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 12,
+    marginTop: 6,
   },
   passwordContainer: {
     flexDirection: 'row',

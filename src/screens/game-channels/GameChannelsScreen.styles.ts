@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   listContent: {
+    flexGrow: 1,
     paddingBottom: 80, // Space for FAB
   },
   channelItem: {
@@ -138,5 +139,26 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#64748b',
     textTransform: 'uppercase',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 64,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

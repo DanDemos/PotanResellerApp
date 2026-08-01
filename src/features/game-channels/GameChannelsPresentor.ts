@@ -27,12 +27,15 @@ export function useGameChannelsPresentor(navigation: any) {
   // Sync channels list
   useEffect(() => {
     if (channelsData?.data) {
+      const filteredData = channelsData.data.filter(
+        c => c.name?.toLowerCase() !== 'sign error',
+      );
       if (channelsPage === 1) {
-        setAllChannels(channelsData.data);
+        setAllChannels(filteredData);
       } else {
         setAllChannels(prev => {
           const existingIds = new Set(prev.map(c => c.id));
-          const newChannels = channelsData.data.filter(c => !existingIds.has(c.id));
+          const newChannels = filteredData.filter(c => !existingIds.has(c.id));
           return [...prev, ...newChannels];
         });
       }

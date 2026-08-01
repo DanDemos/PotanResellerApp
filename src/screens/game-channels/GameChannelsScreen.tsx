@@ -124,6 +124,19 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
           }
           onEndReached={gameChannelsPresenter.handleLoadMoreChannels}
           onEndReachedThreshold={0.5}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialIcons
+                name="sports-esports"
+                size={64}
+                color={colors.icon || '#9ca3af'}
+              />
+              <Text style={styles.emptyTitle}>No Games Available</Text>
+              <Text style={styles.emptySubtitle}>
+                There are currently no active game channels. Pull down to refresh or check back later.
+              </Text>
+            </View>
+          }
           ListFooterComponent={
             gameChannelsPresenter.channelsIsFetching &&
             gameChannelsPresenter.channelsPage > 1 ? (

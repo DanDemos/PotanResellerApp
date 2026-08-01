@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   View,
@@ -44,7 +43,7 @@ export function LoginScreen({ navigation }: any): React.ReactNode {
             )}
           />
           {presenter.formState.errors.phone && (
-            <Text style={{ color: colors.error, marginTop: 6 }}>
+            <Text style={styles.errorText}>
               {String(presenter.formState.errors.phone.message)}
             </Text>
           )}
@@ -65,7 +64,10 @@ export function LoginScreen({ navigation }: any): React.ReactNode {
         />
 
         <TouchableOpacity
-          style={[styles.button, presenter.loginIsLoading ? { opacity: 0.7 } : {}]}
+          style={[
+            styles.button,
+            presenter.loginIsLoading ? { opacity: 0.7 } : {},
+          ]}
           onPress={presenter.handleSubmit(presenter.onSubmit)}
           disabled={presenter.loginIsLoading}
         >
