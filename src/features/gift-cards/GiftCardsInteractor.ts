@@ -5,6 +5,7 @@ export function useGiftCardsInteractor(page?: number, perPage?: number) {
   const {
     data: categoriesData,
     isLoading: categoriesIsLoading,
+    isFetching: categoriesIsFetching,
     error: categoriesError,
     refetch: categoriesRefetch,
   } = useGetCategoryListQuery({ page, per_page: perPage });
@@ -13,12 +14,14 @@ export function useGiftCardsInteractor(page?: number, perPage?: number) {
     () => ({
       categoriesData,
       categoriesIsLoading,
+      categoriesIsFetching,
       categoriesError,
       categoriesRefetch,
     }),
     [
       categoriesData,
       categoriesIsLoading,
+      categoriesIsFetching,
       categoriesError,
       categoriesRefetch,
     ],

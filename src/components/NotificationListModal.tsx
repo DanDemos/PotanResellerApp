@@ -10,13 +10,37 @@ import {
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
 import { styles } from './NotificationListModal.styles';
+import { NotificationItem } from '@/api/actions/user/userAPIDataTypes';
 
-interface NotificationListModalProps {
-  presenter: any;
-}
+type NotificationListModalProps = {
+  presenter: {
+    showNotifications: boolean;
+    setShowNotifications: (visible: boolean) => void;
+    notiData?: { unread: number } | null;
+    handleMarkAllAsRead: () => void;
+    notifications: NotificationItem[];
+    handleNotificationClick: (item: NotificationItem) => void;
+    handleLoadMoreNoti: () => void;
+    handleRefreshNoti: () => void;
+    notiIsFetching: boolean;
+    notiPage: number;
+    notiIsLoading: boolean;
+    getNotificationMeta: (item: NotificationItem) => { kind?: string } | undefined;
+    isCustomProductPurchaseSuccessMeta: (meta: { kind?: string } | undefined) => boolean;
+  };
+};
 
-export function NotificationListModal({ presenter }: NotificationListModalProps): React.ReactNode {
-  function renderNotificationItem({ item }: { item: any }) {
+export function NotificationListModal({
+  presenter,
+}: NotificationListModalProps): React.ReactNode {
+  function renderNotificationItem({
+    item,
+  }: {
+    item: NotificationItem;
+  }): React.ReactElement {
+    const meta = presenter.getNotificationMeta(item);
+    const canCopySkuCode = presenter.isCustomProductPurchaseSuccessMeta(meta);
+
     return (
       <TouchableOpacity
         style={styles.notificationItem}
@@ -67,7 +91,7 @@ export function NotificationListModal({ presenter }: NotificationListModalProps)
           </View>
           <FlatList
             data={presenter.notifications}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={item => item.id.toString()}
             renderItem={renderNotificationItem}
             onEndReached={presenter.handleLoadMoreNoti}
             onEndReachedThreshold={0.5}
@@ -83,7 +107,11 @@ export function NotificationListModal({ presenter }: NotificationListModalProps)
             ListEmptyComponent={
               !presenter.notiIsLoading ? (
                 <View style={styles.listEmpty}>
-                  <MaterialIcons name="notifications-none" size={48} color="#cbd5e1" />
+                  <MaterialIcons
+                    name="notifications-none"
+                    size={48}
+                    color={colors.muted}
+                  />
                   <Text style={styles.emptyText}>No notifications yet</Text>
                 </View>
               ) : (

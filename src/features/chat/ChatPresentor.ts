@@ -1,21 +1,57 @@
-
 import { useState, useMemo, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { Message } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
+import {
+  Message,
+  MessageProduct,
+  ProductListPayload,
+} from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 import { ChatInteractor } from './ChatInteractor';
 import { ChatRouter } from './ChatRouter';
+
+export function isProductListPayload(
+  payload: Message['parsed_payload'],
+): payload is ProductListPayload {
+  return payload?.type === 'product_list' && Array.isArray(payload.products);
+}
+
+export function formatCoinAmount(costPrice: string): string {
+  const coins = Math.round(parseFloat(costPrice || '0') * 100);
+  return Number.isFinite(coins) ? coins.toLocaleString('en-US') : '0';
+}
+
+function buildProductLabelMap(messages: Message[]): Map<string, string> {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const payload = messages[index].parsed_payload;
+    if (!isProductListPayload(payload) || payload.products.length === 0) {
+      continue;
+    }
+
+    const map = new Map<string, string>();
+    payload.products.forEach((product: MessageProduct, productIndex: number) => {
+      map.set(String(productIndex + 1), String(product.product_id));
+    });
+    return map;
+  }
+
+  return new Map();
+}
 
 export function useChatPresentor(
   interactor: ChatInteractor,
   router: ChatRouter,
   currentUserId: number | undefined,
-  regionId?: number
+  regionId?: number,
 ) {
   const [inputText, setInputText] = useState('');
 
   const messages = useMemo(
     () => interactor.messagesData?.messages?.data || [],
-    [interactor.messagesData]
+    [interactor.messagesData],
+  );
+
+  const productLabelMap = useMemo(
+    () => buildProductLabelMap(messages),
+    [messages],
   );
 
   // Mark messages as read when they arrive
@@ -38,41 +74,56 @@ export function useChatPresentor(
       // Split by any sequence of non-digit characters
       const parts = text.split(/[^\d]+/).filter(Boolean);
 
-      const isPurchaseFormat = parts.length >= 2 && parts.length <= 3 && /[^\d\s]/.test(text);
+      const isPurchaseFormat =
+        parts.length >= 2 && parts.length <= 3 && /[^\d\s]/.test(text);
 
       if (isPurchaseFormat) {
-        const item: any = {
-          user_code: parts[0], // Using the first part as user_code/account id
-          product_id: parts.length === 3 ? parts[2] : parts[1],
+        const labelOrProductId = parts.length === 3 ? parts[2] : parts[1];
+        const resolvedProductId =
+          productLabelMap.get(String(labelOrProductId)) || labelOrProductId;
+
+        const item = {
+          user_code: parts[0],
+          product_id: resolvedProductId,
           server_id: parts.length === 3 ? parts[1] : null,
         };
 
-        await interactor.sendChatMessage({
-          game_id: interactor.messagesData.channel.game_id,
-          items: [item],
-          body: text,
-        }).unwrap();
+        await interactor
+          .sendChatMessage({
+            game_id: interactor.messagesData.channel.game_id,
+            items: [item],
+            body: text,
+          })
+          .unwrap();
       } else {
-        await interactor.sendChatMessage({
-          game_id: interactor.messagesData.channel.game_id,
-          body: text,
-        }).unwrap();
+        await interactor
+          .sendChatMessage({
+            game_id: interactor.messagesData.channel.game_id,
+            body: text,
+          })
+          .unwrap();
       }
       setInputText('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to create order or send message:', err);
 
       const errorMessage =
-        err?.data?.error || err?.data?.message || err?.error || err?.message || 'Unknown error occurred';
+        err && typeof err === 'object' && 'data' in err
+          ? (err as { data?: { error?: string; message?: string }; error?: string; message?: string })
+              .data?.error ||
+            (err as { data?: { message?: string } }).data?.message ||
+            (err as { error?: string }).error ||
+            (err as { message?: string }).message
+          : undefined;
 
       let strippedMessage = 'An error occurred';
       if (typeof errorMessage === 'string') {
         strippedMessage = errorMessage
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove styles
-          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove scripts
-          .replace(/<[^>]*>?/gm, '') // Remove all HTML tags
-          .replace(/&[a-z]+;/gi, ' ') // Remove encoded chars like &nbsp;
-          .replace(/\s+/g, ' ') // Reduce multi-whitespaces
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<[^>]*>?/gm, '')
+          .replace(/&[a-z]+;/gi, ' ')
+          .replace(/\s+/g, ' ')
           .trim();
       }
 

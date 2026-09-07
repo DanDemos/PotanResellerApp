@@ -7,7 +7,20 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   listContent: {
+    flexGrow: 1,
     paddingBottom: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginTop: 12,
+    textAlign: 'center',
   },
   channelItem: {
     flexDirection: 'row',

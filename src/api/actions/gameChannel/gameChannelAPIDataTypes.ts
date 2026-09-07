@@ -27,6 +27,27 @@ export type Game = {
   regions?: GameRegion[];
 };
 
+export type MessageProduct = {
+  id: number;
+  uuid: string;
+  game_id: number;
+  region_id: number;
+  product_name: string;
+  product_id: string;
+  coin_price: string;
+  coin_price_discount: string;
+  cost_price: string;
+  active: number;
+};
+
+export type ProductListPayload = {
+  type: 'product_list';
+  game_id: number;
+  products: MessageProduct[];
+};
+
+export type MessageParsedPayload = ProductListPayload;
+
 export type Message = {
   id: number;
   channel_id: number;
@@ -37,6 +58,9 @@ export type Message = {
   updated_at: string;
   sender: User;
   kind?: 'user' | 'bot' | string;
+  is_valid?: boolean;
+  parsed_payload?: MessageParsedPayload | null;
+  validation_errors?: unknown;
 };
 
 export type Channel = {

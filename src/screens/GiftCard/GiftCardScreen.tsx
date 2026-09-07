@@ -65,10 +65,10 @@ export function GiftCardScreen({ navigation }: any): React.ReactNode {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      <MainHeader 
-        title="Gift Cards" 
-        onMenuPress={() => navigation.openDrawer()} 
-        presenter={gameChannelsPresenter} 
+      <MainHeader
+        title="Gift Cards"
+        onMenuPress={() => navigation.openDrawer()}
+        presenter={gameChannelsPresenter}
       />
 
       <NotificationListModal presenter={gameChannelsPresenter} />
@@ -95,8 +95,19 @@ export function GiftCardScreen({ navigation }: any): React.ReactNode {
           renderItem={renderCategoryItem}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onRefresh={() => giftCardsPresenter.categoriesRefetch()}
-          refreshing={giftCardsPresenter.categoriesIsLoading}
+          onRefresh={() => {
+            giftCardsPresenter.handleMainRefresh();
+          }}
+          refreshing={
+            giftCardsPresenter.categoriesIsFetching &&
+            giftCardsPresenter.page === 1
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialIcons name="card-giftcard" size={64} color={colors.muted} />
+              <Text style={styles.emptyText}>There is no gift card.</Text>
+            </View>
+          }
         />
       )}
     </SafeAreaView>

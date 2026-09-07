@@ -9,6 +9,8 @@ import {
   PurchaseGiftCardRequest,
   GetGiftCardHistoryResponse,
   GetGiftCardHistoryRequest,
+  RedeemKokosRequest,
+  RedeemKokosResponse,
 } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 
 export const giftCardApi = rtkBaseApi.injectEndpoints({
@@ -41,9 +43,25 @@ export const giftCardApi = rtkBaseApi.injectEndpoints({
         body,
       }),
     }),
+    redeemKokos: builder.mutation<RedeemKokosResponse, RedeemKokosRequest>({
+      query: (body) => ({
+        url: ENDPOINTS.GIFT_CARD.REDEEM_KOKOS,
+        method: 'POST',
+        body,
+        headers: {
+          'Idempotency-Key': `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
+        },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetGiftCardListQuery, useGetCategoryListQuery, usePurchaseGiftCardMutation, useGetGiftCardHistoryQuery } = giftCardApi;
+export const {
+  useGetGiftCardListQuery,
+  useGetCategoryListQuery,
+  usePurchaseGiftCardMutation,
+  useGetGiftCardHistoryQuery,
+  useRedeemKokosMutation,
+} = giftCardApi;
 

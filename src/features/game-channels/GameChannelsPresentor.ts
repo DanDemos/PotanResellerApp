@@ -1,8 +1,27 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Toast from 'react-native-toast-message';
 import { useGameChannelsInteractor } from './GameChannelsInteractor';
 import { useGameChannelsRouter } from './GameChannelsRouter';
-import { NotificationItem } from '@/api/actions/user/userAPIDataTypes';
+import {
+  CustomProductPurchaseSuccessMeta,
+  NotificationItem,
+  NotificationMeta,
+} from '@/api/actions/user/userAPIDataTypes';
+
+function getNotificationMeta(item: NotificationItem): NotificationMeta | undefined {
+  return item.meta ?? item.data?.meta;
+}
+
+function isCustomProductPurchaseSuccessMeta(
+  meta: NotificationMeta | undefined,
+): meta is CustomProductPurchaseSuccessMeta {
+  return (
+    meta?.kind === 'custom_product_purchase_success' &&
+    typeof (meta as CustomProductPurchaseSuccessMeta).sku_code === 'string' &&
+    (meta as CustomProductPurchaseSuccessMeta).sku_code.trim().length > 0
+  );
+}
 
 export function useGameChannelsPresentor(navigation: any) {
   const [notiPage, setNotiPage] = useState(1);
@@ -96,6 +115,17 @@ export function useGameChannelsPresentor(navigation: any) {
 
   const handleNotificationClick = useCallback(
     async (item: NotificationItem) => {
+      const meta = getNotificationMeta(item);
+
+      if (isCustomProductPurchaseSuccessMeta(meta)) {
+        Clipboard.setString(meta.sku_code.trim());
+        Toast.show({
+          type: 'success',
+          text1: 'Code Copied',
+          text2: meta.sku_code.trim(),
+        });
+      }
+
       if (!item.read_at) {
         try {
           await markAsRead({ id: item.id }).unwrap();
@@ -149,6 +179,8 @@ export function useGameChannelsPresentor(navigation: any) {
       handleMainRefresh,
       handleLoadMoreChannels,
       processedChannels,
+      isCustomProductPurchaseSuccessMeta,
+      getNotificationMeta,
     }),
     [
       interactor,

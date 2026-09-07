@@ -27,6 +27,7 @@ import Toast from 'react-native-toast-message';
 import { store, persistor, RootState } from '@/redux/store';
 import { logout } from '@/redux/slices/authSlice';
 import { useLogoutMutation } from '@/api/actions/auth/authApi';
+import { rtkBaseApi } from '@/api/fetchers/rtkBaseApi';
 import { colors } from '@/global/theme/colors';
 
 import { ProfileScreen } from '@/screens/profile/ProfileScreen';
@@ -58,6 +59,7 @@ function CustomDrawerContent(props: any): React.ReactNode {
       console.error('Logout API failed', err);
     } finally {
       dispatch(logout());
+      dispatch(rtkBaseApi.util.resetApiState());
     }
   }
 

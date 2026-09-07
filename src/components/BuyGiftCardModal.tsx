@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { styles } from './BuyGiftCardModal.styles';
 import { colors } from '@/global/theme/colors';
@@ -8,7 +14,9 @@ interface BuyGiftCardModalProps {
   presenter: any;
 }
 
-export function BuyGiftCardModal({ presenter }: BuyGiftCardModalProps): React.ReactNode {
+export function BuyGiftCardModal({
+  presenter,
+}: BuyGiftCardModalProps): React.ReactNode {
   const [step, setStep] = React.useState<1 | 2>(1);
 
   React.useEffect(() => {
@@ -56,43 +64,69 @@ export function BuyGiftCardModal({ presenter }: BuyGiftCardModalProps): React.Re
             <>
               <View style={styles.quantityContainer}>
                 <TouchableOpacity
-                  style={[styles.quantityButton, presenter.purchaseQuantity <= 1 && styles.quantityButtonDisabled]}
+                  style={[
+                    styles.quantityButton,
+                    presenter.purchaseQuantity <= 1 &&
+                      styles.quantityButtonDisabled,
+                  ]}
                   onPress={handleDecrease}
-                  disabled={presenter.purchaseQuantity <= 1 || presenter.purchaseIsLoading}
+                  disabled={
+                    presenter.purchaseQuantity <= 1 ||
+                    presenter.purchaseIsLoading
+                  }
                 >
-                  <MaterialIcons name="remove" size={24} color={colors.textDark} />
+                  <MaterialIcons
+                    name="remove"
+                    size={24}
+                    color={colors.textDark}
+                  />
                 </TouchableOpacity>
 
-                <Text style={styles.quantityText}>{presenter.purchaseQuantity}</Text>
+                <Text style={styles.quantityText}>
+                  {presenter.purchaseQuantity}
+                </Text>
 
                 <TouchableOpacity
-                  style={[styles.quantityButton, presenter.purchaseQuantity >= maxQuantity && styles.quantityButtonDisabled]}
+                  style={[
+                    styles.quantityButton,
+                    presenter.purchaseQuantity >= maxQuantity &&
+                      styles.quantityButtonDisabled,
+                  ]}
                   onPress={handleIncrease}
-                  disabled={presenter.purchaseQuantity >= maxQuantity || presenter.purchaseIsLoading}
+                  disabled={
+                    presenter.purchaseQuantity >= maxQuantity ||
+                    presenter.purchaseIsLoading
+                  }
                 >
                   <MaterialIcons name="add" size={24} color={colors.textDark} />
                 </TouchableOpacity>
               </View>
-              
-              <Text style={[styles.stockInfo, presenter.purchaseQuantity >= maxQuantity && styles.stockInfoWarning]}>
-                {presenter.purchaseQuantity >= maxQuantity 
+
+              <Text
+                style={[
+                  styles.stockInfo,
+                  presenter.purchaseQuantity >= maxQuantity &&
+                    styles.stockInfoWarning,
+                ]}
+              >
+                {presenter.purchaseQuantity >= maxQuantity
                   ? `Maximum available stock reached (${maxQuantity})`
                   : `${maxQuantity} available in stock`}
               </Text>
 
               <View style={styles.actionContainer}>
                 <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={presenter.closeBuyModal}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
                   style={styles.confirmButton}
                   onPress={() => setStep(2)}
                 >
                   <Text style={styles.confirmButtonText}>Next</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={presenter.closeBuyModal}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -101,21 +135,27 @@ export function BuyGiftCardModal({ presenter }: BuyGiftCardModalProps): React.Re
               <View style={styles.receiptContainer}>
                 <View style={styles.receiptRow}>
                   <Text style={styles.receiptLabel}>Item</Text>
-                  <Text style={styles.receiptValue} numberOfLines={1}>{item.name}</Text>
+                  <Text style={styles.receiptValue} numberOfLines={1}>
+                    {item.name}
+                  </Text>
                 </View>
-                
+
                 <View style={styles.divider} />
-                
+
                 <View style={styles.receiptRow}>
                   <Text style={styles.receiptLabel}>Price</Text>
-                  <Text style={styles.receiptValue}>{price.toLocaleString()} MMK</Text>
+                  <Text style={styles.receiptValue}>
+                    {price.toLocaleString()} MMK
+                  </Text>
                 </View>
-                
+
                 <View style={styles.divider} />
-                
+
                 <View style={styles.receiptRow}>
                   <Text style={styles.receiptLabel}>Quantity</Text>
-                  <Text style={styles.receiptValue}>x{presenter.purchaseQuantity}</Text>
+                  <Text style={styles.receiptValue}>
+                    x{presenter.purchaseQuantity}
+                  </Text>
                 </View>
 
                 <View style={[styles.divider, styles.dividerThick]} />
@@ -130,15 +170,10 @@ export function BuyGiftCardModal({ presenter }: BuyGiftCardModalProps): React.Re
 
               <View style={styles.actionContainer}>
                 <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setStep(1)}
-                  disabled={presenter.purchaseIsLoading}
-                >
-                  <Text style={styles.cancelButtonText}>Back</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.confirmButton, presenter.purchaseIsLoading && styles.confirmButtonDisabled]}
+                  style={[
+                    styles.confirmButton,
+                    presenter.purchaseIsLoading && styles.confirmButtonDisabled,
+                  ]}
                   onPress={presenter.handleBuy}
                   disabled={presenter.purchaseIsLoading}
                 >
@@ -147,6 +182,14 @@ export function BuyGiftCardModal({ presenter }: BuyGiftCardModalProps): React.Re
                   ) : (
                     <Text style={styles.confirmButtonText}>Confirm Buy</Text>
                   )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setStep(1)}
+                  disabled={presenter.purchaseIsLoading}
+                >
+                  <Text style={styles.cancelButtonText}>Back</Text>
                 </TouchableOpacity>
               </View>
             </>

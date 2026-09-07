@@ -69,15 +69,20 @@ export function useWalletOperations({
   // Effects for Toasts
   useEffect(() => {
     if (requestRefillIsSuccess && requestRefillData?.data?.request) {
-      const { wallet_type, money_amount, coins_amount } =
-        requestRefillData.data.request;
+      const { auto_approved, request } = requestRefillData.data;
+      const { wallet_type, money_amount, coins_amount, status } = request;
+      const amountLabel =
+        wallet_type === 'money'
+          ? `${money_amount || 0} MMK`
+          : `${coins_amount ?? money_amount ?? 0} coins`;
+      const isPending = !auto_approved || status === 'pending';
+
       Toast.show({
         type: 'success',
-        text1: wallet_type === 'money' ? 'Refill Success' : 'Request Sent',
-        text2:
-          wallet_type === 'money'
-            ? `${money_amount || 0} MMK has been added to your balance.`
-            : `Request to top up ${coins_amount ?? money_amount ?? 0} coins has been sent.`,
+        text1: isPending ? 'Refill Request Sent' : 'Refill Success',
+        text2: isPending
+          ? `Your request for ${amountLabel} is pending admin approval.`
+          : `${amountLabel} has been added to your balance.`,
       });
       userRefetch();
       if (onSuccess) onSuccess();

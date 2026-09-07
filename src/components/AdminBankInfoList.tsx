@@ -28,7 +28,7 @@ export function AdminBankInfoList(): React.ReactNode {
       <View style={styles.container}>
         <Text style={styles.header}>Transfer To</Text>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No bank accounts available</Text>
+          <Text style={styles.emptyText}>Admin did not provide any bank accounts. Please contact admin.</Text>
         </View>
       </View>
     );

@@ -44,5 +44,6 @@ export const ENDPOINTS = {
     GET_GIFT_CARD_LIST: '/custom-products',
     PURCHASE_GIFT_CARD: '/custom-product-purchases',
     GET_GIFT_CARD_HISTORY: '/custom-product-purchases',
+    REDEEM_KOKOS: '/kokos/redeem',
   },
 } as const;

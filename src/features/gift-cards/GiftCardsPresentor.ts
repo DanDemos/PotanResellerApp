@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useGiftCardsInteractor } from './GiftCardsInteractor';
 import { useGiftCardsRouter } from './GiftCardsRouter';
 
@@ -9,6 +9,16 @@ export function useGiftCardsPresentor(navigation?: any) {
   const interactor = useGiftCardsInteractor(page, perPage);
   const router = useGiftCardsRouter(navigation);
 
+
+  const {
+    categoriesRefetch,
+  } = interactor;
+  
+  const handleMainRefresh = useCallback(() => {
+    setPage(1);
+    categoriesRefetch();
+  }, [categoriesRefetch]);
+
   return useMemo(
     () => ({
       ...interactor,
@@ -17,12 +27,14 @@ export function useGiftCardsPresentor(navigation?: any) {
       setPage,
       perPage,
       setPerPage,
+      handleMainRefresh,
     }),
     [
       interactor,
       router,
       page,
       perPage,
+      handleMainRefresh,
     ],
   );
 }

@@ -81,7 +81,69 @@ export type PurchaseGiftCardRequest = {
 };
 
 export type PurchaseGiftCardResponse = {
+  purchase: {
+    id: number;
+    custom_product_id: number;
+    user_id: number;
+    image_path: string | null;
+    status: string;
+    approved_by: number | null;
+    approved_at: string | null;
+    sku_id: number | null;
+    created_at: string;
+    updated_at: string;
+    custom_product: {
+      id: number;
+      name: string;
+      image_path: string | null;
+      price: string | number;
+      category_id: number;
+      available_quantity?: number;
+      category: {
+        id: number;
+        name: string;
+      };
+    };
+  };
+  sku_code: string | string[];
+  amount_deducted: number;
+  balance_after: number;
+};
+
+export type RedeemKokosRequest = {
+  pubg_id: string;
+  gift_card_code: string;
+};
+
+export type KokosActivationError = {
+  type?: string;
+  id?: number;
+  userId?: number;
+  code?: string;
+  playerId?: string;
+  errorCode?: string;
+  errorMessage?: string;
+  codeReset?: boolean;
+  createdAt?: string;
+  gameId?: string;
+};
+
+export type RedeemKokosResponse = {
+  success: boolean;
+  error: boolean;
   message: string;
+  data?: {
+    success?: boolean;
+    error?: boolean;
+    status?: number;
+    message?: string;
+    headers?: {
+      cost?: string;
+      remaining_balance?: string;
+      to_balance?: string;
+      request_id?: string;
+    };
+  };
 };
 
 export type GetGiftCardHistoryRequest = {

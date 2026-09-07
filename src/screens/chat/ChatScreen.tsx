@@ -19,14 +19,19 @@ import { colors } from '@/global/theme/colors';
 import { styles } from './ChatScreen.styles';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { Message } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
+import {
+  Message,
+  MessageProduct,
+} from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 import Sound from 'react-native-sound';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
 
-const soundAsset = Image.resolveAssetSource(require('../../assets/noti-sound.wav'));
-const notiSound = new Sound(soundAsset.uri, '', (error) => {
+const soundAsset = Image.resolveAssetSource(
+  require('../../assets/noti-sound.wav'),
+);
+const notiSound = new Sound(soundAsset.uri, '', error => {
   if (error) {
     console.log('failed to load the sound', error);
   }
@@ -35,7 +40,11 @@ const notiSound = new Sound(soundAsset.uri, '', (error) => {
 // VIPER Imports
 import { useChatInteractor } from '@/features/chat/ChatInteractor';
 import { ChatRouter } from '@/features/chat/ChatRouter';
-import { useChatPresentor } from '@/features/chat/ChatPresentor';
+import {
+  formatCoinAmount,
+  isProductListPayload,
+  useChatPresentor,
+} from '@/features/chat/ChatPresentor';
 
 export function ChatScreen(): React.ReactNode {
   const route = useRoute<any>();
@@ -65,8 +74,63 @@ export function ChatScreen(): React.ReactNode {
     }
   }, [presenter.messages]);
 
-  const renderMessage = ({ item }: { item: Message }) => {
+  function renderProductList(
+    products: MessageProduct[],
+  ): React.ReactElement {
+    return (
+      <View style={styles.productListBubble}>
+        <View style={styles.productListHeader}>
+          <View style={styles.productListHeaderLeft}>
+            <MaterialIcons
+              name="receipt-long"
+              size={18}
+              color={colors.primary}
+            />
+            <Text style={styles.productListHeaderTitle}>Product list</Text>
+          </View>
+          <View style={styles.productListCountBadge}>
+            <Text style={styles.productListCountText}>{products.length}</Text>
+          </View>
+        </View>
+
+        {products.map((product, index) => {
+          const label = index + 1;
+          const isLast = index === products.length - 1;
+          const coins = formatCoinAmount(product.cost_price);
+
+          return (
+            <View
+              key={`${product.id}-${label}`}
+              style={[styles.productRow, isLast && styles.productRowLast]}
+            >
+              <View style={styles.productLabelBadge}>
+                <Text style={styles.productLabelText}>{label}</Text>
+              </View>
+              <View style={styles.productRowContent}>
+                <Text style={styles.productNameText}>
+                  {`(${label}) ${product.product_name}: `}
+                  <Text style={styles.productPriceInline}>{coins} coins</Text>
+                </Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
+
+  function renderMessage({
+    item,
+  }: {
+    item: Message;
+  }): React.ReactElement {
     const isUser = item.kind === 'user';
+    const productList =
+      isProductListPayload(item.parsed_payload) &&
+      item.parsed_payload.products.length > 0
+        ? item.parsed_payload.products
+        : null;
+
     return (
       <View
         style={[
@@ -74,21 +138,25 @@ export function ChatScreen(): React.ReactNode {
           isUser ? styles.userMessageContainer : styles.supportMessageContainer,
         ]}
       >
-        <View
-          style={[
-            styles.messageBubble,
-            isUser ? styles.userBubble : styles.supportBubble,
-          ]}
-        >
-          <Text
+        {productList ? (
+          renderProductList(productList)
+        ) : (
+          <View
             style={[
-              styles.messageText,
-              isUser ? styles.userMessageText : styles.supportMessageText,
+              styles.messageBubble,
+              isUser ? styles.userBubble : styles.supportBubble,
             ]}
           >
-            {item.body}
-          </Text>
-        </View>
+            <Text
+              style={[
+                styles.messageText,
+                isUser ? styles.userMessageText : styles.supportMessageText,
+              ]}
+            >
+              {item.body}
+            </Text>
+          </View>
+        )}
         <Text style={styles.timestamp}>
           {new Date(item.created_at).toLocaleTimeString([], {
             hour: '2-digit',
@@ -97,7 +165,7 @@ export function ChatScreen(): React.ReactNode {
         </Text>
       </View>
     );
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -107,11 +175,9 @@ export function ChatScreen(): React.ReactNode {
         keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
         style={styles.flex}
       >
-        {/* Messages List */}
         {presenter.isLoading ? (
           <View style={styles.center}>
-            <ActivityIndicator size="large" color={colors.primary} />⏎ Reject⇧⌥⌫
-            type you
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : presenter.error ? (
           <View style={styles.center}>
@@ -145,7 +211,6 @@ export function ChatScreen(): React.ReactNode {
           />
         )}
 
-        {/* Input Area */}
         <View style={styles.inputArea}>
           <View style={styles.inputWrapper}>
             <TextInput
@@ -164,9 +229,11 @@ export function ChatScreen(): React.ReactNode {
             ]}
             onPress={() => {
               notiSound.stop(() => {
-                notiSound.play((success) => {
+                notiSound.play(success => {
                   if (!success) {
-                    console.log('Sound playback failed due to audio decoding errors');
+                    console.log(
+                      'Sound playback failed due to audio decoding errors',
+                    );
                   }
                 });
               });

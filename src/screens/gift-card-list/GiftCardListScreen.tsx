@@ -16,6 +16,8 @@ import { useGiftCardListPresentor } from '@/features/gift-cards/GiftCardListPres
 import { GiftCard } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
 import { BuyGiftCardModal } from '@/components/BuyGiftCardModal';
+import { PubgIdInputModal } from '@/components/PubgIdInputModal';
+import { GiftCardCodesModal } from '@/components/GiftCardCodesModal';
 
 export function GiftCardListScreen({
   navigation,
@@ -159,6 +161,8 @@ export function GiftCardListScreen({
       )}
 
       <BuyGiftCardModal presenter={presenter} />
+      <PubgIdInputModal presenter={presenter} />
+      <GiftCardCodesModal presenter={presenter} />
     </SafeAreaView>
   );
 }

@@ -69,8 +69,19 @@ export const styles = StyleSheet.create({
   },
   notificationBody: {
     fontSize: 13,
-    color: '#64748b',
+    color: colors.textSecondary,
     lineHeight: 18,
+  },
+  copyHintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  copyHintText: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   unreadDot: {
     width: 8,

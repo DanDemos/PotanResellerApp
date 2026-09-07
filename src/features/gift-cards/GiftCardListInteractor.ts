@@ -1,9 +1,14 @@
 import { useMemo } from 'react';
-import { useGetGiftCardListQuery, usePurchaseGiftCardMutation } from '@/api/actions/gift-card/giftCardApi';
+import {
+  useGetGiftCardListQuery,
+  usePurchaseGiftCardMutation,
+  useRedeemKokosMutation,
+} from '@/api/actions/gift-card/giftCardApi';
 import { useGetWalletBalanceQuery, useGetCoinsDataQuery } from '@/api/actions/wallet/walletApi';
 
 export function useGiftCardListInteractor(categoryId: number, page?: number, perPage?: number) {
   const [purchaseGiftCard, { isLoading: purchaseIsLoading }] = usePurchaseGiftCardMutation();
+  const [redeemKokos, { isLoading: redeemKokosIsLoading }] = useRedeemKokosMutation();
 
   const {
     data: giftCardsData,
@@ -40,6 +45,8 @@ export function useGiftCardListInteractor(categoryId: number, page?: number, per
       coinsRefetch,
       purchaseGiftCard,
       purchaseIsLoading,
+      redeemKokos,
+      redeemKokosIsLoading,
     }),
     [
       giftCardsData,
@@ -55,6 +62,8 @@ export function useGiftCardListInteractor(categoryId: number, page?: number, per
       coinsRefetch,
       purchaseGiftCard,
       purchaseIsLoading,
+      redeemKokos,
+      redeemKokosIsLoading,
     ],
   );
 }

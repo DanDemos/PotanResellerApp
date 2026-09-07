@@ -56,6 +56,7 @@ export const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: colors.muted,
+    color: colors.error,
+    textAlign: 'center',
   },
 });

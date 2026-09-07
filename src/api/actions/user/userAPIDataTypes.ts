@@ -28,6 +28,21 @@ export type GetUserResponse = {
 
 export type GetUserRequest = void;
 
+export type CustomProductPurchaseSuccessMeta = {
+  kind: 'custom_product_purchase_success';
+  custom_product_id: number;
+  custom_product_purchase_id: number;
+  sku_code: string;
+  amount_deducted: number;
+  product_name: string;
+};
+
+export type NotificationMeta =
+  | CustomProductPurchaseSuccessMeta
+  | {
+      kind?: string;
+    };
+
 export type NotificationItem = {
   id: string;
   type: string;
@@ -36,11 +51,11 @@ export type NotificationItem = {
   data: {
     title: string;
     message: string;
-    meta: any;
+    meta: NotificationMeta;
   };
   title: string;
   message: string;
-  meta: any;
+  meta: NotificationMeta;
 };
 
 export type GetNotificationListResponse = {

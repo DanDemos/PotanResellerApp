@@ -32,8 +32,8 @@ export function MainHeader({ title, onMenuPress, presenter }: MainHeaderProps): 
             {presenter.notiData && presenter.notiData.unread > 0 && (
               <View style={appStyles.notificationBadge}>
                 <Text style={appStyles.badgeText}>
-                  {presenter.notiData.unread > 9
-                    ? '9+'
+                  {presenter.notiData.unread > 99
+                    ? '99+'
                     : presenter.notiData.unread}
                 </Text>
               </View>

@@ -35,6 +35,7 @@ Follow these rules strictly when working on this project.
 - **Icons**: Use `@react-native-vector-icons/material-icons` exclusively.
 - **Safe Area**: Do not use `SafeAreaView` from `react-native` (it is deprecated). Always use `SafeAreaProvider` and `useSafeAreaInsets` (or `SafeAreaView` with `edges`) from `react-native-safe-area-context`.
 - **Modals**: For components that function as modals, always end the name with `Modal` (e.g., `RepaymentModal`, `CoinTransactionModal`) instead of `Component`.
+- **Horizontal Action Buttons**: When both a positive and a negative action are shown on the same horizontal line (e.g. `Alert.alert` Yes/No, modal Confirm/Cancel rows), always place the **positive button on the left** and the **negative button on the right**. For `Alert.alert`, list the positive action first and the negative action second, and do **not** use `style: 'cancel'` on the negative button when that would flip the order on iOS.
 
 ### Styling
 
