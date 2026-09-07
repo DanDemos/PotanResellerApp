@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,19 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  Keyboard,
+  Platform,
+  Dimensions,
+  type KeyboardEvent,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '../ProfileScreen.styles';
 import { useCoinTransactionPresenter } from '@/features/profile/modals/CoinTransaction/CoinTransactionPresenter';
 import { colors } from '@/global/theme/colors';
 import { AdminBankInfoList } from '@/components/AdminBankInfoList';
 
-interface CoinTransactionModalProps {
+type CoinTransactionModalProps = {
   visible: boolean;
   setVisible: (visible: boolean) => void;
   coinMode: 'topup' | 'convert';
@@ -28,7 +33,7 @@ interface CoinTransactionModalProps {
   ) => Promise<any>;
   isLoading: boolean;
   isSuccess: boolean;
-}
+};
 
 export function CoinTransactionModal({
   visible,
@@ -39,6 +44,7 @@ export function CoinTransactionModal({
   isLoading,
   isSuccess,
 }: CoinTransactionModalProps): React.ReactNode {
+  const insets = useSafeAreaInsets();
   const {
     coinAmount,
     setCoinAmount,
@@ -56,25 +62,79 @@ export function CoinTransactionModal({
     handleConfirm,
   );
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (!visible) {
+      setKeyboardHeight(0);
+      return;
+    }
+
+    function handleKeyboardShow(event: KeyboardEvent) {
+      setKeyboardHeight(event.endCoordinates.height);
+    }
+
+    function handleKeyboardHide() {
+      setKeyboardHeight(0);
+    }
+
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      handleKeyboardShow,
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      handleKeyboardHide,
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [visible]);
+
+  const isKeyboardVisible = keyboardHeight > 0;
+  const modalMaxHeight = isKeyboardVisible
+    ? Dimensions.get('window').height - keyboardHeight - insets.top - 24
+    : undefined;
+
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
+      presentationStyle="overFullScreen"
       onRequestClose={handleClose}
     >
-      <View style={styles.modalOverlay}>
-         <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {coinMode === 'topup' ? 'Top Up Coins' : 'Convert MMK into Coins'}
-            </Text>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-              <MaterialIcons name="close" size={24} color="#94A3B8" />
-            </TouchableOpacity>
-          </View>
+      <View
+        style={[
+          styles.modalOverlay,
+          isKeyboardVisible && { paddingBottom: keyboardHeight },
+        ]}
+      >
+        <View
+          style={[
+            styles.modalContent,
+            modalMaxHeight != null && {
+              maxHeight: modalMaxHeight,
+              overflow: 'hidden',
+            },
+          ]}
+        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="always"
+            style={isKeyboardVisible ? styles.modalBodyScroll : undefined}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {coinMode === 'topup' ? 'Top Up Coins' : 'Convert MMK into Coins'}
+              </Text>
+              <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+                <MaterialIcons name="close" size={24} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
             {coinMode === 'topup' && <AdminBankInfoList />}
 
             <View style={styles.inputGroup}>

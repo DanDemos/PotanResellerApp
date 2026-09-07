@@ -327,6 +327,10 @@ export const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
+  modalBodyScroll: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

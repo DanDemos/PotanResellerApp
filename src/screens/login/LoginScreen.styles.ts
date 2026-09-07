@@ -4,10 +4,21 @@ import { colors } from '@/global/theme/colors';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: colors.white, // White background
     padding: 20,
+  },
+  scroll: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollContentKeyboardOpen: {
+    justifyContent: 'flex-start',
+    paddingTop: 12,
   },
   card: {
     padding: 32,

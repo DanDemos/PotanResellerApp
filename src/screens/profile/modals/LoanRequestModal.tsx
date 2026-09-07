@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,19 +7,24 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  Keyboard,
+  Platform,
+  Dimensions,
+  type KeyboardEvent,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '../ProfileScreen.styles';
 import { useLoanRequestPresenter } from '@/features/profile/modals/LoanRequest/LoanRequestPresenter';
 import { colors } from '@/global/theme/colors';
 
-interface LoanRequestModalProps {
+type LoanRequestModalProps = {
   visible: boolean;
   setVisible: (visible: boolean) => void;
   isLoading: boolean;
   isSuccess: boolean;
   onSubmit: (amount: string, note: string) => Promise<any>;
-}
+};
 
 export function LoanRequestModal({
   visible,
@@ -28,26 +33,81 @@ export function LoanRequestModal({
   isSuccess,
   onSubmit,
 }: LoanRequestModalProps): React.ReactNode {
+  const insets = useSafeAreaInsets();
   const { amount, setAmount, note, setNote, onConfirm, handleClose } =
     useLoanRequestPresenter(visible, setVisible, isSuccess, onSubmit);
+
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (!visible) {
+      setKeyboardHeight(0);
+      return;
+    }
+
+    function handleKeyboardShow(event: KeyboardEvent) {
+      setKeyboardHeight(event.endCoordinates.height);
+    }
+
+    function handleKeyboardHide() {
+      setKeyboardHeight(0);
+    }
+
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      handleKeyboardShow,
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      handleKeyboardHide,
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [visible]);
+
+  const isKeyboardVisible = keyboardHeight > 0;
+  const modalMaxHeight = isKeyboardVisible
+    ? Dimensions.get('window').height - keyboardHeight - insets.top - 24
+    : undefined;
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="slide"
+      presentationStyle="overFullScreen"
       onRequestClose={handleClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Request Loan</Text>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-              <MaterialIcons name="close" size={24} color="#94A3B8" />
-            </TouchableOpacity>
-          </View>
+      <View
+        style={[
+          styles.modalOverlay,
+          isKeyboardVisible && { paddingBottom: keyboardHeight },
+        ]}
+      >
+        <View
+          style={[
+            styles.modalContent,
+            modalMaxHeight != null && {
+              maxHeight: modalMaxHeight,
+              overflow: 'hidden',
+            },
+          ]}
+        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="always"
+            style={isKeyboardVisible ? styles.modalBodyScroll : undefined}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Request Loan</Text>
+              <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+                <MaterialIcons name="close" size={24} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Enter Amount (MMK)</Text>
               <TextInput

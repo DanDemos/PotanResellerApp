@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import {
   View,
   Text,
@@ -10,43 +10,44 @@ import {
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { styles } from './PasswordInput.styles';
 
-interface PasswordInputProps extends TextInputProps {
+type PasswordInputProps = TextInputProps & {
   label?: string;
   error?: string;
   containerStyle?: ViewStyle;
-}
+};
 
-export function PasswordInput({
-  label,
-  error,
-  containerStyle,
-  ...textInputProps
-}: PasswordInputProps): React.ReactNode {
-  const [showPassword, setShowPassword] = useState(false);
+export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
+  function PasswordInput(
+    { label, error, containerStyle, ...textInputProps },
+    ref,
+  ): React.ReactNode {
+    const [showPassword, setShowPassword] = useState(false);
 
-  return (
-    <View style={[styles.inputContainer, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.passwordInput}
-          placeholderTextColor="#9ca3af"
-          {...textInputProps}
-          secureTextEntry={!showPassword}
-        />
-        <TouchableOpacity
-          style={styles.eyeIcon}
-          onPress={() => setShowPassword(!showPassword)}
-          activeOpacity={0.7}
-        >
-          <MaterialIcons
-            name={showPassword ? 'visibility' : 'visibility-off'}
-            size={24}
-            color="#9ca3af"
+    return (
+      <View style={[styles.inputContainer, containerStyle]}>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
+        <View style={styles.passwordContainer}>
+          <TextInput
+            ref={ref}
+            style={styles.passwordInput}
+            placeholderTextColor="#9ca3af"
+            {...textInputProps}
+            secureTextEntry={!showPassword}
           />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setShowPassword(!showPassword)}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons
+              name={showPassword ? 'visibility' : 'visibility-off'}
+              size={24}
+              color="#9ca3af"
+            />
+          </TouchableOpacity>
+        </View>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
-    </View>
-  );
-}
+    );
+  },
+);
