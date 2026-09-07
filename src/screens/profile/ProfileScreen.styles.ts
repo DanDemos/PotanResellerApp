@@ -416,19 +416,4 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 15,
   },
-  photoPicker: {
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderStyle: 'dashed',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  previewImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 14,
-  },
 });

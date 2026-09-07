@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Image,
   ScrollView,
   Modal,
   ActivityIndicator,
@@ -14,6 +13,7 @@ import { styles } from '../ProfileScreen.styles';
 import { useRefillPresenter } from '@/features/profile/modals/Refill/RefillPresenter';
 import { colors } from '@/global/theme/colors';
 import { AdminBankInfoList } from '@/components/AdminBankInfoList';
+import { PaymentProofPicker } from '@/components/common/PaymentProofPicker/PaymentProofPicker';
 import { useKeyboardModalLift } from './useKeyboardModalLift';
 import { getAmountInputImeProps } from './amountInputIme';
 
@@ -76,6 +76,8 @@ export function RefillModal({
             style={isKeyboardVisible ? styles.modalBodyScroll : undefined}
             bounces={false}
           >
+            <AdminBankInfoList />
+
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Amount to Refill (MMK)</Text>
               <TextInput
@@ -105,40 +107,7 @@ export function RefillModal({
               />
             </View>
 
-            <AdminBankInfoList />
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Payment Proof (Photo)</Text>
-              <TouchableOpacity
-                style={[
-                  styles.photoPicker,
-                  photo && {
-                    backgroundColor: colors.white,
-                    borderStyle: 'solid',
-                  },
-                ]}
-                onPress={pickImage}
-              >
-                {photo ? (
-                  <Image
-                    source={{ uri: photo.uri }}
-                    style={styles.previewImage}
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <>
-                    <MaterialIcons
-                      name="add-a-photo"
-                      size={32}
-                      color={colors.textSecondary}
-                    />
-                    <Text style={{ color: colors.textSecondary, marginTop: 8 }}>
-                      Select Receipt Photo
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            <PaymentProofPicker photo={photo} onPress={pickImage} />
 
             <View style={styles.modalActions}>
               <TouchableOpacity
