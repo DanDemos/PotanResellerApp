@@ -1,7 +1,6 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import type { Asset } from 'react-native-image-picker';
 
 export function useCoinTransactionPresenter(
   visible: boolean,
@@ -12,12 +11,12 @@ export function useCoinTransactionPresenter(
     mode: 'topup' | 'convert',
     amount: string,
     note: string,
-    photo: any
-  ) => Promise<any>
+    photo: any,
+  ) => Promise<any>,
 ) {
   const [coinAmount, setCoinAmount] = useState('');
   const [note, setNote] = useState('');
-  const [photo, setPhoto] = useState<any>(null);
+  const [photo, setPhoto] = useState<Asset | null>(null);
 
   // Clear inputs on success or when closed
   useEffect(() => {
@@ -30,17 +29,6 @@ export function useCoinTransactionPresenter(
       }
     }
   }, [isSuccess, visible, setVisible]);
-
-  const pickImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      setPhoto(result.assets[0]);
-    }
-  };
 
   const onConfirm = async () => {
     if (!coinAmount || isNaN(Number(coinAmount))) {
@@ -65,13 +53,17 @@ export function useCoinTransactionPresenter(
 
   const handleClose = () => setVisible(false);
 
+  function handlePhotoSelected(nextPhoto: Asset) {
+    setPhoto(nextPhoto);
+  }
+
   return {
     coinAmount,
     setCoinAmount,
     note,
     setNote,
     photo,
-    pickImage,
+    handlePhotoSelected,
     onConfirm,
     handleClose,
   };

@@ -38,7 +38,7 @@ export function RefillModal({
     note,
     setNote,
     photo,
-    pickImage,
+    handlePhotoSelected,
     onConfirm,
     handleClose,
   } = useRefillPresenter(visible, setVisible, isSuccess, onSubmit);
@@ -107,7 +107,10 @@ export function RefillModal({
               />
             </View>
 
-            <PaymentProofPicker photo={photo} onPress={pickImage} />
+            <PaymentProofPicker
+              photo={photo}
+              onPhotoSelected={handlePhotoSelected}
+            />
 
             <View style={styles.modalActions}>
               <TouchableOpacity

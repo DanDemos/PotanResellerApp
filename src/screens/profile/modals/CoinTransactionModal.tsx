@@ -47,7 +47,7 @@ export function CoinTransactionModal({
     note,
     setNote,
     photo,
-    pickImage,
+    handlePhotoSelected,
     onConfirm,
     handleClose,
   } = useCoinTransactionPresenter(
@@ -134,7 +134,10 @@ export function CoinTransactionModal({
                   />
                 </View>
 
-                <PaymentProofPicker photo={photo} onPress={pickImage} />
+                <PaymentProofPicker
+                  photo={photo}
+                  onPhotoSelected={handlePhotoSelected}
+                />
               </>
             )}
 

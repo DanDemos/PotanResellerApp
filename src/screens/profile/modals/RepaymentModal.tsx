@@ -40,7 +40,7 @@ export function RepaymentModal({
     repayNote,
     setRepayNote,
     repayPhoto,
-    pickRepaymentImage,
+    handlePhotoSelected,
     onConfirm,
     handleClose,
   } = useRepaymentPresenter(visible, setVisible, isSuccess, onSubmit);
@@ -114,7 +114,7 @@ export function RepaymentModal({
 
             <PaymentProofPicker
               photo={repayPhoto}
-              onPress={pickRepaymentImage}
+              onPhotoSelected={handlePhotoSelected}
             />
 
             <View style={styles.modalActions}>

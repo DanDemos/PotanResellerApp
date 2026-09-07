@@ -1,17 +1,16 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import type { Asset } from 'react-native-image-picker';
 
 export function useRepaymentPresenter(
   visible: boolean,
   setVisible: (visible: boolean) => void,
   isSuccess: boolean,
-  onSubmit: (amount: string, note: string, photo: any) => Promise<any>
+  onSubmit: (amount: string, note: string, photo: any) => Promise<any>,
 ) {
   const [repayAmount, setRepayAmount] = useState('');
   const [repayNote, setRepayNote] = useState('');
-  const [repayPhoto, setRepayPhoto] = useState<any>(null);
+  const [repayPhoto, setRepayPhoto] = useState<Asset | null>(null);
 
   // Clear inputs on success or when closed
   useEffect(() => {
@@ -24,17 +23,6 @@ export function useRepaymentPresenter(
       }
     }
   }, [isSuccess, visible, setVisible]);
-
-  const pickRepaymentImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      setRepayPhoto(result.assets[0]);
-    }
-  };
 
   const onConfirm = async () => {
     if (!repayAmount || isNaN(Number(repayAmount))) {
@@ -59,13 +47,17 @@ export function useRepaymentPresenter(
 
   const handleClose = () => setVisible(false);
 
+  function handlePhotoSelected(nextPhoto: Asset) {
+    setRepayPhoto(nextPhoto);
+  }
+
   return {
     repayAmount,
     setRepayAmount,
     repayNote,
     setRepayNote,
     repayPhoto,
-    pickRepaymentImage,
+    handlePhotoSelected,
     onConfirm,
     handleClose,
   };

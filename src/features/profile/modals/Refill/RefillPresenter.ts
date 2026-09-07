@@ -1,17 +1,16 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import type { Asset } from 'react-native-image-picker';
 
 export function useRefillPresenter(
   visible: boolean,
   setVisible: (visible: boolean) => void,
   isSuccess: boolean,
-  onSubmit: (amount: string, note: string, photo: any) => Promise<any>
+  onSubmit: (amount: string, note: string, photo: any) => Promise<any>,
 ) {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
-  const [photo, setPhoto] = useState<any>(null);
+  const [photo, setPhoto] = useState<Asset | null>(null);
 
   // Clear inputs on success or when closed
   useEffect(() => {
@@ -24,17 +23,6 @@ export function useRefillPresenter(
       }
     }
   }, [isSuccess, visible, setVisible]);
-
-  const pickImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      setPhoto(result.assets[0]);
-    }
-  };
 
   const onConfirm = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -59,13 +47,17 @@ export function useRefillPresenter(
 
   const handleClose = () => setVisible(false);
 
+  function handlePhotoSelected(nextPhoto: Asset) {
+    setPhoto(nextPhoto);
+  }
+
   return {
     amount,
     setAmount,
     note,
     setNote,
     photo,
-    pickImage,
+    handlePhotoSelected,
     onConfirm,
     handleClose,
   };
