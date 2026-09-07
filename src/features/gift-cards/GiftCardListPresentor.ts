@@ -102,6 +102,18 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
 
   const openBuyModal = useCallback(
     (giftCard: GiftCard) => {
+      const availableStock =
+        giftCard.available_quantity ?? giftCard.quantity ?? 0;
+
+      if (availableStock <= 0) {
+        Toast.show({
+          type: 'error',
+          text1: 'Out of Stock',
+          text2: 'This product is currently unavailable.',
+        });
+        return;
+      }
+
       setPendingPubgId(null);
       setPubgId('');
 
