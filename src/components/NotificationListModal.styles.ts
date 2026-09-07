@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
   dropdownContainer: {
     position: 'absolute',
-    top: 110,
+    top: 60,
     right: 16,
     width: 300,
     maxHeight: 400,
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: colors.border,
   },
   dropdownHeader: {
     padding: 12,
@@ -29,13 +29,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#f8fafc',
+    borderBottomColor: colors.border,
+    backgroundColor: colors.backgroundLight,
   },
   dropdownTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1e293b',
+    color: colors.textDark,
   },
   markAllReadText: {
     fontSize: 13,
@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
   notificationItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: colors.border,
   },
   notificationContent: {
     flex: 1,
@@ -59,13 +59,13 @@ export const styles = StyleSheet.create({
   notificationTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
+    color: colors.textDark,
     flex: 1,
     marginRight: 8,
   },
   notificationTime: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: colors.textSecondary,
   },
   notificationBody: {
     fontSize: 13,
@@ -98,7 +98,7 @@ export const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: colors.textSecondary,
     marginTop: 8,
   },
   loadingFooter: {

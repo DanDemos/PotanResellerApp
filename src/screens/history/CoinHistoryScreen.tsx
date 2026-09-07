@@ -121,7 +121,7 @@ export function CoinHistoryScreen({ navigation }: any): React.ReactNode {
         </View>
       ) : presenter.coinHistoryError ? (
         <View style={styles.center}>
-          <MaterialIcons name="error-outline" size={60} color="#EF4444" />
+          <MaterialIcons name="error-outline" size={60} color={colors.error} />
           <Text style={styles.errorText}>
             {(presenter.coinHistoryError as any)?.data?.message ||
               (presenter.coinHistoryError as any)?.message ||
@@ -161,7 +161,7 @@ export function CoinHistoryScreen({ navigation }: any): React.ReactNode {
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <MaterialIcons name="history" size={80} color="#E2E8F0" />
+              <MaterialIcons name="history" size={80} color={colors.border} />
               <Text style={styles.emptyText}>No coin records found.</Text>
             </View>
           }

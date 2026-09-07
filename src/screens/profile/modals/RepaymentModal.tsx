@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -8,17 +8,14 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
-  Keyboard,
-  Platform,
-  Dimensions,
-  type KeyboardEvent,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '../ProfileScreen.styles';
 import { User } from '@/api/actions/user/userAPIDataTypes';
 import { useRepaymentPresenter } from '@/features/profile/modals/Repayment/RepaymentPresenter';
 import { colors } from '@/global/theme/colors';
+import { useKeyboardModalLift } from './useKeyboardModalLift';
+import { getAmountInputImeProps } from './amountInputIme';
 
 type RepaymentModalProps = {
   visible: boolean;
@@ -37,7 +34,6 @@ export function RepaymentModal({
   onSubmit,
   user,
 }: RepaymentModalProps): React.ReactNode {
-  const insets = useSafeAreaInsets();
   const {
     repayAmount,
     setRepayAmount,
@@ -48,42 +44,13 @@ export function RepaymentModal({
     onConfirm,
     handleClose,
   } = useRepaymentPresenter(visible, setVisible, isSuccess, onSubmit);
-
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  useEffect(() => {
-    if (!visible) {
-      setKeyboardHeight(0);
-      return;
-    }
-
-    function handleKeyboardShow(event: KeyboardEvent) {
-      setKeyboardHeight(event.endCoordinates.height);
-    }
-
-    function handleKeyboardHide() {
-      setKeyboardHeight(0);
-    }
-
-    const showSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      handleKeyboardShow,
-    );
-    const hideSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      handleKeyboardHide,
-    );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, [visible]);
-
-  const isKeyboardVisible = keyboardHeight > 0;
-  const modalMaxHeight = isKeyboardVisible
-    ? Dimensions.get('window').height - keyboardHeight - insets.top - 24
-    : undefined;
+  const noteInputRef = useRef<TextInput>(null);
+  const {
+    isKeyboardVisible,
+    overlayKeyboardStyle,
+    modalKeyboardStyle,
+    onOverlayLayout,
+  } = useKeyboardModalLift(visible);
 
   return (
     <Modal
@@ -94,40 +61,34 @@ export function RepaymentModal({
       onRequestClose={handleClose}
     >
       <View
-        style={[
-          styles.modalOverlay,
-          isKeyboardVisible && { paddingBottom: keyboardHeight },
-        ]}
+        style={[styles.modalOverlay, overlayKeyboardStyle]}
+        onLayout={onOverlayLayout}
       >
-        <View
-          style={[
-            styles.modalContent,
-            modalMaxHeight != null && {
-              maxHeight: modalMaxHeight,
-              overflow: 'hidden',
-            },
-          ]}
-        >
+        <View style={[styles.modalContent, modalKeyboardStyle]}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Repay Loan</Text>
+            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+              <MaterialIcons name="close" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
           <ScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="always"
             style={isKeyboardVisible ? styles.modalBodyScroll : undefined}
+            bounces={false}
           >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Repay Loan</Text>
-              <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <MaterialIcons name="close" size={24} color="#94A3B8" />
-              </TouchableOpacity>
-            </View>
-
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Amount to Repay (MMK)</Text>
               <TextInput
                 style={styles.amountInput}
                 placeholder="Enter amount"
-                keyboardType="numeric"
                 value={repayAmount}
                 onChangeText={setRepayAmount}
+                {...getAmountInputImeProps({
+                  action: 'next',
+                  onAction: () => noteInputRef.current?.focus(),
+                })}
               />
               <Text style={[styles.debtText, { marginTop: 4 }]}>
                 Current Debt:{' '}
@@ -139,6 +100,7 @@ export function RepaymentModal({
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Note (Optional)</Text>
               <TextInput
+                ref={noteInputRef}
                 style={[
                   styles.amountInput,
                   { height: 80, textAlignVertical: 'top' },
@@ -173,9 +135,9 @@ export function RepaymentModal({
                     <MaterialIcons
                       name="add-a-photo"
                       size={32}
-                      color="#94A3B8"
+                      color={colors.textSecondary}
                     />
-                    <Text style={{ color: '#94A3B8', marginTop: 8 }}>
+                    <Text style={{ color: colors.textSecondary, marginTop: 8 }}>
                       Select Receipt Photo
                     </Text>
                   </>

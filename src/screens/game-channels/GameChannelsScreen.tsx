@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,25 +6,43 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
 import { styles } from './GameChannelsScreen.styles';
 import { useGameChannelsPresentor } from '@/features/game-channels/GameChannelsPresentor';
-import { NotificationListModal } from '@/components/NotificationListModal';
 import { MainHeader } from '@/components/MainHeader';
 
-export function GameChannelsScreen({ navigation }: any): React.ReactNode {
-  const gameChannelsPresenter = useGameChannelsPresentor(navigation);
+type GameChannelsBodyProps = {
+  channels: any[];
+  channelsIsLoading: boolean;
+  channelsError: unknown;
+  channelsIsFetching: boolean;
+  channelsPage: number;
+  onRetry: () => void;
+  onRefresh: () => void;
+  onLoadMore: () => void;
+  onOpenChat: (uuid: string, title: string, regionId?: number) => void;
+};
 
-  function renderChannelItem({ item }: { item: any }) {
-    return (
+const GameChannelsBody = memo(function GameChannelsBody({
+  channels,
+  channelsIsLoading,
+  channelsError,
+  channelsIsFetching,
+  channelsPage,
+  onRetry,
+  onRefresh,
+  onLoadMore,
+  onOpenChat,
+}: GameChannelsBodyProps): React.ReactNode {
+  const renderChannelItem = useCallback(
+    ({ item }: { item: any }) => (
       <TouchableOpacity
         style={styles.channelItem}
         onPress={() =>
-          gameChannelsPresenter.navigateToChat(
+          onOpenChat(
             item.uuid,
             (item as any).displayTitle,
             (item as any).region?.id,
@@ -75,78 +93,93 @@ export function GameChannelsScreen({ navigation }: any): React.ReactNode {
           </View>
         </View>
       </TouchableOpacity>
+    ),
+    [onOpenChat],
+  );
+
+  if (channelsIsLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
     );
   }
+
+  if (channelsError) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>
+          {(channelsError as any)?.data?.message ||
+            (channelsError as any)?.message ||
+            'Failed to load channels.'}
+        </Text>
+        <TouchableOpacity onPress={onRetry} style={styles.retryButton}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={channels}
+      keyExtractor={(item: any, index) => `${item.id}-${index}`}
+      renderItem={renderChannelItem}
+      contentContainerStyle={styles.listContent}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      onRefresh={onRefresh}
+      refreshing={channelsIsFetching && channelsPage === 1}
+      onEndReached={onLoadMore}
+      onEndReachedThreshold={0.5}
+      ListEmptyComponent={
+        <View style={styles.emptyContainer}>
+          <MaterialIcons
+            name="sports-esports"
+            size={64}
+            color={colors.icon || '#9ca3af'}
+          />
+          <Text style={styles.emptyTitle}>No Games Available</Text>
+          <Text style={styles.emptySubtitle}>
+            There are currently no active game channels. Pull down to refresh or
+            check back later.
+          </Text>
+        </View>
+      }
+      ListFooterComponent={
+        channelsIsFetching && channelsPage > 1 ? (
+          <View style={styles.loadingFooter}>
+            <ActivityIndicator size="small" color={colors.primary} />
+          </View>
+        ) : null
+      }
+    />
+  );
+});
+
+export function GameChannelsScreen({ navigation }: any): React.ReactNode {
+  const gameChannelsPresenter = useGameChannelsPresentor(navigation);
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      <MainHeader 
-        title="Games" 
-        onMenuPress={gameChannelsPresenter.openDrawer} 
-        presenter={gameChannelsPresenter} 
+      <MainHeader
+        title="Games"
+        onMenuPress={gameChannelsPresenter.openDrawer}
+        presenter={gameChannelsPresenter}
       />
 
-      <NotificationListModal presenter={gameChannelsPresenter} />
-
-      {/* Channel List */}
-      {gameChannelsPresenter.channelsIsLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : gameChannelsPresenter.channelsError ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>
-            {(gameChannelsPresenter.channelsError as any)?.data?.message ||
-              (gameChannelsPresenter.channelsError as any)?.message ||
-              'Failed to load channels.'}
-          </Text>
-          <TouchableOpacity
-            onPress={() => gameChannelsPresenter.channelsRefetch()}
-            style={styles.retryButton}
-          >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={gameChannelsPresenter.processedChannels || []}
-          keyExtractor={(item: any, index) => `${item.id}-${index}`}
-          renderItem={renderChannelItem}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onRefresh={() => {
-            gameChannelsPresenter.handleMainRefresh();
-          }}
-          refreshing={
-            gameChannelsPresenter.channelsIsFetching &&
-            gameChannelsPresenter.channelsPage === 1
-          }
-          onEndReached={gameChannelsPresenter.handleLoadMoreChannels}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <MaterialIcons
-                name="sports-esports"
-                size={64}
-                color={colors.icon || '#9ca3af'}
-              />
-              <Text style={styles.emptyTitle}>No Games Available</Text>
-              <Text style={styles.emptySubtitle}>
-                There are currently no active game channels. Pull down to refresh or check back later.
-              </Text>
-            </View>
-          }
-          ListFooterComponent={
-            gameChannelsPresenter.channelsIsFetching &&
-            gameChannelsPresenter.channelsPage > 1 ? (
-              <View style={styles.loadingFooter}>
-                <ActivityIndicator size="small" color={colors.primary} />
-              </View>
-            ) : null
-          }
-        />
-      )}
+      <GameChannelsBody
+        channels={gameChannelsPresenter.processedChannels || []}
+        channelsIsLoading={gameChannelsPresenter.channelsIsLoading}
+        channelsError={gameChannelsPresenter.channelsError}
+        channelsIsFetching={gameChannelsPresenter.channelsIsFetching}
+        channelsPage={gameChannelsPresenter.channelsPage}
+        onRetry={gameChannelsPresenter.channelsRefetch}
+        onRefresh={gameChannelsPresenter.handleMainRefresh}
+        onLoadMore={gameChannelsPresenter.handleLoadMoreChannels}
+        onOpenChat={gameChannelsPresenter.navigateToChat}
+      />
     </SafeAreaView>
   );
 }

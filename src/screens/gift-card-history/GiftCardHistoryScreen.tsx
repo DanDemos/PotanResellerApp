@@ -114,7 +114,7 @@ export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
         </View>
       ) : presenter.historyError ? (
         <View style={styles.center}>
-          <MaterialIcons name="error-outline" size={60} color="#ef4444" />
+          <MaterialIcons name="error-outline" size={60} color={colors.error} />
           <Text style={styles.errorText}>
             {(presenter.historyError as any)?.data?.message ||
               'Failed to load history.'}
@@ -145,7 +145,7 @@ export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
           }
           ListEmptyComponent={
             <View style={styles.center}>
-              <MaterialIcons name="history" size={80} color="#e2e8f0" />
+              <MaterialIcons name="history" size={80} color={colors.border} />
               <Text style={styles.emptyText}>No purchase history found.</Text>
             </View>
           }

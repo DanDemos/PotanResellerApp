@@ -5,15 +5,14 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
+  Keyboard,
   StatusBar,
   ActivityIndicator,
   Image,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useHeaderHeight } from '@react-navigation/elements';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
 import { styles } from './ChatScreen.styles';
@@ -24,6 +23,7 @@ import {
   MessageProduct,
 } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 import Sound from 'react-native-sound';
+import { useChatKeyboardPadding } from './useChatKeyboardPadding';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -51,7 +51,7 @@ export function ChatScreen(): React.ReactNode {
   const navigation = useNavigation<any>();
   const { channelUuid, regionId } = route.params || {};
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
-  const headerHeight = useHeaderHeight();
+  const keyboardPaddingStyle = useChatKeyboardPadding();
 
   // VIPER Initialization
   const interactor = useChatInteractor(channelUuid);
@@ -73,6 +73,18 @@ export function ChatScreen(): React.ReactNode {
       }, 100);
     }
   }, [presenter.messages]);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+    });
+
+    return () => {
+      showSubscription.remove();
+    };
+  }, []);
 
   function renderProductList(
     products: MessageProduct[],
@@ -170,11 +182,7 @@ export function ChatScreen(): React.ReactNode {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
-        style={styles.flex}
-      >
+      <Animated.View style={[styles.flex, keyboardPaddingStyle]}>
         {presenter.isLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -251,7 +259,7 @@ export function ChatScreen(): React.ReactNode {
             )}
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </SafeAreaView>
   );
 }

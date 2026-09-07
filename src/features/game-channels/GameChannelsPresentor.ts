@@ -26,7 +26,6 @@ function isCustomProductPurchaseSuccessMeta(
 export function useGameChannelsPresentor(navigation: any) {
   const [notiPage, setNotiPage] = useState(1);
   const [channelsPage, setChannelsPage] = useState(1);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [allChannels, setAllChannels] = useState<any[]>([]);
 
@@ -119,12 +118,6 @@ export function useGameChannelsPresentor(navigation: any) {
     notiRefetch();
   }, [notiRefetch]);
 
-  useEffect(() => {
-    if (showNotifications) {
-      handleRefreshNoti();
-    }
-  }, [showNotifications, handleRefreshNoti]);
-
   const handleNotificationClick = useCallback(
     async (item: NotificationItem) => {
       const meta = getNotificationMeta(item);
@@ -175,39 +168,20 @@ export function useGameChannelsPresentor(navigation: any) {
     notiRefetch();
   }, [channelsRefetch, notiRefetch]);
 
-  return useMemo(
-    () => ({
-      ...interactor,
-      ...router,
-      showNotifications,
-      setShowNotifications,
-      notifications,
-      notiPage,
-      channelsPage,
-      handleLoadMoreNoti,
-      handleRefreshNoti,
-      handleNotificationClick,
-      handleMarkAllAsRead,
-      handleMainRefresh,
-      handleLoadMoreChannels,
-      processedChannels,
-      isCustomProductPurchaseSuccessMeta,
-      getNotificationMeta,
-    }),
-    [
-      interactor,
-      router,
-      showNotifications,
-      notifications,
-      notiPage,
-      channelsPage,
-      handleLoadMoreNoti,
-      handleRefreshNoti,
-      handleNotificationClick,
-      handleMarkAllAsRead,
-      handleMainRefresh,
-      handleLoadMoreChannels,
-      processedChannels,
-    ],
-  );
+  return {
+    ...interactor,
+    ...router,
+    notifications,
+    notiPage,
+    channelsPage,
+    handleLoadMoreNoti,
+    handleRefreshNoti,
+    handleNotificationClick,
+    handleMarkAllAsRead,
+    handleMainRefresh,
+    handleLoadMoreChannels,
+    processedChannels,
+    isCustomProductPurchaseSuccessMeta,
+    getNotificationMeta,
+  };
 }

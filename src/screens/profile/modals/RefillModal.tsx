@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -8,17 +8,14 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
-  Keyboard,
-  Platform,
-  Dimensions,
-  type KeyboardEvent,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '../ProfileScreen.styles';
 import { useRefillPresenter } from '@/features/profile/modals/Refill/RefillPresenter';
 import { colors } from '@/global/theme/colors';
 import { AdminBankInfoList } from '@/components/AdminBankInfoList';
+import { useKeyboardModalLift } from './useKeyboardModalLift';
+import { getAmountInputImeProps } from './amountInputIme';
 
 type RefillModalProps = {
   visible: boolean;
@@ -35,7 +32,6 @@ export function RefillModal({
   isSuccess,
   onSubmit,
 }: RefillModalProps): React.ReactNode {
-  const insets = useSafeAreaInsets();
   const {
     amount,
     setAmount,
@@ -46,42 +42,13 @@ export function RefillModal({
     onConfirm,
     handleClose,
   } = useRefillPresenter(visible, setVisible, isSuccess, onSubmit);
-
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  useEffect(() => {
-    if (!visible) {
-      setKeyboardHeight(0);
-      return;
-    }
-
-    function handleKeyboardShow(event: KeyboardEvent) {
-      setKeyboardHeight(event.endCoordinates.height);
-    }
-
-    function handleKeyboardHide() {
-      setKeyboardHeight(0);
-    }
-
-    const showSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      handleKeyboardShow,
-    );
-    const hideSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      handleKeyboardHide,
-    );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, [visible]);
-
-  const isKeyboardVisible = keyboardHeight > 0;
-  const modalMaxHeight = isKeyboardVisible
-    ? Dimensions.get('window').height - keyboardHeight - insets.top - 24
-    : undefined;
+  const noteInputRef = useRef<TextInput>(null);
+  const {
+    isKeyboardVisible,
+    overlayKeyboardStyle,
+    modalKeyboardStyle,
+    onOverlayLayout,
+  } = useKeyboardModalLift(visible);
 
   return (
     <Modal
@@ -92,46 +59,41 @@ export function RefillModal({
       onRequestClose={handleClose}
     >
       <View
-        style={[
-          styles.modalOverlay,
-          isKeyboardVisible && { paddingBottom: keyboardHeight },
-        ]}
+        style={[styles.modalOverlay, overlayKeyboardStyle]}
+        onLayout={onOverlayLayout}
       >
-        <View
-          style={[
-            styles.modalContent,
-            modalMaxHeight != null && {
-              maxHeight: modalMaxHeight,
-              overflow: 'hidden',
-            },
-          ]}
-        >
+        <View style={[styles.modalContent, modalKeyboardStyle]}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Refill MMK</Text>
+            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+              <MaterialIcons name="close" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
           <ScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="always"
             style={isKeyboardVisible ? styles.modalBodyScroll : undefined}
+            bounces={false}
           >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Refill MMK</Text>
-              <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <MaterialIcons name="close" size={24} color="#94A3B8" />
-              </TouchableOpacity>
-            </View>
-
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Amount to Refill (MMK)</Text>
               <TextInput
                 style={styles.amountInput}
                 placeholder="Enter amount"
-                keyboardType="numeric"
                 value={amount}
                 onChangeText={setAmount}
+                {...getAmountInputImeProps({
+                  action: 'next',
+                  onAction: () => noteInputRef.current?.focus(),
+                })}
               />
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Note (Optional)</Text>
               <TextInput
+                ref={noteInputRef}
                 style={[
                   styles.amountInput,
                   { height: 80, textAlignVertical: 'top' },
@@ -168,9 +130,9 @@ export function RefillModal({
                     <MaterialIcons
                       name="add-a-photo"
                       size={32}
-                      color="#94A3B8"
+                      color={colors.textSecondary}
                     />
-                    <Text style={{ color: '#94A3B8', marginTop: 8 }}>
+                    <Text style={{ color: colors.textSecondary, marginTop: 8 }}>
                       Select Receipt Photo
                     </Text>
                   </>

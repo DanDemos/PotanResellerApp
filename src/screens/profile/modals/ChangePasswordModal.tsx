@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -6,18 +6,14 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
-  Keyboard,
-  Platform,
-  Dimensions,
   TextInput,
-  type KeyboardEvent,
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PasswordInput } from '@/components/common/PasswordInput/PasswordInput';
 import { styles } from '../ProfileScreen.styles';
 import { useChangePasswordPresenter } from '@/features/auth/change-password/ChangePasswordPresenter';
 import { colors } from '@/global/theme/colors';
+import { useKeyboardModalLift } from './useKeyboardModalLift';
 
 type ChangePasswordModalProps = {
   visible: boolean;
@@ -28,45 +24,15 @@ export function ChangePasswordModal({
   visible,
   setVisible,
 }: ChangePasswordModalProps): React.ReactNode {
-  const insets = useSafeAreaInsets();
   const presenter = useChangePasswordPresenter(visible, setVisible);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const newPasswordInputRef = useRef<TextInput>(null);
   const confirmPasswordInputRef = useRef<TextInput>(null);
-
-  useEffect(() => {
-    if (!visible) {
-      setKeyboardHeight(0);
-      return;
-    }
-
-    function handleKeyboardShow(event: KeyboardEvent) {
-      setKeyboardHeight(event.endCoordinates.height);
-    }
-
-    function handleKeyboardHide() {
-      setKeyboardHeight(0);
-    }
-
-    const showSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      handleKeyboardShow,
-    );
-    const hideSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      handleKeyboardHide,
-    );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, [visible]);
-
-  const isKeyboardVisible = keyboardHeight > 0;
-  const modalMaxHeight = isKeyboardVisible
-    ? Dimensions.get('window').height - keyboardHeight - insets.top - 24
-    : undefined;
+  const {
+    isKeyboardVisible,
+    overlayKeyboardStyle,
+    modalKeyboardStyle,
+    onOverlayLayout,
+  } = useKeyboardModalLift(visible);
 
   return (
     <Modal
@@ -77,35 +43,26 @@ export function ChangePasswordModal({
       onRequestClose={presenter.handleClose}
     >
       <View
-        style={[
-          styles.modalOverlay,
-          isKeyboardVisible && { paddingBottom: keyboardHeight },
-        ]}
+        style={[styles.modalOverlay, overlayKeyboardStyle]}
+        onLayout={onOverlayLayout}
       >
-        <View
-          style={[
-            styles.modalContent,
-            modalMaxHeight != null && {
-              maxHeight: modalMaxHeight,
-              overflow: 'hidden',
-            },
-          ]}
-        >
+        <View style={[styles.modalContent, modalKeyboardStyle]}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Change Password</Text>
+            <TouchableOpacity
+              onPress={presenter.handleClose}
+              style={styles.closeButton}
+            >
+              <MaterialIcons name="close" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
           <ScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="always"
             style={isKeyboardVisible ? styles.modalBodyScroll : undefined}
+            bounces={false}
           >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Change Password</Text>
-              <TouchableOpacity
-                onPress={presenter.handleClose}
-                style={styles.closeButton}
-              >
-                <MaterialIcons name="close" size={24} color="#94A3B8" />
-              </TouchableOpacity>
-            </View>
-
             <PasswordInput
               label="Current Password"
               placeholder="Enter current password"

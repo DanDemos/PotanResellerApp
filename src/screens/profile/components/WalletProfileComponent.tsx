@@ -37,6 +37,7 @@ export function WalletProfileComponent({
     navigateToRepayHistory,
     navigateToCoinHistory,
   } = useWalletProfilePresenter(user, navigation);
+  const canRepay = Number(user.money_debt || 0) > 0;
 
   return (
     <View style={styles.section}>
@@ -80,7 +81,7 @@ export function WalletProfileComponent({
                 style={styles.historyIconBtn}
                 onPress={navigateToMoneyHistory}
               >
-                <MaterialIcons name="history" size={20} color="#666" />
+                <MaterialIcons name="history" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -97,7 +98,7 @@ export function WalletProfileComponent({
                 <MaterialIcons
                   name="account-balance-wallet"
                   size={18}
-                  color="#666"
+                  color={colors.textSecondary}
                 />
                 <Text style={styles.loanButtonText}>Loan</Text>
               </TouchableOpacity>
@@ -105,42 +106,42 @@ export function WalletProfileComponent({
                 style={styles.historyIconBtn}
                 onPress={navigateToPendingLoans}
               >
-                <MaterialIcons name="history" size={20} color="#666" />
+                <MaterialIcons name="history" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
-            {Number(user.money_debt || 0) > 0 && (
-              <View style={styles.actionRow}>
-                <TouchableOpacity
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[
+                  styles.walletActionButton,
+                  styles.historyButton,
+                  styles.compactActionButton,
+                  !canRepay && styles.disabledActionButton,
+                ]}
+                onPress={openRepayModal}
+                disabled={!canRepay}
+              >
+                <MaterialIcons
+                  name="payments"
+                  size={18}
+                  color={canRepay ? colors.primary : colors.muted}
+                />
+                <Text
                   style={[
-                    styles.walletActionButton,
-                    styles.historyButton,
-                    styles.compactActionButton,
+                    styles.historyButtonText,
+                    { color: canRepay ? colors.primary : colors.muted },
                   ]}
-                  onPress={openRepayModal}
                 >
-                  <MaterialIcons
-                    name="payments"
-                    size={18}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={[
-                      styles.historyButtonText,
-                      { color: colors.primary },
-                    ]}
-                  >
-                    Repay
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.historyIconBtn}
-                  onPress={navigateToRepayHistory}
-                >
-                  <MaterialIcons name="history" size={20} color="#666" />
-                </TouchableOpacity>
-              </View>
-            )}
+                  Repay
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.historyIconBtn}
+                onPress={navigateToRepayHistory}
+              >
+                <MaterialIcons name="history" size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -192,7 +193,7 @@ export function WalletProfileComponent({
                 style={styles.historyIconBtn}
                 onPress={navigateToCoinHistory}
               >
-                <MaterialIcons name="history" size={20} color="#666" />
+                <MaterialIcons name="history" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>

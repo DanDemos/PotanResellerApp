@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRepayHistoryInteractor } from './RepayHistoryInteractor';
 import { useHistoryRouter } from '../HistoryRouter';
 import { RepayRequest } from '@/api/actions/wallet/walletAPIDataTypes';
+import { colors } from '@/global/theme/colors';
 
 export function useRepayHistoryPresentor(navigation: any) {
   const [historyItems, setHistoryItems] = useState<RepayRequest[]>([]);
@@ -47,9 +48,9 @@ export function useRepayHistoryPresentor(navigation: any) {
         return { bg: '#DCFCE7', text: '#166534' };
       case 'rejected':
       case 'failed':
-        return { bg: '#FEE2E2', text: '#991B1B' };
+        return { bg: colors.errorLight, text: colors.error };
       default:
-        return { bg: '#FEF3C7', text: '#D97706' };
+        return { bg: colors.warningLight, text: colors.warning };
     }
   }, []);
 

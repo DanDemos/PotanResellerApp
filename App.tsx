@@ -126,7 +126,7 @@ function CustomDrawerContent(props: any): React.ReactNode {
         onPress={handleLogout}
         labelStyle={{ color: colors.white, fontWeight: '700' }}
         style={{
-          backgroundColor: '#ff4444',
+          backgroundColor: colors.error,
           borderRadius: 8,
           marginHorizontal: 10,
           marginTop: 20,

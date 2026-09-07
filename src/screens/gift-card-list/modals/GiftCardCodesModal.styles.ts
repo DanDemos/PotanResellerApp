@@ -16,18 +16,32 @@ export const styles = StyleSheet.create({
     maxWidth: 400,
     maxHeight: '70%',
   },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    flexShrink: 0,
+  },
   modalTitle: {
+    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 8,
-    textAlign: 'center',
+    marginRight: 8,
+  },
+  headerCloseButton: {
+    padding: 4,
   },
   modalSubtitle: {
     fontSize: 14,
     color: colors.textSecondary,
     marginBottom: 20,
     textAlign: 'center',
+  },
+  codesList: {
+    flexGrow: 0,
+    flexShrink: 1,
   },
   listContent: {
     paddingBottom: 8,

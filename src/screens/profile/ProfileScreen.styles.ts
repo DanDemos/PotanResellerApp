@@ -260,6 +260,9 @@ export const styles = StyleSheet.create({
   historyButton: {
     backgroundColor: colors.backgroundLight,
   },
+  disabledActionButton: {
+    opacity: 0.5,
+  },
   historyButtonText: {
     fontSize: 14,
     fontWeight: '600',
@@ -328,14 +331,14 @@ export const styles = StyleSheet.create({
     elevation: 10,
   },
   modalBodyScroll: {
-    flexGrow: 0,
-    flexShrink: 1,
+    flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    flexShrink: 0,
   },
   modalTitle: {
     fontSize: 20,

@@ -54,7 +54,7 @@ export function PendingLoansScreen({ navigation }: any): React.ReactNode {
   if (presenter.error) {
     return (
       <View style={styles.center}>
-        <MaterialIcons name="error-outline" size={60} color="#EF4444" />
+        <MaterialIcons name="error-outline" size={60} color={colors.error} />
         <Text style={styles.errorText}>
           {(presenter.error as any)?.data?.message || 'Failed to load pending loans'}
         </Text>
@@ -89,7 +89,7 @@ export function PendingLoansScreen({ navigation }: any): React.ReactNode {
             <MaterialIcons
               name="account-balance-wallet"
               size={80}
-              color="#E2E8F0"
+              color={colors.border}
             />
             <Text style={styles.emptyText}>No pending loans found.</Text>
           </View>

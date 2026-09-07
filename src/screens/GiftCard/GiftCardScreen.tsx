@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,20 +16,34 @@ import { Category } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { useGiftCardsPresentor } from '@/features/gift-cards/GiftCardsPresentor';
 import { getImageUrl } from '@/global/utils/imageUtils';
 import { useGameChannelsPresentor } from '@/features/game-channels/GameChannelsPresentor';
-import { NotificationListModal } from '@/components/NotificationListModal';
 import { MainHeader } from '@/components/MainHeader';
 
-export function GiftCardScreen({ navigation }: any): React.ReactNode {
-  const giftCardsPresenter = useGiftCardsPresentor(navigation);
-  const gameChannelsPresenter = useGameChannelsPresentor(navigation);
+type GiftCardBodyProps = {
+  categories: Category[];
+  categoriesIsLoading: boolean;
+  categoriesError: unknown;
+  categoriesIsFetching: boolean;
+  page: number;
+  onRetry: () => void;
+  onRefresh: () => void;
+  onOpenCategory: (id: number, name: string) => void;
+};
 
-  function renderCategoryItem({ item }: { item: Category }) {
-    return (
+const GiftCardBody = memo(function GiftCardBody({
+  categories,
+  categoriesIsLoading,
+  categoriesError,
+  categoriesIsFetching,
+  page,
+  onRetry,
+  onRefresh,
+  onOpenCategory,
+}: GiftCardBodyProps): React.ReactNode {
+  const renderCategoryItem = useCallback(
+    ({ item }: { item: Category }) => (
       <TouchableOpacity
         style={styles.channelItem}
-        onPress={() => {
-          giftCardsPresenter.navigateToProductList(item.id, item.name);
-        }}
+        onPress={() => onOpenCategory(item.id, item.name)}
         activeOpacity={0.6}
       >
         <View style={styles.avatarContainer}>
@@ -58,8 +72,51 @@ export function GiftCardScreen({ navigation }: any): React.ReactNode {
           </View>
         </View>
       </TouchableOpacity>
+    ),
+    [onOpenCategory],
+  );
+
+  if (categoriesIsLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
     );
   }
+
+  if (categoriesError) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Failed to load categories.</Text>
+        <TouchableOpacity onPress={onRetry} style={styles.retryButton}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={categories}
+      keyExtractor={item => item.id.toString()}
+      renderItem={renderCategoryItem}
+      contentContainerStyle={styles.listContent}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      onRefresh={onRefresh}
+      refreshing={categoriesIsFetching && page === 1}
+      ListEmptyComponent={
+        <View style={styles.emptyContainer}>
+          <MaterialIcons name="card-giftcard" size={64} color={colors.muted} />
+          <Text style={styles.emptyText}>There is no gift card.</Text>
+        </View>
+      }
+    />
+  );
+});
+
+export function GiftCardScreen({ navigation }: any): React.ReactNode {
+  const giftCardsPresenter = useGiftCardsPresentor(navigation);
+  const gameChannelsPresenter = useGameChannelsPresentor(navigation);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -71,45 +128,16 @@ export function GiftCardScreen({ navigation }: any): React.ReactNode {
         presenter={gameChannelsPresenter}
       />
 
-      <NotificationListModal presenter={gameChannelsPresenter} />
-
-      {/* Category List */}
-      {giftCardsPresenter.categoriesIsLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : giftCardsPresenter.categoriesError ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>Failed to load categories.</Text>
-          <TouchableOpacity
-            onPress={() => giftCardsPresenter.categoriesRefetch()}
-            style={styles.retryButton}
-          >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={giftCardsPresenter.categoriesData?.data || []}
-          keyExtractor={item => item.id.toString()}
-          renderItem={renderCategoryItem}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onRefresh={() => {
-            giftCardsPresenter.handleMainRefresh();
-          }}
-          refreshing={
-            giftCardsPresenter.categoriesIsFetching &&
-            giftCardsPresenter.page === 1
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <MaterialIcons name="card-giftcard" size={64} color={colors.muted} />
-              <Text style={styles.emptyText}>There is no gift card.</Text>
-            </View>
-          }
-        />
-      )}
+      <GiftCardBody
+        categories={giftCardsPresenter.categoriesData?.data || []}
+        categoriesIsLoading={giftCardsPresenter.categoriesIsLoading}
+        categoriesError={giftCardsPresenter.categoriesError}
+        categoriesIsFetching={giftCardsPresenter.categoriesIsFetching}
+        page={giftCardsPresenter.page}
+        onRetry={giftCardsPresenter.categoriesRefetch}
+        onRefresh={giftCardsPresenter.handleMainRefresh}
+        onOpenCategory={giftCardsPresenter.navigateToProductList}
+      />
     </SafeAreaView>
   );
 }

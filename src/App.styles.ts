@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#ef4444',
+    backgroundColor: colors.error,
     borderRadius: 9,
     minWidth: 18,
     height: 18,

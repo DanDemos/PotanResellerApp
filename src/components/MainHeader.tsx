@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
 import { styles as appStyles } from '@/App.styles';
 import { styles } from './MainHeader.styles';
+import { NotificationListModal } from './NotificationListModal';
 
-interface MainHeaderProps {
+type MainHeaderProps = {
   title: string;
   onMenuPress: () => void;
   presenter: any;
-}
+};
 
-export function MainHeader({ title, onMenuPress, presenter }: MainHeaderProps): React.ReactNode {
+export function MainHeader({
+  title,
+  onMenuPress,
+  presenter,
+}: MainHeaderProps): React.ReactNode {
+  // Local visibility so open/close doesn't re-render the screen FlatList.
+  const [showNotifications, setShowNotifications] = useState(false);
+
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={onMenuPress}>
@@ -20,7 +28,7 @@ export function MainHeader({ title, onMenuPress, presenter }: MainHeaderProps): 
       <Text style={appStyles.headerTitle}>{title}</Text>
       <View style={appStyles.headerActions}>
         <TouchableOpacity
-          onPress={() => presenter.setShowNotifications(true)}
+          onPress={() => setShowNotifications(true)}
           style={appStyles.iconButton}
         >
           <View>
@@ -47,6 +55,12 @@ export function MainHeader({ title, onMenuPress, presenter }: MainHeaderProps): 
           <MaterialIcons name="person" size={26} color={colors.primary} />
         </TouchableOpacity>
       </View>
+
+      <NotificationListModal
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        presenter={presenter}
+      />
     </View>
   );
 }

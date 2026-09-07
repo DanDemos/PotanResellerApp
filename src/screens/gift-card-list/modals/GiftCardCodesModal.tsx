@@ -54,9 +54,18 @@ export function GiftCardCodesModal({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>
-            {isSingleCode ? 'Gift Card Code' : 'Gift Card Codes'}
-          </Text>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>
+              {isSingleCode ? 'Gift Card Code' : 'Gift Card Codes'}
+            </Text>
+            <TouchableOpacity
+              onPress={presenter.closeGiftCardCodesModal}
+              style={styles.headerCloseButton}
+              accessibilityLabel="Close"
+            >
+              <MaterialIcons name="close" size={24} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.modalSubtitle}>
             {isSingleCode
               ? 'Here is your gift card code.'
@@ -64,6 +73,7 @@ export function GiftCardCodesModal({
           </Text>
 
           <FlatList
+            style={styles.codesList}
             data={codes}
             keyExtractor={(item, index) => `${item}-${index}`}
             contentContainerStyle={styles.listContent}

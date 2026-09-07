@@ -53,9 +53,18 @@ export function BuyGiftCardModal({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>
-            {step === 1 ? 'Select Quantity' : 'Confirm Purchase'}
-          </Text>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>
+              {step === 1 ? 'Select Quantity' : 'Confirm Purchase'}
+            </Text>
+            <TouchableOpacity
+              onPress={presenter.closeBuyModal}
+              style={styles.headerCloseButton}
+              accessibilityLabel="Close"
+            >
+              <MaterialIcons name="close" size={24} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.modalSubtitle} numberOfLines={2}>
             {item.name}
           </Text>

@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { styles } from './PubgIdInputModal.styles';
 import { colors } from '@/global/theme/colors';
 
@@ -37,7 +38,16 @@ export function PubgIdInputModal({
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>PUBG Account</Text>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>PUBG Account</Text>
+            <TouchableOpacity
+              onPress={presenter.closePubgIdModal}
+              style={styles.headerCloseButton}
+              accessibilityLabel="Close"
+            >
+              <MaterialIcons name="close" size={24} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.modalSubtitle}>
             Enter your PUBG ID to auto top up after purchase.
           </Text>

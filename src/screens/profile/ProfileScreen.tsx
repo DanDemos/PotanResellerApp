@@ -146,7 +146,7 @@ export function ProfileScreen(): React.ReactNode {
           >
             <MaterialIcons name="lock" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Change Password</Text>
-            <MaterialIcons name="chevron-right" size={24} color="#ccc" />
+            <MaterialIcons name="chevron-right" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -156,7 +156,7 @@ export function ProfileScreen(): React.ReactNode {
           >
             <MaterialIcons name="help" size={24} color={colors.primary} />
             <Text style={styles.actionButtonText}>Help & Support</Text>
-            <MaterialIcons name="chevron-right" size={24} color="#ccc" />
+            <MaterialIcons name="chevron-right" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,9 +13,9 @@ import { styles } from './NotificationListModal.styles';
 import { NotificationItem } from '@/api/actions/user/userAPIDataTypes';
 
 type NotificationListModalProps = {
+  visible: boolean;
+  onClose: () => void;
   presenter: {
-    showNotifications: boolean;
-    setShowNotifications: (visible: boolean) => void;
     notiData?: { unread: number } | null;
     handleMarkAllAsRead: () => void;
     notifications: NotificationItem[];
@@ -25,14 +25,51 @@ type NotificationListModalProps = {
     notiIsFetching: boolean;
     notiPage: number;
     notiIsLoading: boolean;
-    getNotificationMeta: (item: NotificationItem) => { kind?: string } | undefined;
-    isCustomProductPurchaseSuccessMeta: (meta: { kind?: string } | undefined) => boolean;
+    getNotificationMeta: (item: NotificationItem) =>
+      | { kind?: string }
+      | undefined;
+    isCustomProductPurchaseSuccessMeta: (
+      meta: { kind?: string } | undefined,
+    ) => boolean;
   };
 };
 
 export function NotificationListModal({
+  visible,
+  onClose,
   presenter,
 }: NotificationListModalProps): React.ReactNode {
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleRefreshNotiRef = useRef(presenter.handleRefreshNoti);
+  handleRefreshNotiRef.current = presenter.handleRefreshNoti;
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  function handleClose() {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+      refreshTimeoutRef.current = null;
+    }
+    onClose();
+  }
+
+  function handleModalShow() {
+    // Defer refresh so the modal paints before the list refetch work starts.
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+    refreshTimeoutRef.current = setTimeout(() => {
+      refreshTimeoutRef.current = null;
+      handleRefreshNotiRef.current();
+    }, 0);
+  }
+
   function renderNotificationItem({
     item,
   }: {
@@ -63,6 +100,16 @@ export function NotificationListModal({
           <Text style={styles.notificationBody} numberOfLines={2}>
             {item.message}
           </Text>
+          {canCopySkuCode ? (
+            <View style={styles.copyHintRow}>
+              <MaterialIcons
+                name="content-copy"
+                size={14}
+                color={colors.primary}
+              />
+              <Text style={styles.copyHintText}>Tap to copy code</Text>
+            </View>
+          ) : null}
         </View>
       </TouchableOpacity>
     );
@@ -70,17 +117,21 @@ export function NotificationListModal({
 
   return (
     <Modal
-      visible={presenter.showNotifications}
+      visible={visible}
       transparent
-      animationType="fade"
-      onRequestClose={() => presenter.setShowNotifications(false)}
+      animationType="none"
+      onShow={handleModalShow}
+      onRequestClose={handleClose}
     >
       <TouchableOpacity
         style={styles.modalOverlay}
         activeOpacity={1}
-        onPress={() => presenter.setShowNotifications(false)}
+        onPress={handleClose}
       >
-        <View style={styles.dropdownContainer}>
+        <View
+          style={styles.dropdownContainer}
+          onStartShouldSetResponder={() => true}
+        >
           <View style={styles.dropdownHeader}>
             <Text style={styles.dropdownTitle}>Notifications</Text>
             {presenter.notiData && presenter.notiData.unread > 0 && (

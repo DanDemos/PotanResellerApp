@@ -15,12 +15,22 @@ export const styles = StyleSheet.create({
     width: '85%',
     maxWidth: 400,
   },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    flexShrink: 0,
+  },
   modalTitle: {
+    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 8,
-    textAlign: 'center',
+    marginRight: 8,
+  },
+  headerCloseButton: {
+    padding: 4,
   },
   modalSubtitle: {
     fontSize: 14,

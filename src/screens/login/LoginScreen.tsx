@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,6 @@ import {
   ActivityIndicator,
   Image,
   ScrollView,
-  Keyboard,
-  Platform,
-  type KeyboardEvent,
 } from 'react-native';
 import Logo from '@/assets/logo.png';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,38 +15,13 @@ import { PasswordInput } from '@/components/common/PasswordInput/PasswordInput';
 import { styles } from './LoginScreen.styles';
 import { colors } from '@/global/theme/colors';
 import { useLoginPresenter } from '@/features/auth/login/LoginPresenter';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 
 export function LoginScreen({ navigation }: any): React.ReactNode {
   const presenter = useLoginPresenter(navigation);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
   const passwordInputRef = useRef<TextInput>(null);
   const onSignIn = presenter.handleSubmit(presenter.onSubmit);
-
-  useEffect(() => {
-    function handleKeyboardShow(event: KeyboardEvent) {
-      setKeyboardHeight(event.endCoordinates.height);
-    }
-
-    function handleKeyboardHide() {
-      setKeyboardHeight(0);
-    }
-
-    const showSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      handleKeyboardShow,
-    );
-    const hideSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      handleKeyboardHide,
-    );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  const isKeyboardVisible = keyboardHeight > 0;
 
   return (
     <SafeAreaView
@@ -82,7 +54,7 @@ export function LoginScreen({ navigation }: any): React.ReactNode {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your phone number"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor={colors.textSecondary}
                   value={value}
                   onChangeText={onChange}
                   keyboardType="phone-pad"

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { styles } from './PasswordInput.styles';
+import { colors } from '@/global/theme/colors';
 
 type PasswordInputProps = TextInputProps & {
   label?: string;
@@ -30,7 +31,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
           <TextInput
             ref={ref}
             style={styles.passwordInput}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.textSecondary}
             {...textInputProps}
             secureTextEntry={!showPassword}
           />
@@ -42,7 +43,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
-              color="#9ca3af"
+              color={colors.textSecondary}
             />
           </TouchableOpacity>
         </View>
