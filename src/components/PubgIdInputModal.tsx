@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { styles } from './PubgIdInputModal.styles';
 import { colors } from '@/global/theme/colors';
@@ -27,9 +29,13 @@ export function PubgIdInputModal({
       visible={presenter.isPubgIdModalVisible}
       transparent
       animationType="fade"
+      presentationStyle="overFullScreen"
       onRequestClose={presenter.closePubgIdModal}
     >
-      <View style={styles.modalOverlay}>
+      <KeyboardAvoidingView
+        style={styles.modalOverlay}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>PUBG Account</Text>
           <Text style={styles.modalSubtitle}>
@@ -45,6 +51,10 @@ export function PubgIdInputModal({
             onChangeText={presenter.setPubgId}
             autoCapitalize="none"
             autoCorrect={false}
+            autoFocus
+            returnKeyType="go"
+            enablesReturnKeyAutomatically
+            onSubmitEditing={presenter.handlePubgIdSubmit}
           />
 
           <View style={styles.actionContainer}>
@@ -63,7 +73,7 @@ export function PubgIdInputModal({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

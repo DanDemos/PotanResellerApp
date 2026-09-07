@@ -90,6 +90,26 @@ export type Product = {
   uuid: string;
 };
 
+export type GameChatChannelLastMessage = {
+  id: number;
+  channel_id: number;
+  sender_id: number;
+  body: string;
+  kind?: 'user' | 'bot' | string;
+  read_at: string | null;
+  created_at: string;
+  sender?: User;
+};
+
+export type GameChatChannel = {
+  id: number;
+  uuid: string;
+  game_id: number;
+  user_id: number;
+  updated_at: string;
+  last_message: GameChatChannelLastMessage | null;
+};
+
 export type GameItem = {
   id: number;
   name: string;
@@ -99,9 +119,10 @@ export type GameItem = {
   active: number;
   created_at: string;
   updated_at: string;
-  region: GameRegion; // Note: reuse GameRegion but it doesn't have pivot in this case
+  region: GameRegion;
   servers: Server[];
   products: Product[];
+  chat_channels?: GameChatChannel[];
 };
 
 export type GetChannelsResponse = {

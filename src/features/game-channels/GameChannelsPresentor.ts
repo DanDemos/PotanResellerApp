@@ -63,16 +63,28 @@ export function useGameChannelsPresentor(navigation: any) {
 
   // Transform channels for display
   const processedChannels = useMemo(() => {
-    return allChannels.map(gameItem => ({
-      ...gameItem,
-      displayTitle: `${gameItem.name.charAt(0).toUpperCase() + gameItem.name.slice(1)} - ${gameItem.region.name}`,
-      game: {
-        id: gameItem.id,
-        uuid: gameItem.uuid,
-        name: gameItem.name,
-      },
-      last_message: null,
-    }));
+    return allChannels.map(gameItem => {
+      const chatChannels = Array.isArray(gameItem.chat_channels)
+        ? gameItem.chat_channels
+        : [];
+
+      const latestChannel = [...chatChannels].sort((a, b) => {
+        const aTime = new Date(a.last_message?.created_at || a.updated_at || 0).getTime();
+        const bTime = new Date(b.last_message?.created_at || b.updated_at || 0).getTime();
+        return bTime - aTime;
+      })[0];
+
+      return {
+        ...gameItem,
+        displayTitle: `${gameItem.name.charAt(0).toUpperCase() + gameItem.name.slice(1)} - ${gameItem.region.name}`,
+        game: {
+          id: gameItem.id,
+          uuid: gameItem.uuid,
+          name: gameItem.name,
+        },
+        last_message: latestChannel?.last_message ?? null,
+      };
+    });
   }, [allChannels]);
 
   useEffect(() => {
