@@ -15,9 +15,9 @@ import { styles } from './GiftCardListScreen.styles';
 import { useGiftCardListPresentor } from '@/features/gift-cards/GiftCardListPresentor';
 import { GiftCard } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
-import { BuyGiftCardModal } from '@/components/BuyGiftCardModal';
-import { PubgIdInputModal } from '@/components/PubgIdInputModal';
-import { GiftCardCodesModal } from '@/components/GiftCardCodesModal';
+import { BuyGiftCardModal } from './modals/BuyGiftCardModal';
+import { PubgIdInputModal } from './modals/PubgIdInputModal';
+import { GiftCardCodesModal } from './modals/GiftCardCodesModal';
 
 export function GiftCardListScreen({
   navigation,
