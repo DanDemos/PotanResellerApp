@@ -9,6 +9,7 @@ import {
   PurchaseGiftCardResponse,
   RedeemKokosResponse,
 } from '@/api/actions/gift-card/giftCardAPIDataTypes';
+import { GiftCardCodesProductInfo } from '@/screens/gift-card-list/modals/GiftCardCodesModal';
 
 function isPubgCategory(giftCard: GiftCard): boolean {
   return giftCard.category?.name?.trim().toUpperCase() === 'PUBG';
@@ -121,6 +122,10 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
   const [pendingPubgId, setPendingPubgId] = useState<string | null>(null);
   const [isGiftCardCodesModalVisible, setIsGiftCardCodesModalVisible] = useState(false);
   const [purchasedGiftCardCodes, setPurchasedGiftCardCodes] = useState<string[]>([]);
+  const [giftCardCodesProductInfo, setGiftCardCodesProductInfo] =
+    useState<GiftCardCodesProductInfo | null>(null);
+  const [pendingCodesProductInfo, setPendingCodesProductInfo] =
+    useState<GiftCardCodesProductInfo | null>(null);
   const [isTopUpErrorModalVisible, setIsTopUpErrorModalVisible] = useState(false);
   const [topUpErrorTitle, setTopUpErrorTitle] = useState('Auto Redeem Failed');
   const [topUpErrorMessage, setTopUpErrorMessage] = useState('');
@@ -202,21 +207,32 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
   const closeGiftCardCodesModal = useCallback(() => {
     setIsGiftCardCodesModalVisible(false);
     setPurchasedGiftCardCodes([]);
+    setGiftCardCodesProductInfo(null);
   }, []);
 
-  const showGiftCardCodesModal = useCallback((codes: string[]) => {
-    if (codes.length === 0) {
-      return;
-    }
-    setPurchasedGiftCardCodes(codes);
-    setIsGiftCardCodesModalVisible(true);
-  }, []);
+  const showGiftCardCodesModal = useCallback(
+    (codes: string[], productInfo?: GiftCardCodesProductInfo | null) => {
+      if (codes.length === 0) {
+        return;
+      }
+      setPurchasedGiftCardCodes(codes);
+      setGiftCardCodesProductInfo(productInfo ?? null);
+      setIsGiftCardCodesModalVisible(true);
+    },
+    [],
+  );
 
   const showTopUpErrorModal = useCallback(
-    (title: string, message: string, codes: string[]) => {
+    (
+      title: string,
+      message: string,
+      codes: string[],
+      productInfo?: GiftCardCodesProductInfo | null,
+    ) => {
       setTopUpErrorTitle(title);
       setTopUpErrorMessage(message);
       setPendingCodesAfterError(codes);
+      setPendingCodesProductInfo(productInfo ?? null);
       setIsTopUpErrorModalVisible(true);
     },
     [],
@@ -224,12 +240,14 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
 
   const handleTopUpErrorViewCodes = useCallback(() => {
     const codes = pendingCodesAfterError;
+    const productInfo = pendingCodesProductInfo;
     setIsTopUpErrorModalVisible(false);
     setTopUpErrorTitle('Auto Redeem Failed');
     setTopUpErrorMessage('');
     setPendingCodesAfterError([]);
-    showGiftCardCodesModal(codes);
-  }, [pendingCodesAfterError, showGiftCardCodesModal]);
+    setPendingCodesProductInfo(null);
+    showGiftCardCodesModal(codes, productInfo);
+  }, [pendingCodesAfterError, pendingCodesProductInfo, showGiftCardCodesModal]);
 
   const handlePubgIdSubmit = useCallback(() => {
     const trimmedPubgId = pubgId.trim();
@@ -298,6 +316,10 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
 
       const accountIdForTopUp = pendingPubgId;
       const giftCardCodes = normalizeGiftCardCodes(purchaseResult);
+      const productInfo: GiftCardCodesProductInfo = {
+        productName: selectedGiftCard.name,
+        categoryName: selectedGiftCard.category?.name,
+      };
 
       interactor.balanceRefetch();
       interactor.coinsRefetch();
@@ -330,12 +352,17 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
             text1: lastError.text1,
             text2: lastError.text2,
           });
-          showTopUpErrorModal(lastError.text1, lastError.text2, giftCardCodes);
+          showTopUpErrorModal(
+            lastError.text1,
+            lastError.text2,
+            giftCardCodes,
+            productInfo,
+          );
         }
         return;
       }
 
-      showGiftCardCodesModal(giftCardCodes);
+      showGiftCardCodesModal(giftCardCodes, productInfo);
 
       if (giftCardCodes.length === 0) {
         Toast.show({
@@ -403,6 +430,7 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
       closePubgIdModal,
       isGiftCardCodesModalVisible,
       purchasedGiftCardCodes,
+      giftCardCodesProductInfo,
       closeGiftCardCodesModal,
       isTopUpErrorModalVisible,
       topUpErrorTitle,
@@ -427,6 +455,7 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
       closePubgIdModal,
       isGiftCardCodesModalVisible,
       purchasedGiftCardCodes,
+      giftCardCodesProductInfo,
       closeGiftCardCodesModal,
       isTopUpErrorModalVisible,
       topUpErrorTitle,

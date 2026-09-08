@@ -118,6 +118,7 @@ export function ChatScreen(): React.ReactNode {
       type: 'success',
       text1: 'Copied',
       text2: 'Message copied to clipboard.',
+      visibilityTime: 400,
     });
   }, []);
 

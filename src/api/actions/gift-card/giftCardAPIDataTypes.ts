@@ -165,17 +165,19 @@ export type PurchaseHistoryItem = {
   id: number;
   custom_product_id: number;
   user_id: number;
-  image_path: string;
+  image_path: string | null;
   status: 'pending' | 'approved' | 'rejected' | string;
   approved_by: number | null;
   approved_at: string | null;
   rejected_by: number | null;
   rejected_at: string | null;
   reject_reason: string | null;
+  sku_id: number | null;
   created_at: string;
   updated_at: string;
   custom_product: GiftCard;
   user: User;
+  sku?: PurchasedGiftCardSku | null;
 };
 
 export type GetGiftCardHistoryResponse = {

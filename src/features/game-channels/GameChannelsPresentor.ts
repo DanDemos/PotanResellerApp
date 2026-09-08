@@ -7,6 +7,7 @@ import {
   NotificationMeta,
 } from '@/api/actions/user/userAPIDataTypes';
 import { parseUtcToLocalDate } from '@/global/utils/dateUtils';
+import { GiftCardCodesProductInfo } from '@/screens/gift-card-list/modals/GiftCardCodesModal';
 
 function getNotificationMeta(item: NotificationItem): NotificationMeta | undefined {
   return item.meta ?? item.data?.meta;
@@ -71,6 +72,8 @@ export function useGameChannelsPresentor(navigation: any) {
   const [purchasedGiftCardCodes, setPurchasedGiftCardCodes] = useState<
     string[]
   >([]);
+  const [giftCardCodesProductInfo, setGiftCardCodesProductInfo] =
+    useState<GiftCardCodesProductInfo | null>(null);
 
   const interactor = useGameChannelsInteractor(notiPage, channelsPage);
   const router = useGameChannelsRouter(navigation);
@@ -184,24 +187,37 @@ export function useGameChannelsPresentor(navigation: any) {
     notiRefetch();
   }, [notiRefetch]);
 
-  const showGiftCardCodesModal = useCallback((codes: string[]) => {
-    if (codes.length === 0) {
-      return;
-    }
-    setPurchasedGiftCardCodes(codes);
-    setIsGiftCardCodesModalVisible(true);
-  }, []);
+  const showGiftCardCodesModal = useCallback(
+    (codes: string[], productInfo?: GiftCardCodesProductInfo | null) => {
+      if (codes.length === 0) {
+        return;
+      }
+      setPurchasedGiftCardCodes(codes);
+      setGiftCardCodesProductInfo(productInfo ?? null);
+      setIsGiftCardCodesModalVisible(true);
+    },
+    [],
+  );
 
   const closeGiftCardCodesModal = useCallback(() => {
     setIsGiftCardCodesModalVisible(false);
     setPurchasedGiftCardCodes([]);
+    setGiftCardCodesProductInfo(null);
   }, []);
 
   const handleNotificationClick = useCallback(
     async (item: NotificationItem) => {
       const codes = getPurchaseSuccessCodes(item);
       if (codes.length > 0) {
-        showGiftCardCodesModal(codes);
+        const meta = getNotificationMeta(item);
+        const productInfo: GiftCardCodesProductInfo | null =
+          isCustomProductPurchaseSuccessMeta(meta)
+            ? {
+                productName: meta.product_name,
+                categoryName: meta.category_name,
+              }
+            : null;
+        showGiftCardCodesModal(codes, productInfo);
       }
 
       if (!item.read_at) {
@@ -259,6 +275,7 @@ export function useGameChannelsPresentor(navigation: any) {
     getPurchaseSuccessCodes,
     isGiftCardCodesModalVisible,
     purchasedGiftCardCodes,
+    giftCardCodesProductInfo,
     closeGiftCardCodesModal,
     showGiftCardCodesModal,
   };

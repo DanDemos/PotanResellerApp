@@ -12,10 +12,16 @@ import Toast from 'react-native-toast-message';
 import { styles } from './GiftCardCodesModal.styles';
 import { colors } from '@/global/theme/colors';
 
+export type GiftCardCodesProductInfo = {
+  productName?: string | null;
+  categoryName?: string | null;
+};
+
 type GiftCardCodesModalProps = {
   presenter: {
     isGiftCardCodesModalVisible: boolean;
     purchasedGiftCardCodes: string[];
+    giftCardCodesProductInfo?: GiftCardCodesProductInfo | null;
     closeGiftCardCodesModal: () => void;
   };
 };
@@ -24,15 +30,32 @@ export function GiftCardCodesModal({
   presenter,
 }: GiftCardCodesModalProps): React.ReactNode {
   const codes = presenter.purchasedGiftCardCodes;
+  const productName = presenter.giftCardCodesProductInfo?.productName?.trim() || '';
+  const categoryName =
+    presenter.giftCardCodesProductInfo?.categoryName?.trim() || '';
   const isSingleCode = codes.length === 1;
   const showCopyAll = codes.length > 1;
+
+  const title =
+    productName || (isSingleCode ? 'Redeem Code' : 'Redeem Codes');
+
+  let subtitle: string;
+  if (productName || categoryName) {
+    subtitle = isSingleCode
+      ? 'Redeem code'
+      : `${codes.length} redeem codes`;
+  } else {
+    subtitle = isSingleCode
+      ? 'Here is your redeem code.'
+      : `You received ${codes.length} redeem codes.`;
+  }
 
   const copyCode = useCallback((code: string) => {
     Clipboard.setString(code);
     Toast.show({
       type: 'success',
       text1: 'Copied',
-      text2: 'Gift card code copied to clipboard.',
+      text2: 'Redeem code copied to clipboard.',
     });
   }, []);
 
@@ -41,7 +64,7 @@ export function GiftCardCodesModal({
     Toast.show({
       type: 'success',
       text1: 'Copied',
-      text2: `All ${codes.length} gift card codes copied to clipboard.`,
+      text2: `All ${codes.length} codes copied to clipboard.`,
     });
   }, [codes]);
 
@@ -55,9 +78,16 @@ export function GiftCardCodesModal({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {isSingleCode ? 'Gift Card Code' : 'Gift Card Codes'}
-            </Text>
+            <View style={styles.titleBlock}>
+              {categoryName ? (
+                <Text style={styles.categoryLabel} numberOfLines={1}>
+                  {categoryName}
+                </Text>
+              ) : null}
+              <Text style={styles.modalTitle} numberOfLines={2}>
+                {title}
+              </Text>
+            </View>
             <TouchableOpacity
               onPress={presenter.closeGiftCardCodesModal}
               style={styles.headerCloseButton}
@@ -66,11 +96,7 @@ export function GiftCardCodesModal({
               <MaterialIcons name="close" size={24} color={colors.muted} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.modalSubtitle}>
-            {isSingleCode
-              ? 'Here is your gift card code.'
-              : `You received ${codes.length} gift card codes.`}
-          </Text>
+          <Text style={styles.modalSubtitle}>{subtitle}</Text>
 
           <FlatList
             style={styles.codesList}
@@ -90,7 +116,7 @@ export function GiftCardCodesModal({
                 <TouchableOpacity
                   style={styles.copyIconButton}
                   onPress={() => copyCode(item)}
-                  accessibilityLabel="Copy gift card code"
+                  accessibilityLabel="Copy code"
                 >
                   <MaterialIcons
                     name="content-copy"
@@ -121,7 +147,7 @@ export function GiftCardCodesModal({
               style={styles.closeButton}
               onPress={presenter.closeGiftCardCodesModal}
             >
-              <Text style={styles.closeButtonText}>Done</Text>
+              <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>

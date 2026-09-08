@@ -16,6 +16,7 @@ import { useGiftCardHistoryPresentor } from '@/features/gift-cards/GiftCardHisto
 import { PurchaseHistoryItem } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
 import { formatHistoryDateTime } from '@/global/utils/dateUtils';
+import { GiftCardCodesModal } from '@/screens/gift-card-list/modals/GiftCardCodesModal';
 
 export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
   const presenter = useGiftCardHistoryPresentor(navigation);
@@ -23,10 +24,14 @@ export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
   function renderHistoryItem({ item }: { item: PurchaseHistoryItem }) {
     const customProduct = item?.custom_product;
     const status = item.status.toLowerCase();
+    const hasCode = Boolean(item.sku?.code?.trim());
 
-    console.log(item, 'itemitem');
     return (
-      <View style={styles.historyCard}>
+      <TouchableOpacity
+        style={styles.historyCard}
+        onPress={() => presenter.handleHistoryItemPress(item)}
+        activeOpacity={0.7}
+      >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
             source={{ uri: getImageUrl(customProduct?.image_path) || '' }}
@@ -88,7 +93,7 @@ export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
             </Text>
           </View>
         )}
-      </View>
+      </TouchableOpacity>
     );
   }
 
@@ -146,6 +151,8 @@ export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
           }
         />
       )}
+
+      <GiftCardCodesModal presenter={presenter} />
     </SafeAreaView>
   );
 }

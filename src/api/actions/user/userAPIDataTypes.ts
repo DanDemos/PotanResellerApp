@@ -37,6 +37,7 @@ export type CustomProductPurchaseSuccessMeta = {
   sku_codes?: string[];
   amount_deducted: number;
   product_name: string;
+  category_name?: string;
 };
 
 export type NotificationMeta =

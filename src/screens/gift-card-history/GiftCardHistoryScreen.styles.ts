@@ -125,6 +125,17 @@ export const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 12,
   },
+  viewCodeHintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  viewCodeHintText: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
   errorText: {
     fontSize: 16,
     color: '#ef4444',

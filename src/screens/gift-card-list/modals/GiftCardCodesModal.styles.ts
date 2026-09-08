@@ -18,17 +18,27 @@ export const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     marginBottom: 8,
     flexShrink: 0,
   },
-  modalTitle: {
+  titleBlock: {
     flex: 1,
+    marginRight: 8,
+  },
+  categoryLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 4,
+  },
+  modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginRight: 8,
   },
   headerCloseButton: {
     padding: 4,
@@ -37,7 +47,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   codesList: {
     flexGrow: 0,
