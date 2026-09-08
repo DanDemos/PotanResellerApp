@@ -35,6 +35,7 @@ yarn android --device=8p5plzrosgqseisk
 
 ### Build Android
 cd android && ./gradlew assembleRelease
+android/app/build/outputs/apk/release/app-release.apk
 
 ### Run iOS
 
