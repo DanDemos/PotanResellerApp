@@ -13,7 +13,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { PendingLoan } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './PendingLoansScreen.styles';
 import { colors } from '@/global/theme/colors';
-import { formatFullDate } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 import { usePendingLoansPresentor } from '@/features/history/PendingLoans/PendingLoansPresentor';
 
 export function PendingLoansScreen({ navigation }: any): React.ReactNode {
@@ -23,7 +23,7 @@ export function PendingLoansScreen({ navigation }: any): React.ReactNode {
     return (
       <View style={styles.card}>
         <View style={styles.headerRow}>
-          <Text style={styles.date}>{formatFullDate(item.created_at)}</Text>
+          <Text style={styles.date}>{formatHistoryDateTime(item.created_at)}</Text>
           <View style={styles.statusBadge}>
             <Text style={styles.statusText}>{item.status}</Text>
           </View>

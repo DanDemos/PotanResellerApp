@@ -15,7 +15,7 @@ import { styles } from './GiftCardHistoryScreen.styles';
 import { useGiftCardHistoryPresentor } from '@/features/gift-cards/GiftCardHistoryPresentor';
 import { PurchaseHistoryItem } from '@/api/actions/gift-card/giftCardAPIDataTypes';
 import { getImageUrl } from '@/global/utils/imageUtils';
-import { formatLocalDateTime } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 
 export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
   const presenter = useGiftCardHistoryPresentor(navigation);
@@ -38,7 +38,7 @@ export function GiftCardHistoryScreen({ navigation }: any): React.ReactNode {
               {customProduct?.name}
             </Text>
             <Text style={styles.dateText}>
-              {formatLocalDateTime(item.created_at)}
+              {formatHistoryDateTime(item.created_at)}
             </Text>
             <View
               style={{

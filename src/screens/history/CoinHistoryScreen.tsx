@@ -12,7 +12,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { CoinHistoryItem } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './CoinHistoryScreen.styles';
 import { colors } from '@/global/theme/colors';
-import { formatHistoryDate } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 import { useCoinHistoryPresentor } from '@/features/history/CoinHistory/CoinHistoryPresentor';
 
 export function CoinHistoryScreen({ navigation }: any): React.ReactNode {
@@ -25,7 +25,7 @@ export function CoinHistoryScreen({ navigation }: any): React.ReactNode {
     return (
       <View style={styles.card}>
         <View style={[styles.row, styles.headerRow]}>
-          <Text style={styles.date}>{formatHistoryDate(item.bucket)}</Text>
+          <Text style={styles.date}>{formatHistoryDateTime(item.bucket)}</Text>
           {isPending && (
             <View style={styles.pendingBadge}>
               <Text style={styles.pendingText}>PENDING</Text>

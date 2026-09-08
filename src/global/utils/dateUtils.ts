@@ -108,20 +108,63 @@ export function formatHistoryDate(dateStr: string): string {
       date.getDate(),
     );
 
-    let prefix = '';
     if (targetDate.getTime() === today.getTime()) {
-      prefix = 'Today, ';
-    } else if (targetDate.getTime() === yesterday.getTime()) {
-      prefix = 'Yesterday, ';
-    } else {
-      prefix = date.toLocaleDateString('en-US', { weekday: 'short' }) + ', ';
+      return 'Today';
     }
 
+    if (targetDate.getTime() === yesterday.getTime()) {
+      return 'Yesterday';
+    }
+
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
     const day = String(date.getDate()).padStart(2, '0');
     const month = date.toLocaleDateString('en-US', { month: 'short' });
     const year = date.getFullYear();
 
-    return `${prefix}${day} ${month} ${year}`;
+    return `${weekday}, ${day} ${month} ${year}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+export function formatHistoryDateTime(dateStr: string): string {
+  try {
+    const date = parseUtcToLocalDate(dateStr);
+    if (!date) {
+      return dateStr;
+    }
+
+    const time = date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const targetDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+    );
+
+    if (targetDate.getTime() === today.getTime()) {
+      return `Today, ${time}`;
+    }
+
+    if (targetDate.getTime() === yesterday.getTime()) {
+      return `Yesterday, ${time}`;
+    }
+
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const year = date.getFullYear();
+
+    return `${weekday}, ${day} ${month} ${year}, ${time}`;
   } catch {
     return dateStr;
   }

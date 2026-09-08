@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   View,
@@ -13,7 +12,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { RepayRequest } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './RepayHistoryScreen.styles';
 import { colors } from '@/global/theme/colors';
-import { formatFullDate } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 import { useRepayHistoryPresentor } from '@/features/history/RepayHistory/RepayHistoryPresentor';
 
 export function RepayHistoryScreen({ navigation }: any): React.ReactNode {
@@ -25,7 +24,9 @@ export function RepayHistoryScreen({ navigation }: any): React.ReactNode {
     return (
       <View style={styles.card}>
         <View style={styles.headerRow}>
-          <Text style={styles.date}>{formatFullDate(item.created_at)}</Text>
+          <Text style={styles.date}>
+            {formatHistoryDateTime(item.created_at)}
+          </Text>
           <View
             style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}
           >
@@ -88,7 +89,8 @@ export function RepayHistoryScreen({ navigation }: any): React.ReactNode {
       <View style={styles.center}>
         <MaterialIcons name="error-outline" size={60} color={colors.error} />
         <Text style={styles.errorText}>
-          {(presenter.error as any)?.data?.message || 'Failed to load repayment history'}
+          {(presenter.error as any)?.data?.message ||
+            'Failed to load repayment history'}
         </Text>
         <TouchableOpacity
           style={{ marginTop: 20, padding: 10 }}

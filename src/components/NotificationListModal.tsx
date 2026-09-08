@@ -11,7 +11,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { colors } from '@/global/theme/colors';
 import { styles } from './NotificationListModal.styles';
 import { NotificationItem } from '@/api/actions/user/userAPIDataTypes';
-import { formatLocalDateTime } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 
 type NotificationListModalProps = {
   visible: boolean;
@@ -99,7 +99,7 @@ export function NotificationListModal({
               {item.title}
             </Text>
             <Text style={styles.notificationTime}>
-              {formatLocalDateTime(item.created_at)}
+              {formatHistoryDateTime(item.created_at)}
             </Text>
           </View>
           <Text style={styles.notificationBody} numberOfLines={2}>

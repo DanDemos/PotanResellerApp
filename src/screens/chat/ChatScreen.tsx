@@ -27,7 +27,7 @@ import {
 } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 import Sound from 'react-native-sound';
 import { useChatKeyboardPadding } from './useChatKeyboardPadding';
-import { formatLocalTime } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -210,7 +210,7 @@ export function ChatScreen(): React.ReactNode {
           )}
         </Pressable>
         <Text style={styles.timestamp}>
-          {formatLocalTime(item.created_at)}
+          {formatHistoryDateTime(item.created_at)}
         </Text>
       </View>
     );

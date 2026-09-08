@@ -85,38 +85,52 @@ export function useGameChannelsPresentor(navigation: any) {
     channelsData,
   } = interactor;
 
-  // Sync channels list
+  // Keep accumulated pages for infinite scroll
   useEffect(() => {
-    if (channelsData?.data) {
-      const filteredData = channelsData.data.filter(
-        c => c.name?.toLowerCase() !== 'sign error',
-      );
-      if (channelsPage === 1) {
-        setAllChannels(filteredData);
-      } else {
-        setAllChannels(prev => {
-          const existingIds = new Set(prev.map(c => c.id));
-          const newChannels = filteredData.filter(c => !existingIds.has(c.id));
-          return [...prev, ...newChannels];
-        });
-      }
+    if (!channelsData?.data) {
+      return;
     }
+
+    const filteredData = channelsData.data.filter(
+      c => c.name?.toLowerCase() !== 'sign error',
+    );
+
+    if (channelsPage === 1) {
+      setAllChannels(filteredData);
+      return;
+    }
+
+    setAllChannels(prev => {
+      const existingIds = new Set(prev.map(c => c.id));
+      const newChannels = filteredData.filter(c => !existingIds.has(c.id));
+      return [...prev, ...newChannels];
+    });
   }, [channelsData, channelsPage]);
 
-  // Transform channels for display
+  // Derive display list synchronously from API data on page 1 to avoid empty-state flash
+  // while waiting for the allChannels sync effect.
   const processedChannels = useMemo(() => {
-    return allChannels.map(gameItem => {
+    const pageChannels = channelsData?.data
+      ? channelsData.data.filter(c => c.name?.toLowerCase() !== 'sign error')
+      : null;
+
+    const source =
+      channelsPage === 1 && pageChannels ? pageChannels : allChannels;
+
+    return source.map(gameItem => {
       const chatChannels = Array.isArray(gameItem.chat_channels)
         ? gameItem.chat_channels
         : [];
 
       const latestChannel = [...chatChannels].sort((a, b) => {
-        const aTime = parseUtcToLocalDate(
-          a.last_message?.created_at || a.updated_at || 0,
-        )?.getTime() ?? 0;
-        const bTime = parseUtcToLocalDate(
-          b.last_message?.created_at || b.updated_at || 0,
-        )?.getTime() ?? 0;
+        const aTime =
+          parseUtcToLocalDate(
+            a.last_message?.created_at || a.updated_at || 0,
+          )?.getTime() ?? 0;
+        const bTime =
+          parseUtcToLocalDate(
+            b.last_message?.created_at || b.updated_at || 0,
+          )?.getTime() ?? 0;
         return bTime - aTime;
       })[0];
 
@@ -131,7 +145,7 @@ export function useGameChannelsPresentor(navigation: any) {
         last_message: latestChannel?.last_message ?? null,
       };
     });
-  }, [allChannels]);
+  }, [allChannels, channelsData, channelsPage]);
 
   useEffect(() => {
     if (notiData?.items) {

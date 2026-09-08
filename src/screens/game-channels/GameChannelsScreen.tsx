@@ -13,7 +13,7 @@ import { colors } from '@/global/theme/colors';
 import { styles } from './GameChannelsScreen.styles';
 import { useGameChannelsPresentor } from '@/features/game-channels/GameChannelsPresentor';
 import { MainHeader } from '@/components/MainHeader';
-import { formatLocalTime } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 
 type GameChannelsBodyProps = {
   channels: any[];
@@ -78,7 +78,7 @@ const GameChannelsBody = memo(function GameChannelsBody({
               )}
               <Text style={styles.timeText}>
                 {item.last_message
-                  ? formatLocalTime(item.last_message.created_at)
+                  ? formatHistoryDateTime(item.last_message.created_at)
                   : ''}
               </Text>
             </View>
@@ -130,18 +130,24 @@ const GameChannelsBody = memo(function GameChannelsBody({
       onEndReached={onLoadMore}
       onEndReachedThreshold={0.5}
       ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <MaterialIcons
-            name="sports-esports"
-            size={64}
-            color={colors.icon || '#9ca3af'}
-          />
-          <Text style={styles.emptyTitle}>No Games Available</Text>
-          <Text style={styles.emptySubtitle}>
-            There are currently no active game channels. Pull down to refresh or
-            check back later.
-          </Text>
-        </View>
+        channelsIsFetching ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <View style={styles.emptyContainer}>
+            <MaterialIcons
+              name="sports-esports"
+              size={64}
+              color={colors.icon || '#9ca3af'}
+            />
+            <Text style={styles.emptyTitle}>No Games Available</Text>
+            <Text style={styles.emptySubtitle}>
+              There are currently no active game channels. Pull down to refresh
+              or check back later.
+            </Text>
+          </View>
+        )
       }
       ListFooterComponent={
         channelsIsFetching && channelsPage > 1 ? (

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   View,
@@ -12,7 +11,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { MoneyHistoryGroupedItem } from '@/api/actions/wallet/walletAPIDataTypes';
 import { styles } from './MoneyHistoryScreen.styles';
 import { colors } from '@/global/theme/colors';
-import { formatHistoryDate } from '@/global/utils/dateUtils';
+import { formatHistoryDateTime } from '@/global/utils/dateUtils';
 import { useMoneyHistoryPresentor } from '@/features/history/MoneyHistory/MoneyHistoryPresentor';
 
 export function MoneyHistoryScreen({ navigation }: any): React.ReactNode {
@@ -27,7 +26,7 @@ export function MoneyHistoryScreen({ navigation }: any): React.ReactNode {
     return (
       <View style={styles.card}>
         <View style={[styles.row, styles.headerRow]}>
-          <Text style={styles.type}>{formatHistoryDate(item.bucket)}</Text>
+          <Text style={styles.type}>{formatHistoryDateTime(item.bucket)}</Text>
           {isPending && (
             <View style={styles.pendingBadge}>
               <Text style={styles.pendingText}>PENDING</Text>
@@ -100,7 +99,8 @@ export function MoneyHistoryScreen({ navigation }: any): React.ReactNode {
                 <Text
                   style={[
                     styles.filterButtonText,
-                    presenter.interval === item && styles.filterButtonTextActive,
+                    presenter.interval === item &&
+                      styles.filterButtonTextActive,
                   ]}
                 >
                   {item.charAt(0).toUpperCase() + item.slice(1)}
@@ -151,7 +151,9 @@ export function MoneyHistoryScreen({ navigation }: any): React.ReactNode {
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           onRefresh={presenter.onRefresh}
-          refreshing={presenter.moneyHistoryIsFetching && presenter.currentPage === 1}
+          refreshing={
+            presenter.moneyHistoryIsFetching && presenter.currentPage === 1
+          }
           onEndReached={presenter.loadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
