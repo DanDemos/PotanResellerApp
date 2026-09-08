@@ -50,6 +50,7 @@ export function formatLocalTime(
     hour: '2-digit',
     minute: '2-digit',
     ...options,
+    hour12: true,
   });
 }
 
@@ -85,6 +86,7 @@ export function formatLocalDateTime(
     hour: '2-digit',
     minute: '2-digit',
     ...options,
+    hour12: true,
   });
 }
 
