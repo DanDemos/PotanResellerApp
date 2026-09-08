@@ -13,6 +13,7 @@ import { colors } from '@/global/theme/colors';
 import { styles } from './GameChannelsScreen.styles';
 import { useGameChannelsPresentor } from '@/features/game-channels/GameChannelsPresentor';
 import { MainHeader } from '@/components/MainHeader';
+import { formatLocalTime } from '@/global/utils/dateUtils';
 
 type GameChannelsBodyProps = {
   channels: any[];
@@ -77,10 +78,7 @@ const GameChannelsBody = memo(function GameChannelsBody({
               )}
               <Text style={styles.timeText}>
                 {item.last_message
-                  ? new Date(item.last_message.created_at).toLocaleTimeString(
-                      [],
-                      { hour: '2-digit', minute: '2-digit' },
-                    )
+                  ? formatLocalTime(item.last_message.created_at)
                   : ''}
               </Text>
             </View>

@@ -28,6 +28,7 @@ export function useWalletOperations({
       isError: requestRefillIsError,
       data: requestRefillData,
       error: requestRefillError,
+      reset: requestRefillReset,
     },
   ] = useRequestRefillMutation();
 
@@ -39,6 +40,7 @@ export function useWalletOperations({
       isError: requestLoanIsError,
       data: requestLoanData,
       error: requestLoanError,
+      reset: requestLoanReset,
     },
   ] = useRequestLoanMutation();
 
@@ -50,6 +52,7 @@ export function useWalletOperations({
       isError: convertCoinsIsError,
       data: convertCoinsData,
       error: convertCoinsError,
+      reset: convertCoinsReset,
     },
   ] = useConvertMoneyToCoinMutation();
 
@@ -63,6 +66,7 @@ export function useWalletOperations({
       isError: repayLoanIsError,
       data: repayLoanData,
       error: repayLoanError,
+      reset: repayLoanReset,
     },
   ] = useRepayLoanMutation();
 
@@ -93,8 +97,15 @@ export function useWalletOperations({
       });
       userRefetch();
       if (onSuccess) onSuccess();
+      requestRefillReset();
     }
-  }, [requestRefillIsSuccess, requestRefillData, userRefetch, onSuccess]);
+  }, [
+    requestRefillIsSuccess,
+    requestRefillData,
+    userRefetch,
+    onSuccess,
+    requestRefillReset,
+  ]);
 
   useEffect(() => {
     if (requestRefillIsError && requestRefillError) {
@@ -108,8 +119,9 @@ export function useWalletOperations({
         text1: 'Error',
         text2: message,
       });
+      requestRefillReset();
     }
-  }, [requestRefillIsError, requestRefillError]);
+  }, [requestRefillIsError, requestRefillError, requestRefillReset]);
 
   useEffect(() => {
     if (requestLoanIsSuccess && requestLoanData) {
@@ -120,8 +132,15 @@ export function useWalletOperations({
       });
       userRefetch();
       if (onSuccess) onSuccess();
+      requestLoanReset();
     }
-  }, [requestLoanIsSuccess, requestLoanData, userRefetch, onSuccess]);
+  }, [
+    requestLoanIsSuccess,
+    requestLoanData,
+    userRefetch,
+    onSuccess,
+    requestLoanReset,
+  ]);
 
   useEffect(() => {
     if (requestLoanIsError && requestLoanError) {
@@ -135,8 +154,9 @@ export function useWalletOperations({
         text1: 'Error',
         text2: message,
       });
+      requestLoanReset();
     }
-  }, [requestLoanIsError, requestLoanError]);
+  }, [requestLoanIsError, requestLoanError, requestLoanReset]);
 
   useEffect(() => {
     if (convertCoinsIsSuccess && convertCoinsData) {
@@ -147,8 +167,15 @@ export function useWalletOperations({
       });
       userRefetch();
       if (onSuccess) onSuccess();
+      convertCoinsReset();
     }
-  }, [convertCoinsIsSuccess, convertCoinsData, userRefetch, onSuccess]);
+  }, [
+    convertCoinsIsSuccess,
+    convertCoinsData,
+    userRefetch,
+    onSuccess,
+    convertCoinsReset,
+  ]);
 
   useEffect(() => {
     if (convertCoinsIsError && convertCoinsError) {
@@ -162,8 +189,9 @@ export function useWalletOperations({
         text1: 'Error',
         text2: message,
       });
+      convertCoinsReset();
     }
-  }, [convertCoinsIsError, convertCoinsError]);
+  }, [convertCoinsIsError, convertCoinsError, convertCoinsReset]);
 
   useEffect(() => {
     if (repayLoanIsSuccess && repayLoanData) {
@@ -174,8 +202,15 @@ export function useWalletOperations({
       });
       userRefetch();
       if (onSuccess) onSuccess();
+      repayLoanReset();
     }
-  }, [repayLoanIsSuccess, repayLoanData, userRefetch, onSuccess]);
+  }, [
+    repayLoanIsSuccess,
+    repayLoanData,
+    userRefetch,
+    onSuccess,
+    repayLoanReset,
+  ]);
 
   useEffect(() => {
     if (repayLoanIsError && repayLoanError) {
@@ -189,8 +224,9 @@ export function useWalletOperations({
         text1: 'Error',
         text2: message,
       });
+      repayLoanReset();
     }
-  }, [repayLoanIsError, repayLoanError]);
+  }, [repayLoanIsError, repayLoanError, repayLoanReset]);
 
   // Handler Functions
   const handleConfirmRefill = useCallback(async (

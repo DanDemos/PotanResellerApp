@@ -6,6 +6,7 @@ import {
   NotificationItem,
   NotificationMeta,
 } from '@/api/actions/user/userAPIDataTypes';
+import { parseUtcToLocalDate } from '@/global/utils/dateUtils';
 
 function getNotificationMeta(item: NotificationItem): NotificationMeta | undefined {
   return item.meta ?? item.data?.meta;
@@ -110,12 +111,12 @@ export function useGameChannelsPresentor(navigation: any) {
         : [];
 
       const latestChannel = [...chatChannels].sort((a, b) => {
-        const aTime = new Date(
+        const aTime = parseUtcToLocalDate(
           a.last_message?.created_at || a.updated_at || 0,
-        ).getTime();
-        const bTime = new Date(
+        )?.getTime() ?? 0;
+        const bTime = parseUtcToLocalDate(
           b.last_message?.created_at || b.updated_at || 0,
-        ).getTime();
+        )?.getTime() ?? 0;
         return bTime - aTime;
       })[0];
 

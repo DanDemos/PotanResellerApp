@@ -1,10 +1,11 @@
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
   FlatList,
   TextInput,
   TouchableOpacity,
+  Pressable,
   Keyboard,
   StatusBar,
   ActivityIndicator,
@@ -14,6 +15,8 @@ import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Toast from 'react-native-toast-message';
 import { colors } from '@/global/theme/colors';
 import { styles } from './ChatScreen.styles';
 import { useSelector } from 'react-redux';
@@ -24,6 +27,7 @@ import {
 } from '@/api/actions/gameChannel/gameChannelAPIDataTypes';
 import Sound from 'react-native-sound';
 import { useChatKeyboardPadding } from './useChatKeyboardPadding';
+import { formatLocalTime } from '@/global/utils/dateUtils';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -45,6 +49,23 @@ import {
   isProductListPayload,
   useChatPresentor,
 } from '@/features/chat/ChatPresentor';
+
+function getMessageCopyText(item: Message): string {
+  if (
+    isProductListPayload(item.parsed_payload) &&
+    item.parsed_payload.products.length > 0
+  ) {
+    return item.parsed_payload.products
+      .map((product, index) => {
+        const label = index + 1;
+        const coins = formatCoinAmount(product.cost_price);
+        return `(${label}) ${product.product_name}: ${coins} coins`;
+      })
+      .join('\n');
+  }
+
+  return item.body?.trim() ?? '';
+}
 
 export function ChatScreen(): React.ReactNode {
   const route = useRoute<any>();
@@ -84,6 +105,20 @@ export function ChatScreen(): React.ReactNode {
     return () => {
       showSubscription.remove();
     };
+  }, []);
+
+  const copyMessageToClipboard = useCallback((item: Message) => {
+    const text = getMessageCopyText(item);
+    if (!text) {
+      return;
+    }
+
+    Clipboard.setString(text);
+    Toast.show({
+      type: 'success',
+      text1: 'Copied',
+      text2: 'Message copied to clipboard.',
+    });
   }, []);
 
   function renderProductList(
@@ -150,30 +185,32 @@ export function ChatScreen(): React.ReactNode {
           isUser ? styles.userMessageContainer : styles.supportMessageContainer,
         ]}
       >
-        {productList ? (
-          renderProductList(productList)
-        ) : (
-          <View
-            style={[
-              styles.messageBubble,
-              isUser ? styles.userBubble : styles.supportBubble,
-            ]}
-          >
-            <Text
+        <Pressable
+          onLongPress={() => copyMessageToClipboard(item)}
+          delayLongPress={350}
+        >
+          {productList ? (
+            renderProductList(productList)
+          ) : (
+            <View
               style={[
-                styles.messageText,
-                isUser ? styles.userMessageText : styles.supportMessageText,
+                styles.messageBubble,
+                isUser ? styles.userBubble : styles.supportBubble,
               ]}
             >
-              {item.body}
-            </Text>
-          </View>
-        )}
+              <Text
+                style={[
+                  styles.messageText,
+                  isUser ? styles.userMessageText : styles.supportMessageText,
+                ]}
+              >
+                {item.body}
+              </Text>
+            </View>
+          )}
+        </Pressable>
         <Text style={styles.timestamp}>
-          {new Date(item.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+          {formatLocalTime(item.created_at)}
         </Text>
       </View>
     );
