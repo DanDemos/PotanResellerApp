@@ -32,7 +32,9 @@ export type CustomProductPurchaseSuccessMeta = {
   kind: 'custom_product_purchase_success';
   custom_product_id: number;
   custom_product_purchase_id: number;
-  sku_code: string;
+  /** Single code, or multiple codes joined with ", " (codes may themselves end with ",") */
+  sku_code?: string;
+  sku_codes?: string[];
   amount_deducted: number;
   product_name: string;
 };

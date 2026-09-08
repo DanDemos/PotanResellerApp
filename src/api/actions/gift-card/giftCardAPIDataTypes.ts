@@ -80,32 +80,41 @@ export type PurchaseGiftCardRequest = {
   quantity?: number;
 };
 
-export type PurchaseGiftCardResponse = {
-  purchase: {
+export type PurchasedGiftCardSku = {
+  id: number;
+  code: string;
+};
+
+export type PurchasedGiftCardItem = {
+  id: number;
+  custom_product_id: number;
+  user_id: number;
+  image_path: string | null;
+  status: string;
+  approved_by: number | null;
+  approved_at: string | null;
+  sku_id: number | null;
+  created_at: string;
+  updated_at: string;
+  custom_product: {
     id: number;
-    custom_product_id: number;
-    user_id: number;
+    name: string;
     image_path: string | null;
-    status: string;
-    approved_by: number | null;
-    approved_at: string | null;
-    sku_id: number | null;
-    created_at: string;
-    updated_at: string;
-    custom_product: {
+    price: string | number;
+    category_id: number;
+    available_quantity?: number;
+    category: {
       id: number;
       name: string;
-      image_path: string | null;
-      price: string | number;
-      category_id: number;
-      available_quantity?: number;
-      category: {
-        id: number;
-        name: string;
-      };
     };
   };
-  sku_code: string | string[];
+  sku?: PurchasedGiftCardSku | null;
+};
+
+export type PurchaseGiftCardResponse = {
+  purchases: PurchasedGiftCardItem[];
+  sku_codes: string[];
+  quantity: number;
   amount_deducted: number;
   balance_after: number;
 };
@@ -121,6 +130,7 @@ export type KokosActivationError = {
   userId?: number;
   code?: string;
   playerId?: string;
+  error?: string;
   errorCode?: string;
   errorMessage?: string;
   codeReset?: boolean;

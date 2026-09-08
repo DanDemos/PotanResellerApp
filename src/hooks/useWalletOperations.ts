@@ -76,13 +76,20 @@ export function useWalletOperations({
           ? `${money_amount || 0} MMK`
           : `${coins_amount ?? money_amount ?? 0} coins`;
       const isPending = !auto_approved || status === 'pending';
+      const isMoney = wallet_type === 'money';
 
       Toast.show({
         type: 'success',
-        text1: isPending ? 'Refill Request Sent' : 'Refill Success',
+        text1: isPending
+          ? 'Refill Request Sent'
+          : isMoney
+            ? 'Refill Success'
+            : 'Request Sent',
         text2: isPending
           ? `Your request for ${amountLabel} is pending admin approval.`
-          : `${amountLabel} has been added to your balance.`,
+          : isMoney
+            ? `${amountLabel} has been added to your balance.`
+            : `Request to top up ${amountLabel} has been sent.`,
       });
       userRefetch();
       if (onSuccess) onSuccess();

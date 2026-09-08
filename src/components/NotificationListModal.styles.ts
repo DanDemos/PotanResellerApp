@@ -43,9 +43,22 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   notificationItem: {
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingLeft: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  notificationItemUnread: {
+    backgroundColor: colors.primaryLight,
+  },
+  unreadIndicator: {
+    width: 3,
+    borderRadius: 2,
+    backgroundColor: colors.primary,
+    marginRight: 10,
   },
   notificationContent: {
     flex: 1,
@@ -58,10 +71,13 @@ export const styles = StyleSheet.create({
   },
   notificationTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.textDark,
     flex: 1,
     marginRight: 8,
+  },
+  notificationTitleUnread: {
+    fontWeight: '700',
   },
   notificationTime: {
     fontSize: 11,
@@ -82,15 +98,6 @@ export const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
     marginLeft: 4,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-    position: 'absolute',
-    top: 12,
-    right: 12,
   },
   listEmpty: {
     padding: 24,

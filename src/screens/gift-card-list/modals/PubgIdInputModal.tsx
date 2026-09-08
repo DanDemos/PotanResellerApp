@@ -49,7 +49,7 @@ export function PubgIdInputModal({
             </TouchableOpacity>
           </View>
           <Text style={styles.modalSubtitle}>
-            Enter your PUBG ID to auto top up after purchase.
+            Enter your PUBG ID to auto redeem after purchase.
           </Text>
 
           <Text style={styles.inputLabel}>PUBG ID</Text>

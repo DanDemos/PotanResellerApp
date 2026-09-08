@@ -15,18 +15,21 @@ function isPubgCategory(giftCard: GiftCard): boolean {
 }
 
 function normalizeGiftCardCodes(
-  skuCode: PurchaseGiftCardResponse['sku_code'],
+  purchaseResult: PurchaseGiftCardResponse,
 ): string[] {
-  if (!skuCode) {
-    return [];
+  if (Array.isArray(purchaseResult.sku_codes) && purchaseResult.sku_codes.length > 0) {
+    return purchaseResult.sku_codes
+      .map(code => String(code).trim())
+      .filter(code => code.length > 0);
   }
 
-  if (Array.isArray(skuCode)) {
-    return skuCode.map(code => String(code)).filter(code => code.trim().length > 0);
+  if (Array.isArray(purchaseResult.purchases)) {
+    return purchaseResult.purchases
+      .map(purchase => purchase.sku?.code?.trim() ?? '')
+      .filter(code => code.length > 0);
   }
 
-  const singleCode = String(skuCode).trim();
-  return singleCode ? [singleCode] : [];
+  return [];
 }
 
 function parseKokosMessage(rawMessage: string | undefined): string {
@@ -38,6 +41,9 @@ function parseKokosMessage(rawMessage: string | undefined): string {
     const parsed = JSON.parse(rawMessage) as KokosActivationError;
     if (parsed.errorMessage) {
       return parsed.errorMessage;
+    }
+    if (typeof parsed.error === 'string' && parsed.error.trim().length > 0) {
+      return parsed.error.trim();
     }
     if (parsed.errorCode) {
       return parsed.errorCode.replace(/_/g, ' ');
@@ -71,6 +77,38 @@ function getRtkErrorData(err: unknown): RedeemKokosResponse | undefined {
   return undefined;
 }
 
+function getRtkErrorStatus(err: unknown): number | undefined {
+  if (err && typeof err === 'object' && 'status' in err) {
+    const status = (err as { status?: unknown }).status;
+    return typeof status === 'number' ? status : undefined;
+  }
+  return undefined;
+}
+
+function getRedeemErrorToast(
+  errOrPayload: unknown,
+): { text1: string; text2: string } {
+  const data =
+    getRtkErrorData(errOrPayload) ??
+    (errOrPayload && typeof errOrPayload === 'object' && 'success' in errOrPayload
+      ? (errOrPayload as RedeemKokosResponse)
+      : undefined);
+  const status = getRtkErrorStatus(errOrPayload) ?? data?.data?.status;
+  const text2 = getRedeemErrorMessage(data);
+
+  if (status === 402) {
+    return {
+      text1: 'Auto Redeem Unavailable',
+      text2: 'Service subscription expired. Please contact admin.',
+    };
+  }
+
+  return {
+    text1: 'Auto Redeem Failed',
+    text2,
+  };
+}
+
 export function useGiftCardListPresentor(navigation: any, categoryId: number) {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
@@ -83,6 +121,10 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
   const [pendingPubgId, setPendingPubgId] = useState<string | null>(null);
   const [isGiftCardCodesModalVisible, setIsGiftCardCodesModalVisible] = useState(false);
   const [purchasedGiftCardCodes, setPurchasedGiftCardCodes] = useState<string[]>([]);
+  const [isTopUpErrorModalVisible, setIsTopUpErrorModalVisible] = useState(false);
+  const [topUpErrorTitle, setTopUpErrorTitle] = useState('Auto Redeem Failed');
+  const [topUpErrorMessage, setTopUpErrorMessage] = useState('');
+  const [pendingCodesAfterError, setPendingCodesAfterError] = useState<string[]>([]);
 
   const interactor = useGiftCardListInteractor(categoryId, page, perPage);
   const router = useGiftCardListRouter(navigation);
@@ -123,8 +165,8 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
       }
 
       Alert.alert(
-        'Auto Top Up',
-        'Would you like to auto top up to your PUBG account?',
+        'Auto Redeem',
+        'Would you like to auto redeem to your PUBG account?',
         [
           {
             text: 'Yes',
@@ -170,6 +212,25 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
     setIsGiftCardCodesModalVisible(true);
   }, []);
 
+  const showTopUpErrorModal = useCallback(
+    (title: string, message: string, codes: string[]) => {
+      setTopUpErrorTitle(title);
+      setTopUpErrorMessage(message);
+      setPendingCodesAfterError(codes);
+      setIsTopUpErrorModalVisible(true);
+    },
+    [],
+  );
+
+  const handleTopUpErrorViewCodes = useCallback(() => {
+    const codes = pendingCodesAfterError;
+    setIsTopUpErrorModalVisible(false);
+    setTopUpErrorTitle('Auto Redeem Failed');
+    setTopUpErrorMessage('');
+    setPendingCodesAfterError([]);
+    showGiftCardCodesModal(codes);
+  }, [pendingCodesAfterError, showGiftCardCodesModal]);
+
   const handlePubgIdSubmit = useCallback(() => {
     const trimmedPubgId = pubgId.trim();
     if (!trimmedPubgId) {
@@ -190,7 +251,10 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
   }, [pubgId, selectedGiftCard]);
 
   const redeemGiftCard = useCallback(
-    async (code: string, accountId: string) => {
+    async (
+      code: string,
+      accountId: string,
+    ): Promise<{ ok: true } | { ok: false; text1: string; text2: string }> => {
       try {
         const redeemResult = await interactor
           .redeemKokos({
@@ -200,12 +264,8 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
           .unwrap();
 
         if (redeemResult.success === false || redeemResult.error === true) {
-          Toast.show({
-            type: 'error',
-            text1: 'Top Up Failed',
-            text2: getRedeemErrorMessage(redeemResult),
-          });
-          return;
+          const toast = getRedeemErrorToast(redeemResult);
+          return { ok: false, text1: toast.text1, text2: toast.text2 };
         }
 
         const successMessage = redeemResult.message
@@ -214,15 +274,13 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
 
         Toast.show({
           type: 'success',
-          text1: 'Top Up Successful',
+          text1: 'Auto Redeem Successful',
           text2: successMessage,
         });
+        return { ok: true };
       } catch (err: unknown) {
-        Toast.show({
-          type: 'error',
-          text1: 'Top Up Failed',
-          text2: getRedeemErrorMessage(getRtkErrorData(err)),
-        });
+        const toast = getRedeemErrorToast(err);
+        return { ok: false, text1: toast.text1, text2: toast.text2 };
       }
     },
     [interactor],
@@ -239,29 +297,45 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
         .unwrap();
 
       const accountIdForTopUp = pendingPubgId;
-      const giftCardCodes = normalizeGiftCardCodes(purchaseResult.sku_code);
+      const giftCardCodes = normalizeGiftCardCodes(purchaseResult);
 
       interactor.balanceRefetch();
       interactor.coinsRefetch();
       closeBuyModal();
-
-      showGiftCardCodesModal(giftCardCodes);
 
       if (accountIdForTopUp) {
         if (giftCardCodes.length === 0) {
           Toast.show({
             type: 'error',
             text1: 'Purchase Successful',
-            text2: 'Purchase completed, but no gift card code was returned for top up.',
+            text2: 'Purchase completed, but no gift card code was returned for auto redeem.',
           });
           return;
         }
 
+        let lastError: { text1: string; text2: string } | null = null;
         for (const code of giftCardCodes) {
-          await redeemGiftCard(code, accountIdForTopUp);
+          const redeemResult = await redeemGiftCard(code, accountIdForTopUp);
+          if (!redeemResult.ok) {
+            lastError = {
+              text1: redeemResult.text1,
+              text2: redeemResult.text2,
+            };
+          }
+        }
+
+        if (lastError) {
+          Toast.show({
+            type: 'error',
+            text1: lastError.text1,
+            text2: lastError.text2,
+          });
+          showTopUpErrorModal(lastError.text1, lastError.text2, giftCardCodes);
         }
         return;
       }
+
+      showGiftCardCodesModal(giftCardCodes);
 
       if (giftCardCodes.length === 0) {
         Toast.show({
@@ -294,6 +368,7 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
     pendingPubgId,
     redeemGiftCard,
     showGiftCardCodesModal,
+    showTopUpErrorModal,
   ]);
 
   const handleLoadMore = useCallback(() => {
@@ -329,6 +404,10 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
       isGiftCardCodesModalVisible,
       purchasedGiftCardCodes,
       closeGiftCardCodesModal,
+      isTopUpErrorModalVisible,
+      topUpErrorTitle,
+      topUpErrorMessage,
+      handleTopUpErrorViewCodes,
     }),
     [
       interactor,
@@ -349,6 +428,10 @@ export function useGiftCardListPresentor(navigation: any, categoryId: number) {
       isGiftCardCodesModalVisible,
       purchasedGiftCardCodes,
       closeGiftCardCodesModal,
+      isTopUpErrorModalVisible,
+      topUpErrorTitle,
+      topUpErrorMessage,
+      handleTopUpErrorViewCodes,
     ],
   );
 }

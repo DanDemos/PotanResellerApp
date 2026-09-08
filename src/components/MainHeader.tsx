@@ -5,6 +5,7 @@ import { colors } from '@/global/theme/colors';
 import { styles as appStyles } from '@/App.styles';
 import { styles } from './MainHeader.styles';
 import { NotificationListModal } from './NotificationListModal';
+import { GiftCardCodesModal } from '@/screens/gift-card-list/modals/GiftCardCodesModal';
 
 type MainHeaderProps = {
   title: string;
@@ -61,6 +62,8 @@ export function MainHeader({
         onClose={() => setShowNotifications(false)}
         presenter={presenter}
       />
+
+      <GiftCardCodesModal presenter={presenter} />
     </View>
   );
 }

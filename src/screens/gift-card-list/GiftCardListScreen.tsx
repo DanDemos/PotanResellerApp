@@ -18,6 +18,7 @@ import { getImageUrl } from '@/global/utils/imageUtils';
 import { BuyGiftCardModal } from './modals/BuyGiftCardModal';
 import { PubgIdInputModal } from './modals/PubgIdInputModal';
 import { GiftCardCodesModal } from './modals/GiftCardCodesModal';
+import { TopUpErrorModal } from './modals/TopUpErrorModal';
 
 export function GiftCardListScreen({
   navigation,
@@ -162,6 +163,7 @@ export function GiftCardListScreen({
 
       <BuyGiftCardModal presenter={presenter} />
       <PubgIdInputModal presenter={presenter} />
+      <TopUpErrorModal presenter={presenter} />
       <GiftCardCodesModal presenter={presenter} />
     </SafeAreaView>
   );

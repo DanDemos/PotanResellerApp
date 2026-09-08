@@ -25,12 +25,7 @@ type NotificationListModalProps = {
     notiIsFetching: boolean;
     notiPage: number;
     notiIsLoading: boolean;
-    getNotificationMeta: (item: NotificationItem) =>
-      | { kind?: string }
-      | undefined;
-    isCustomProductPurchaseSuccessMeta: (
-      meta: { kind?: string } | undefined,
-    ) => boolean;
+    getPurchaseSuccessCodes: (item: NotificationItem) => string[];
   };
 };
 
@@ -75,19 +70,31 @@ export function NotificationListModal({
   }: {
     item: NotificationItem;
   }): React.ReactElement {
-    const meta = presenter.getNotificationMeta(item);
-    const canCopySkuCode = presenter.isCustomProductPurchaseSuccessMeta(meta);
+    const hasGiftCardCodes = presenter.getPurchaseSuccessCodes(item).length > 0;
+    const isUnread = !item.read_at;
 
     return (
       <TouchableOpacity
-        style={styles.notificationItem}
-        onPress={() => presenter.handleNotificationClick(item)}
+        style={[
+          styles.notificationItem,
+          isUnread && styles.notificationItemUnread,
+        ]}
+        onPress={() => {
+          presenter.handleNotificationClick(item);
+          handleClose();
+        }}
         activeOpacity={0.7}
       >
-        {!item.read_at && <View style={styles.unreadDot} />}
+        {isUnread ? <View style={styles.unreadIndicator} /> : null}
         <View style={styles.notificationContent}>
           <View style={styles.notificationTop}>
-            <Text style={styles.notificationTitle} numberOfLines={1}>
+            <Text
+              style={[
+                styles.notificationTitle,
+                isUnread && styles.notificationTitleUnread,
+              ]}
+              numberOfLines={1}
+            >
               {item.title}
             </Text>
             <Text style={styles.notificationTime}>
@@ -100,14 +107,14 @@ export function NotificationListModal({
           <Text style={styles.notificationBody} numberOfLines={2}>
             {item.message}
           </Text>
-          {canCopySkuCode ? (
+          {hasGiftCardCodes ? (
             <View style={styles.copyHintRow}>
               <MaterialIcons
-                name="content-copy"
+                name="card-giftcard"
                 size={14}
                 color={colors.primary}
               />
-              <Text style={styles.copyHintText}>Tap to copy code</Text>
+              <Text style={styles.copyHintText}>View gift card codes</Text>
             </View>
           ) : null}
         </View>

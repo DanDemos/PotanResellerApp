@@ -1,6 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import Clipboard from '@react-native-clipboard/clipboard';
-import Toast from 'react-native-toast-message';
 import { useGameChannelsInteractor } from './GameChannelsInteractor';
 import { useGameChannelsRouter } from './GameChannelsRouter';
 import {
@@ -16,11 +14,50 @@ function getNotificationMeta(item: NotificationItem): NotificationMeta | undefin
 function isCustomProductPurchaseSuccessMeta(
   meta: NotificationMeta | undefined,
 ): meta is CustomProductPurchaseSuccessMeta {
-  return (
-    meta?.kind === 'custom_product_purchase_success' &&
-    typeof (meta as CustomProductPurchaseSuccessMeta).sku_code === 'string' &&
-    (meta as CustomProductPurchaseSuccessMeta).sku_code.trim().length > 0
-  );
+  return meta?.kind === 'custom_product_purchase_success';
+}
+
+/**
+ * Codes may intentionally end with "," (admin-entered).
+ * Multiple codes are joined with ", ", which can look like double commas.
+ */
+function splitJoinedGiftCardCodes(raw: string): string[] {
+  return raw
+    .split(', ')
+    .map(code => code.trim())
+    .filter(code => code.length > 0);
+}
+
+function parseCodesFromMessage(message: string | undefined): string[] {
+  if (!message) {
+    return [];
+  }
+
+  const match = message.match(/Code:\s*(.+)$/i);
+  if (!match?.[1]) {
+    return [];
+  }
+
+  return splitJoinedGiftCardCodes(match[1].trim());
+}
+
+function getPurchaseSuccessCodes(item: NotificationItem): string[] {
+  const meta = getNotificationMeta(item);
+  if (!isCustomProductPurchaseSuccessMeta(meta)) {
+    return [];
+  }
+
+  if (Array.isArray(meta.sku_codes) && meta.sku_codes.length > 0) {
+    return meta.sku_codes
+      .map(code => String(code).trim())
+      .filter(code => code.length > 0);
+  }
+
+  if (typeof meta.sku_code === 'string' && meta.sku_code.trim().length > 0) {
+    return splitJoinedGiftCardCodes(meta.sku_code.trim());
+  }
+
+  return parseCodesFromMessage(item.message || item.data?.message);
 }
 
 export function useGameChannelsPresentor(navigation: any) {
@@ -28,6 +65,11 @@ export function useGameChannelsPresentor(navigation: any) {
   const [channelsPage, setChannelsPage] = useState(1);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [allChannels, setAllChannels] = useState<any[]>([]);
+  const [isGiftCardCodesModalVisible, setIsGiftCardCodesModalVisible] =
+    useState(false);
+  const [purchasedGiftCardCodes, setPurchasedGiftCardCodes] = useState<
+    string[]
+  >([]);
 
   const interactor = useGameChannelsInteractor(notiPage, channelsPage);
   const router = useGameChannelsRouter(navigation);
@@ -68,8 +110,12 @@ export function useGameChannelsPresentor(navigation: any) {
         : [];
 
       const latestChannel = [...chatChannels].sort((a, b) => {
-        const aTime = new Date(a.last_message?.created_at || a.updated_at || 0).getTime();
-        const bTime = new Date(b.last_message?.created_at || b.updated_at || 0).getTime();
+        const aTime = new Date(
+          a.last_message?.created_at || a.updated_at || 0,
+        ).getTime();
+        const bTime = new Date(
+          b.last_message?.created_at || b.updated_at || 0,
+        ).getTime();
         return bTime - aTime;
       })[0];
 
@@ -118,17 +164,24 @@ export function useGameChannelsPresentor(navigation: any) {
     notiRefetch();
   }, [notiRefetch]);
 
+  const showGiftCardCodesModal = useCallback((codes: string[]) => {
+    if (codes.length === 0) {
+      return;
+    }
+    setPurchasedGiftCardCodes(codes);
+    setIsGiftCardCodesModalVisible(true);
+  }, []);
+
+  const closeGiftCardCodesModal = useCallback(() => {
+    setIsGiftCardCodesModalVisible(false);
+    setPurchasedGiftCardCodes([]);
+  }, []);
+
   const handleNotificationClick = useCallback(
     async (item: NotificationItem) => {
-      const meta = getNotificationMeta(item);
-
-      if (isCustomProductPurchaseSuccessMeta(meta)) {
-        Clipboard.setString(meta.sku_code.trim());
-        Toast.show({
-          type: 'success',
-          text1: 'Code Copied',
-          text2: meta.sku_code.trim(),
-        });
+      const codes = getPurchaseSuccessCodes(item);
+      if (codes.length > 0) {
+        showGiftCardCodesModal(codes);
       }
 
       if (!item.read_at) {
@@ -139,7 +192,7 @@ export function useGameChannelsPresentor(navigation: any) {
         }
       }
     },
-    [markAsRead],
+    [markAsRead, showGiftCardCodesModal],
   );
 
   const handleMarkAllAsRead = useCallback(async () => {
@@ -183,5 +236,10 @@ export function useGameChannelsPresentor(navigation: any) {
     processedChannels,
     isCustomProductPurchaseSuccessMeta,
     getNotificationMeta,
+    getPurchaseSuccessCodes,
+    isGiftCardCodesModalVisible,
+    purchasedGiftCardCodes,
+    closeGiftCardCodesModal,
+    showGiftCardCodesModal,
   };
 }
