@@ -146,11 +146,13 @@ export function NotificationListModal({
             )}
           </View>
           <FlatList
+            style={styles.notificationList}
             data={presenter.notifications}
             keyExtractor={item => item.id.toString()}
             renderItem={renderNotificationItem}
             onEndReached={presenter.handleLoadMoreNoti}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.3}
+            nestedScrollEnabled
             onRefresh={presenter.handleRefreshNoti}
             refreshing={presenter.notiIsFetching && presenter.notiPage === 1}
             ListFooterComponent={

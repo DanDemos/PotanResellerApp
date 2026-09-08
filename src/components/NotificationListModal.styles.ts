@@ -23,6 +23,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  notificationList: {
+    maxHeight: 348,
+  },
   dropdownHeader: {
     padding: 12,
     flexDirection: 'row',

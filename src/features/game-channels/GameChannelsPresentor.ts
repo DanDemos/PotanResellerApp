@@ -164,12 +164,17 @@ export function useGameChannelsPresentor(navigation: any) {
   }, [notiData, notiPage]);
 
   const handleLoadMoreNoti = useCallback(() => {
-    if (
-      !notiIsFetching &&
-      notiData &&
-      notiData.last_page &&
-      notiPage < notiData.last_page
-    ) {
+    if (notiIsFetching || !notiData) {
+      return;
+    }
+
+    const perPage = notiData.per_page ?? 15;
+    const hasMorePages =
+      typeof notiData.last_page === 'number'
+        ? notiPage < notiData.last_page
+        : (notiData.items?.length ?? 0) >= perPage;
+
+    if (hasMorePages) {
       setNotiPage(prev => prev + 1);
     }
   }, [notiIsFetching, notiData, notiPage]);
